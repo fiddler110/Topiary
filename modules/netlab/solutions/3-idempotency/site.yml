@@ -1,0 +1,50 @@
+- name: HTTPS on the web server
+  hosts: web:&auto
+  gather_facts: false
+  vars:
+    tls_dir: /etc/nginx/tls
+  tasks:
+    - name: TLS directory
+      ansible.builtin.file:
+        path: "{{ tls_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Self-signed certificate (made once)
+      ansible.builtin.command:
+        argv:
+          - openssl
+          - req
+          - -x509
+          - -newkey
+          - rsa:2048
+          - -nodes
+          - -days
+          - "365"
+          - -subj
+          - /CN=web
+          - -keyout
+          - "{{ tls_dir }}/web.key"
+          - -out
+          - "{{ tls_dir }}/web.crt"
+        creates: "{{ tls_dir }}/web.crt"
+
+    - name: Key readable by root only
+      ansible.builtin.file:
+        path: "{{ tls_dir }}/web.key"
+        mode: "0600"
+
+    - name: HTTPS server block
+      ansible.builtin.template:
+        src: tls.conf.j2
+        dest: /etc/nginx/http.d/tls.conf
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: nginx accepts the config
+      ansible.builtin.command: nginx -t
+      changed_when: false
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.command: nginx -s reload

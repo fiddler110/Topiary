@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+# dojo-summary: check your netlab pod against a lab's goals: dojo netlab check <lab>
+"""dojo netlab check <lab>: ask netlab-checker whether your pod meets the lab's goals.
+
+    dojo netlab check 2      lab 2 (labs 0-8, S1-S3)
+
+Posts to netlab-checker on workshop_lab as the account, proven by its own key (~/.config/dojo/netlab-check-key).
+Prints one line per assertion. Exits 0 if all pass, 1 if some fail, 2 if it could not ask.
+"""
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+ADDR = os.environ.get("NETLAB_CHECKER_ADDR", "http://netlab-checker:8080")
+CONF = os.path.expanduser("~/.config/dojo")
+
+
+def read(name):
+    try:
+        with open(os.path.join(CONF, name), encoding="ascii") as fh:
+            return fh.read().strip()
+    except (OSError, ValueError):
+        return ""
+
+
+def clean(text):
+    return "".join(c if " " <= c <= "~" else "?" for c in str(text))
+
+
+def main(argv):
+    if len(argv) != 2 or argv[0] != "check":
+        print(__doc__.strip().splitlines()[0])
+        return 2
+    user = os.environ.get("NETLAB_CHECK_USER") or read("netlab-check-user") or os.environ.get("USER", "")
+    key = read("netlab-check-key")
+    if not key:
+        print("No check key found (~/.config/dojo/netlab-check-key). Ask the facilitator.", file=sys.stderr)
+        return 2
+    req = urllib.request.Request(ADDR + "/check", method="POST", headers={"Content-Type": "application/json"},
+                                 data=json.dumps({"user": user, "key": key, "lab": argv[1]}).encode())
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            res = json.load(r)
+    except urllib.error.HTTPError as e:
+        try:
+            msg = json.load(e).get("error", "")
+        except ValueError:
+            msg = ""
+        print(f"The checker said no ({e.code}): {clean(msg)}", file=sys.stderr)
+        return 2
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        print(f"Could not reach the checker: {clean(e)}", file=sys.stderr)
+        return 2
+    for a in res.get("assertions", []):
+        print(f"  {'PASS' if a.get('ok') else 'FAIL'}  {clean(a.get('name'))}: {clean(a.get('detail'))}")
+    print(f"Lab {clean(res.get('lab'))}: " + ("all checks passed." if res.get("ok") else "some checks failed."))
+    return 0 if res.get("ok") else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

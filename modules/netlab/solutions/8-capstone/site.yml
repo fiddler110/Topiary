@@ -1,0 +1,6 @@
+# Rebuild branch a from the baseline: web server first, firewall last (the lockdown tests need the web server).
+- import_playbook: ../1-first-playbook/site.yml
+- import_playbook: ../3-idempotency/site.yml
+- import_playbook: ../4-templates-validate/site.yml
+- import_playbook: ../2-variables-loops/site.yml
+- import_playbook: ../6-lockdown/site.yml

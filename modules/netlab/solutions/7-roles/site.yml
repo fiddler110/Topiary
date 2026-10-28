@@ -1,0 +1,12 @@
+- name: Web servers
+  hosts: web:&auto
+  gather_facts: false
+  roles:
+    - role: web
+
+- name: Firewall
+  hosts: fw:&auto
+  serial: 1
+  gather_facts: false
+  roles:
+    - role: firewall

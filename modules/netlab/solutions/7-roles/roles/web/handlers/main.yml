@@ -1,0 +1,6 @@
+---
+- name: Reload nginx
+  ansible.builtin.command: nginx -s reload
+
+- name: Reload sshd
+  ansible.builtin.command: pkill -HUP -x sshd

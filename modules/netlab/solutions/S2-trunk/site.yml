@@ -1,0 +1,60 @@
+# Reference solution, lab S2: the trunk and router-on-a-stick. Run from the lab folder: ansible-playbook site.yml
+- name: VLANs, access ports and the trunk on the switch
+  hosts: sw:&auto
+  serial: 1
+  gather_facts: false
+  vars_files: [vlans.yml]
+  vars:
+    names: "{{ switch_ports | map(attribute='name') | list }}"
+    want: "{{ switch_ports | sort(attribute='name') }}"
+    # What the switch has now, in the same shape as `want`.
+    have: >-
+      {%- set out = [] -%}
+      {%- for e in (bvlan.stdout | from_json) | sort(attribute='ifname') if e.ifname in names -%}
+        {%- set pv = [0] -%}
+        {%- for v in e.vlans -%}
+          {%- if 'PVID' in (v.flags | default([])) -%}{%- set _ = pv.append(v.vlan) -%}{%- endif -%}
+        {%- endfor -%}
+        {%- set _ = out.append({'name': e.ifname, 'vids': e.vlans | map(attribute='vlan') | sort | list, 'pvid': pv | last}) -%}
+      {%- endfor -%}
+      {{ out | to_json }}
+  tasks:
+    - name: Read the VLAN table
+      ansible.builtin.command: bridge -j vlan show
+      register: bvlan
+      changed_when: false
+
+    - name: Is it already right?
+      ansible.builtin.set_fact:
+        in_sync: "{{ (have | from_json) == want }}"
+
+    - name: Write the script that sets the VLANs
+      ansible.builtin.template:
+        src: switch.sh.j2
+        dest: /root/switch-vlans.sh
+        mode: "0700"
+
+    - name: Apply it (only when the table differs)
+      ansible.builtin.command: sh /root/switch-vlans.sh
+      when: not in_sync
+      changed_when: true
+
+- name: The firewall's subinterfaces match the same VLAN list
+  hosts: fw:&auto
+  gather_facts: false
+  serial: 1
+  vars_files: [vlans.yml]
+  tasks:
+    - name: Read the firewall's addresses
+      ansible.builtin.command: ip -o -4 addr show
+      register: addrs
+      changed_when: false
+
+    - name: Every VLAN has its gateway address on a subinterface
+      ansible.builtin.assert:
+        that: item.gateway in addrs.stdout
+        fail_msg: "VLAN {{ item.id }}: {{ item.gateway }} is not configured on the firewall"
+        quiet: true
+      loop: "{{ vlans }}"
+      loop_control:
+        label: "VLAN {{ item.id }}"

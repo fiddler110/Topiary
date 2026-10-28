@@ -1,0 +1,38 @@
+# Lab 6: lock the network down, test it, and roll back if a test fails.
+- name: Lock down the firewall
+  hosts: fw:&auto
+  serial: 1                      # one firewall at a time
+  gather_facts: false
+  vars:
+    allowed_ports: [80, 443]     # TODO 1: delete this line once group_vars/fw.yml (lab 2) defines it
+    pc_net: 10.10.10.0/24
+    pc_node: "pc-a-{{ pod }}"
+  tasks:
+    - name: Lock down, test, roll back on failure
+      block:
+        # TODO 2: the allow rules for allowed_ports (as in lab 2).
+        # TODO 3: in LAB, -p icmp -j DROP (ansible.builtin.iptables: chain LAB, protocol icmp, jump DROP).
+        # TODO 4: in LAB, a final rule: chain LAB, jump DROP.
+
+        # TODO 5: ansible.builtin.uri url http://{{ web_ip }}/ delegate_to {{ pc_node }}, status_code 200,
+        #         retries: 3, delay: 2, register, until: result.status == 200. Do the same for https
+        #         (validate_certs: false).
+        # TODO 6: ansible.builtin.command `ping -c 1 -W 2 {{ web_ip }}` delegated to the pc with
+        #         failed_when: false and changed_when: false; assert result.rc != 0. Same for curl on port 8080.
+        - name: TODO
+          ansible.builtin.debug:
+            msg: Replace this task.
+      rescue:
+        # TODO 7: flush the chain (ansible.builtin.command: iptables -F LAB), then ansible.builtin.fail
+        #         with a message that says the lockdown was rolled back.
+        - name: TODO
+          ansible.builtin.debug:
+            msg: Replace this task.
+      always:
+        - name: Show the rules that are in LAB now
+          ansible.builtin.command: iptables -S LAB
+          register: lab_rules
+          changed_when: false
+        - name: Print them
+          ansible.builtin.debug:
+            var: lab_rules.stdout_lines

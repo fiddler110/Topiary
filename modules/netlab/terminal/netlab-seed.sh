@@ -24,6 +24,19 @@ print(base64.b32encode(mac).decode()[:24].lower())' > "$dir/netlab-password.tmp"
   && chown "$user:$group" "$dir/netlab-password.tmp" && mv "$dir/netlab-password.tmp" "$dir/netlab-password" \
   || echo "netlab: could not write $user's pod password" >&2
 
+# The checker key (netlab-checker/checker.py check_key): same HMAC, label "netlab-check:<checker user name>". The
+# facilitator is root here but the checker knows them as FACILITATOR_USERNAME, so the name is stored beside the key.
+cuser="$user"; [ "$pod" = 00 ] && cuser="${FACILITATOR_USERNAME:-root}"
+(umask 077 && CHECK_USER="$cuser" python3 -c '
+import base64, hashlib, hmac, os
+mac = hmac.new(os.environ["STUDENT_PASSWORD_SEED"].encode(), ("netlab-check:" + os.environ["CHECK_USER"]).encode(),
+               hashlib.sha256).digest()
+print(base64.b32encode(mac).decode()[:24].lower())' > "$dir/netlab-check-key.tmp" \
+  && printf '%s\n' "$cuser" > "$dir/netlab-check-user.tmp") \
+  && chown "$user:$group" "$dir/netlab-check-key.tmp" "$dir/netlab-check-user.tmp" \
+  && mv "$dir/netlab-check-key.tmp" "$dir/netlab-check-key" && mv "$dir/netlab-check-user.tmp" "$dir/netlab-check-user" \
+  || echo "netlab: could not write $user's check key" >&2
+
 ws="$home/netlab"
 [ -e "$ws" ] && exit 0
 cp -r /usr/local/share/netlab/seed "$ws" || exit 0

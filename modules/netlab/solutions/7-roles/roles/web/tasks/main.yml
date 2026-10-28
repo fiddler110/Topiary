@@ -1,0 +1,12 @@
+---
+- name: Web page
+  ansible.builtin.import_tasks: page.yml
+  tags: [web, page]
+
+- name: HTTPS
+  ansible.builtin.import_tasks: tls.yml
+  tags: [web, tls]
+
+- name: sshd hardening
+  ansible.builtin.import_tasks: sshd.yml
+  tags: [web, sshd]

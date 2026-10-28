@@ -1,0 +1,58 @@
+- name: Password-protect /admin
+  hosts: web:&auto
+  gather_facts: false
+  vars_files:
+    - secrets.yml
+  vars:
+    htpasswd_salt: dojosalt
+  tasks:
+    - name: Hash the password (apr1, fixed salt so reruns match)
+      ansible.builtin.command:
+        argv: [openssl, passwd, -apr1, -salt, "{{ htpasswd_salt }}", "{{ admin_password }}"]
+      register: admin_hash
+      changed_when: false
+      no_log: true
+
+    - name: htpasswd file
+      ansible.builtin.copy:
+        content: "admin:{{ admin_hash.stdout }}\n"
+        dest: /etc/nginx/.htpasswd
+        owner: root
+        group: nginx
+        mode: "0640"
+      no_log: true
+      notify: Reload nginx
+
+    - name: /admin directory
+      ansible.builtin.file:
+        path: /var/www/html/admin
+        state: directory
+        mode: "0755"
+
+    - name: /admin content
+      ansible.builtin.copy:
+        content: "<!doctype html><h1>admin</h1>\n"
+        dest: /var/www/html/admin/index.html
+        mode: "0644"
+
+    - name: Location block
+      ansible.builtin.copy:
+        content: |
+          location /admin {
+            auth_basic "admin";
+            auth_basic_user_file /etc/nginx/.htpasswd;
+          }
+        dest: /etc/nginx/admin.inc
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Include it in the default server
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/http.d/default.conf
+        insertafter: 'root /var/www/html;'
+        line: '  include /etc/nginx/admin.inc;'
+      notify: Reload nginx
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.command: nginx -s reload

@@ -33,6 +33,33 @@ services:
       - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
       - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
 
+  # POST /check {user, key, lab}: runs a lab's assertions on the caller's own pod over SSH (netlab-checker/checker.py).
+  # `:-` not `:?`: ./dojo stop reads this file with the operator files only.
+  netlab-checker:
+    build:
+      context: ../modules/netlab/netlab-checker
+    image: gitopsdojo/netlab-checker:${WORKSHOP_SLUG:-local}
+    container_name: workshop_netlab_checker
+    init: true
+    environment:
+      - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
+      - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
+      - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
+      - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
+      - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
+    networks:
+      - workshop_lab
+      - netlab_mgmt
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    pids_limit: 64
+    mem_limit: 64m
+    restart: unless-stopped
+
 networks:
   # Internal: no route out, no published port. Carries Ansible's SSH from the terminal to the nodes and nothing else.
   netlab_mgmt:

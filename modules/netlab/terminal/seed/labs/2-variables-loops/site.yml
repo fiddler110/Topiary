@@ -1,0 +1,17 @@
+# Lab 2: open HTTP and HTTPS from the pc to the web server, driven by a variable list.
+- name: Open the web ports
+  hosts: fw:&auto
+  gather_facts: false
+  vars:
+    # TODO 1: the ports to open, as a list of numbers. Later, move this to group_vars/fw.yml and delete it here.
+    allowed_ports: []
+    pc_net: 10.10.10.0/24
+  tasks:
+    # TODO 2: loop over allowed_ports with ansible.builtin.iptables:
+    #   chain: LAB, protocol: tcp, source: "{{ pc_net }}", destination: "{{ web_ip }}",
+    #   destination_port: "{{ item }}", jump: ACCEPT   (rules go in LAB, appended with the default append action)
+    # TODO 3: add `when: allowed_ports | length > 0` so an empty list is skipped.
+    # TODO 4: loop_control with `label: "port {{ item }}"` keeps the output short.
+    - name: TODO
+      ansible.builtin.debug:
+        msg: Replace this task.

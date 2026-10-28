@@ -44,4 +44,4 @@ ansible-playbook compare.yml                              # the nginx config mat
 Change the name in one place (the `page_title` variable) and rerun: only the template task reports `changed`, and
 nginx reloads once. Doing that by hand on two servers means two SSH sessions and no record of what you did.
 
-Next lab: open HTTP and HTTPS through the firewall.
+Next lab: `labs/2-variables-loops/README.md` (open HTTP and HTTPS through the firewall).

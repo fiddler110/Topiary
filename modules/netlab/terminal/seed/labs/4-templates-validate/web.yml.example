@@ -1,0 +1,4 @@
+# Copy to ~/netlab/group_vars/web.yml
+sshd_max_auth_tries: 3
+sshd_login_grace_time: 20
+sshd_x11_forwarding: "no"

@@ -1,0 +1,8 @@
+# Managed by Ansible (lab 4).
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+Subsystem sftp internal-sftp
+MaxAuthTries {{ sshd_max_auth_tries }}
+LoginGraceTime {{ sshd_login_grace_time }}
+X11Forwarding {{ sshd_x11_forwarding }}

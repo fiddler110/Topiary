@@ -1,0 +1,11 @@
+#!/bin/sh
+# Managed by Ansible (lab S1). Sets each switch port to exactly the VLANs in vlans.yml.
+{% set all_vids = [1] + (vlans | map(attribute='id') | list) %}
+{% for p in switch_ports %}
+{% for v in all_vids %}
+bridge vlan del dev {{ p.name }} vid {{ v }} 2>/dev/null || true
+{% endfor %}
+{% for v in p.vids %}
+bridge vlan add dev {{ p.name }} vid {{ v }}{{ ' pvid untagged' if p.pvid == v else '' }}
+{% endfor %}
+{% endfor %}

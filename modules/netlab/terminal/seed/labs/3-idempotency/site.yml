@@ -1,0 +1,26 @@
+# Lab 3: a self-signed certificate and an HTTPS server block, safe to run twice.
+- name: HTTPS on the web server
+  hosts: web:&auto
+  gather_facts: false
+  vars:
+    tls_dir: /etc/nginx/tls
+  tasks:
+    # TODO 1: ansible.builtin.file, path {{ tls_dir }}, state: directory.
+
+    # TODO 2: ansible.builtin.command with argv for `openssl req -x509 -newkey rsa:2048 -nodes -days 365
+    #         -subj /CN=web -keyout {{ tls_dir }}/web.key -out {{ tls_dir }}/web.crt`.
+    #         Add `creates: {{ tls_dir }}/web.crt` so it is skipped when the file exists.
+
+    # TODO 3: ansible.builtin.file on web.key with mode: "0600".
+
+    # TODO 4: ansible.builtin.template src: tls.conf.j2 -> /etc/nginx/http.d/tls.conf; notify "Reload nginx".
+    #         Write tls.conf.j2 beside this file (a server block: listen 443 ssl, the two certificate lines, root).
+
+    # TODO 5: run `nginx -t` (command, changed_when: false) before the handler can fire.
+    - name: TODO
+      ansible.builtin.debug:
+        msg: Replace this task.
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.command: nginx -s reload
