@@ -174,6 +174,7 @@ structured `verify` assertion mentions `{user}`.
 | f-root | Root of the Problem | "You used the root token. Everyone has, once." | 0 | bao: any request made with a token that carries the `root` policy |
 | f-typopath | Wrong Path, Right Attitude | "No value at that path. Check the mount." | 0 | shell: `bao kv get` that printed `No value found at` (a path that isn't there) |
 | f-seal | Sealed and Loving It | "The vault is sealed. This is fine." | 0 | shell: a `bao` command that printed that the vault is sealed (a facilitator action) |
+| f-neighbour | Nosy Neighbour | "That is not your app. It is a fine app, though. Strictly a look, no touching." | 0 | shell: `curl` or `wget` to a named student's slot on `app-host:8080` (a typed `$USER` is your own and does not count; typing your own account name does, we cannot tell) |
 | f-paste | Paste Bin Energy | "A secret in the chat. It happens." | 0 | a fake secret string pasted into a shared channel (nothing observes a channel; awarded by hand from /admin) |
 
 (The cheating and "bumped into your neighbour" unlocks are shared across every workshop, so they live with the module, not here.)
@@ -224,4 +225,4 @@ Each has two hints (25% each by default) and an answer that scores zero. The che
 
 ## Totals (computed)
 
-51 core milestones (510 points) of 51 milestones (510) · 6 funny unlocks (0 points each) · 2 challenges (200) · capstone 300 · plus first blood and class-clear bonuses. Everything: 1010 points.
+51 core milestones (510 points) of 51 milestones (510) · 7 funny unlocks (0 points each) · 2 challenges (200) · capstone 300 · plus first blood and class-clear bonuses. Everything: 1010 points.

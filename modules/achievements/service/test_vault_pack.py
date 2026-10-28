@@ -305,6 +305,10 @@ class VaultAuditItems(unittest.TestCase):
         self.assertIn("f-typopath", ids(mt.shell_event(dict(cmd="bao kv get team/ap", exit=2, out="No value found at team/data/ap"))))
         self.assertNotIn("f-typopath", sh("bao kv get team/app"))
         self.assertIn("f-seal", ids(mt.shell_event(dict(cmd="bao status", exit=2, out="Error: Vault is sealed"))))
+        # peeking at a neighbour's app on app-host; the lab's own `$USER` form is not peeking
+        self.assertIn("f-neighbour", sh("curl -s http://app-host:8080/student02/"))
+        self.assertNotIn("f-neighbour", sh("curl -s http://app-host:8080/$USER/ | grep fingerprint"))
+        self.assertNotIn("f-neighbour", sh("curl http://openbao:8200/v1/sys/health"))
         m = mt.Matcher(lg.Ledger(catalog.load(PACK, SHARED)[0], lg.Config()).index)
         fixed = mt.shell_event(dict(cmd="LOG_LEVEL=DEBUG python3 app_vault.py", exit=0,
                                     out="DEBUG loaded config keys: ['api_key']"))

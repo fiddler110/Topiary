@@ -64,6 +64,22 @@
       }
     },
     {
+      "id": "f-neighbour",
+      "title": "Nosy Neighbour",
+      "joke": "That is not your app. It is a fine app, though. Strictly a look, no touching.",
+      "when": "shell: `curl` or `wget` to a named student's slot on `app-host:8080` (a typed `$USER` is your own and does not count; typing your own account name does, we cannot tell)",
+      "match": {
+        "source": "shell",
+        "cmd": [
+          "curl",
+          "wget",
+          "http",
+          "https"
+        ],
+        "regex": "app-host:8080/(?!\\$)(?:student|testuser)[0-9]+"
+      }
+    },
+    {
       "id": "f-paste",
       "title": "Paste Bin Energy",
       "joke": "A secret in the chat. It happens.",
