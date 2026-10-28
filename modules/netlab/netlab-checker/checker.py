@@ -39,6 +39,11 @@ def check_key(seed, user):
     return derive(seed, f"netlab-check:{user}")
 
 
+def view_token(seed):
+    """What netlab-view sends (X-Netlab-View-Token) to read GET /last; students never see it."""
+    return derive(seed, "netlab-view")
+
+
 def clean(text, limit=200):
     """Text safe to log or show: printable ASCII only, bounded."""
     return re.sub(r"[^\x20-\x7e]", "?", str(text))[:limit]
@@ -349,6 +354,17 @@ class RateLimit:
             return True
 
 
+# pod -> {lab: {"ok", "passed", "total", "time"}}: the latest verdict per lab, read by netlab-view.
+LAST = {}
+
+
+def remember(pod, result, store=None, now=time.time):
+    store = LAST if store is None else store
+    items = result["assertions"]
+    store.setdefault(pod, {})[result["lab"]] = {"ok": result["ok"], "passed": sum(1 for i in items if i["ok"]),
+                                                "total": len(items), "time": int(now())}
+
+
 def handle(cfg, limiter, body, runner=ssh):
     """(status, reply dict) for a decoded /check body."""
     if not isinstance(body, dict):
@@ -366,6 +382,7 @@ def handle(cfg, limiter, body, runner=ssh):
     result = run_check(cfg, pod, lab.upper() if lab.upper().startswith("S") else lab, runner)
     if result is None:
         return 400, {"error": "that lab needs the switch, which this run does not have"}
+    remember(pod, result)
     return 200, result
 
 
@@ -387,6 +404,12 @@ def make_handler(cfg, limiter, gate=threading.BoundedSemaphore(4)):
         def do_GET(self):
             if self.path == "/healthz":
                 return self._send(200, {"ok": True})
+            m = re.fullmatch(r"/last/(\d{1,4})", self.path)
+            if m:
+                given = self.headers.get("X-Netlab-View-Token") or ""
+                if not cfg.seed or not hmac.compare_digest(given.encode(), view_token(cfg.seed).encode()):
+                    return self._send(403, {"error": "not allowed"})
+                return self._send(200, {"labs": LAST.get(int(m.group(1)), {})})
             self._send(404, {"error": "not found"})
 
         def do_POST(self):

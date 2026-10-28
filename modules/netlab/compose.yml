@@ -63,6 +63,40 @@ services:
     mem_limit: 64m
     restart: unless-stopped
 
+  # Read-only page of the caller's own pod (the facilitator sees all): node state, interfaces, VLANs, LAB rules, last
+  # check results. Reuses netlab-checker/checker.py to SSH into the nodes. Route and card: extensions.json.
+  # Build context is modules/netlab/ so the image can copy checker.py; .dockerignore keeps the rest out.
+  netlab-view:
+    build:
+      context: ../modules/netlab
+      dockerfile: netlab-view/Dockerfile
+    image: gitopsdojo/netlab-view:${WORKSHOP_SLUG:-local}
+    container_name: workshop_netlab_view
+    init: true
+    environment:
+      # The page answers only requests carrying this token (set by the gateway).
+      - GATEWAY_TOKEN=${GATEWAY_TOKEN_NETLAB_VIEW:-}
+      - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
+      - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
+      - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
+      - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
+      - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
+      - NETLAB_CHECKER_URL=http://netlab-checker:8080
+    depends_on:
+      - netlab-checker
+    networks:
+      - workshop_lab
+      - netlab_mgmt
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    pids_limit: 128
+    mem_limit: 96m
+    restart: unless-stopped
+
 networks:
   # Internal: no route out, no published port. Carries Ansible's SSH from the terminal to the nodes and nothing else.
   netlab_mgmt:

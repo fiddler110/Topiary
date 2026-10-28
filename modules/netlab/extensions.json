@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "cards": [
+    { "id": "netlab-view", "label": "My Network", "desc": "Read-only view of your pod: each node's state, interfaces, VLANs and firewall rules.",
+      "href": "/netlab-view/", "icon": "cloud" }
+  ],
+  "admin_tabs": [
+    { "id": "netlab-view", "label": "Netlab Pods", "src": "/netlab-view/" }
+  ],
+  "routes": [
+    { "id": "netlab-view", "path": "/netlab-view", "upstream": "netlab-view:8080", "gate": "identity", "strip_prefix": true }
+  ],
+  "status_checks": [
+    { "label": "Netlab View", "url": "http://netlab-view:8080/readyz" }
+  ]
+}

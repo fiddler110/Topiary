@@ -200,6 +200,18 @@ class Labs(unittest.TestCase):
         self.assertIn("root@pc-a-03", seen["argv"])
         self.assertIn("ConnectTimeout=5", seen["argv"])
 
+    def test_remember_keeps_latest_verdict_per_pod_and_lab(self):
+        store = {}
+        res = {"lab": "2", "ok": False, "assertions": [{"ok": True}, {"ok": False}]}
+        checker.remember(3, res, store, now=lambda: 100)
+        self.assertEqual(store[3]["2"], {"ok": False, "passed": 1, "total": 2, "time": 100})
+        checker.remember(3, {"lab": "2", "ok": True, "assertions": [{"ok": True}]}, store, now=lambda: 200)
+        self.assertEqual(store[3]["2"]["time"], 200)
+        self.assertNotIn(4, store)
+
+    def test_view_token_differs_from_check_keys(self):
+        self.assertNotEqual(checker.view_token(SEED), checker.check_key(SEED, "student01"))
+
 
 if __name__ == "__main__":
     unittest.main()
