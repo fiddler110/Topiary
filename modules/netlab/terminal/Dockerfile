@@ -14,6 +14,8 @@ RUN set -eux; \
     /opt/ansible/bin/pip install --no-cache-dir --require-hashes -r /tmp/netlab-requirements.txt; \
     for t in ansible ansible-playbook ansible-inventory ansible-doc ansible-vault ansible-config; do \
       ln -s "/opt/ansible/bin/$t" "/usr/local/bin/$t"; done; \
+    printf '#!/bin/sh\nPATH=/opt/ansible/bin:$PATH\nexport PATH\nexec /opt/ansible/bin/ansible-lint "$@"\n' > /usr/local/bin/ansible-lint; \
+    chmod 0755 /usr/local/bin/ansible-lint; \
     rm -f /tmp/netlab-requirements.txt
 
 COPY seed/ /usr/local/share/netlab/seed/

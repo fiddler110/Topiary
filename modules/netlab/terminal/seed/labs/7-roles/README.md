@@ -26,7 +26,7 @@ ansible-playbook labs/7-roles/site.yml --list-tags
 
 You will use `defaults/main.yml` (the lowest-precedence variables, so `group_vars` still wins), `import_tasks` (decided
 when the playbook loads, tags apply) versus `include_tasks` (decided at run time), and `tags:`.
-Run `ansible-lint labs/7-roles/site.yml` if it is installed.
+Lint it with `ansible-lint labs/7-roles/site.yml` (works offline; it reads `.ansible-lint` in your workspace).
 
 ## 3. Prove it
 

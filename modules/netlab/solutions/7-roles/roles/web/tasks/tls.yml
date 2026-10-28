@@ -36,6 +36,6 @@
     mode: "0644"
   notify: Reload nginx
 
-- name: nginx accepts the config
+- name: Nginx accepts the config
   ansible.builtin.command: nginx -t
   changed_when: false

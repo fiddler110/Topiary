@@ -1,0 +1,9 @@
+# ansible-lint for the lab playbooks: no network (no collection or role installs), builtin modules only.
+offline: true
+profile: moderate
+skip_list:
+  - var-naming[no-role-prefix]      # the lab teaches plain role defaults that group_vars override
+  - command-instead-of-module       # curl from the pc node is the test itself
+exclude_paths:
+  - .cache/
+  - ansible.log

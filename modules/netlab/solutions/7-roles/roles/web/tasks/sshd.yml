@@ -1,5 +1,5 @@
 ---
-- name: sshd_config, checked before it replaces the live file
+- name: Sshd_config, checked before it replaces the live file
   ansible.builtin.template:
     src: sshd_config.j2
     dest: /etc/ssh/sshd_config

@@ -7,6 +7,6 @@
   ansible.builtin.import_tasks: tls.yml
   tags: [web, tls]
 
-- name: sshd hardening
+- name: SSH hardening
   ansible.builtin.import_tasks: sshd.yml
   tags: [web, sshd]
