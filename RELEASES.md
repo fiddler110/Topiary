@@ -7,6 +7,17 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## netlab module and the `netlab-ansible` workshop (2026-10-28, `feat/netlab-module`)
+
+`modules/netlab`: per-student pods (pc, VLAN switch, Linux firewall, nginx web node) on internal-only networks, a manual and an
+automated branch each, root over SSH with a per-pod derived password, capped at 15 students (bots count). Parts: node image,
+`generate.py` hook, terminal image (Ansible, ansible-lint offline), the lab 0-8 and S1-S3 seeds and reference solutions, the
+`netlab-checker` service, and the read-only `netlab-view` page (student and facilitator). `workshops/netlab-ansible`: slides, lab
+reader pages, `FACILITATOR.md`, 12 achievements milestones (`exit_strict`, so a chained line cannot fake a pass) and demo bots for
+the expert, intermediate and novice personas (`--test 3 --fast`). Tested locally: labs 0-8 and S1-S3 pass their checkers and unlock
+their milestones; the 3 bots ran end to end; a 12-student start takes about 5 minutes. Fixed on the way: MTU pinned to 1500 on data
+ports (a bridge dropped oversized frames), the builder's inherited healthcheck, and the management SSH rule in the fw comparison.
+
 ## OpenTofu 1.12.8, OpenBao CLI 2.7.1, node 26 for the slides (2026-10-19, PR #59 and this tidy-up)
 
 OpenTofu 1.12.6 → 1.12.8 (CVE-2026-56855, CVE-2026-78662) and the OpenBao CLI 2.7.0 → 2.7.1 (matches the server):
