@@ -55,7 +55,10 @@ def build_rules(uid_pods, mgmt=MGMT_CIDR, chain=CHAIN):
 
 
 def run(cmd, **kw):
-    return subprocess.run(cmd, capture_output=True, text=True, **kw)
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, **kw)
+    except OSError as e:            # no iptables binary at all
+        return subprocess.CompletedProcess(cmd, 127, "", str(e))
 
 
 def main(env=os.environ):

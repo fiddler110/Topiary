@@ -7,6 +7,16 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## netlab per-uid firewall in the terminal (2026-10-28, `feat/netlab-followups`)
+
+Student N's uid (and demo bot K's, pod STUDENT_COUNT+K) can open connections only to pod N's management addresses on `netlab_mgmt`;
+root (the facilitator) and the checker and view containers are unaffected. Nodes now have fixed management addresses (pod N owns
+`10.80.1.(8N)`..`(8N+7)`, `netlab_mgmt` is `10.80.0.0/22`), and `terminal/start.d/50-netlab.sh` loads a `NETLAB_ISOLATION` chain on
+`OUTPUT` with `iptables-restore`. It fails closed: if the rules cannot be loaded and read back, the terminal does not start. Tested
+locally: other pods' SSH ports time out for a student and answer for root, `ansible` and `dojo netlab check` work on the student's own
+pod, and both bots finished all labs through the firewall. Not covered: root on one's own node shares the management segment (see
+`modules/netlab/README.md`).
+
 ## netlab module and the `netlab-ansible` workshop (2026-10-28, `feat/netlab-module`)
 
 `modules/netlab`: per-student pods (pc, VLAN switch, Linux firewall, nginx web node) on internal-only networks, a manual and an
