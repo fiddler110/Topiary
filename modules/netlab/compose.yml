@@ -16,6 +16,9 @@ services:
     container_name: workshop_netlab_image
     entrypoint: ["true"]
     restart: "no"
+    # The image HEALTHCHECK (sshd) can never pass on this one-shot, which left ./dojo waiting on "(starting)".
+    healthcheck:
+      disable: true
     cap_drop:
       - ALL
     security_opt:
