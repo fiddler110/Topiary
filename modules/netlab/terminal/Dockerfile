@@ -1,7 +1,7 @@
 # netlab module's link in the terminal build chain (dojo sets BASE to the image below this one).
 # Adds Ansible, pinned and hash-verified (requirements.txt, amd64 and arm64 wheels): student terminals have no
 # internet. The seed hook writes each account's pod password and ~/netlab.
-ARG BASE=gitopsdojo/web-terminal:base
+ARG BASE=topiary/web-terminal:base
 FROM ${BASE}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
