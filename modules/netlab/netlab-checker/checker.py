@@ -239,6 +239,11 @@ def norm(text):
     return "\n".join(sorted(l.strip() for l in text.splitlines() if l.strip() and l[0] not in "#:"))
 
 
+# The node entrypoint's management-SSH rule names the management interface (eth0 on one branch, eth1 on
+# the other, whichever the runtime attached first), so leave it out of the comparison.
+FW_SAVE = "iptables-save | sed '/^-A INPUT -i [^ ]* -p tcp -m tcp --dport 22 -j ACCEPT$/d'"
+
+
 def match_assertions():
     def cmp(what):
         def test(rs):
@@ -252,7 +257,7 @@ def match_assertions():
                    [f"only in A: {clean(l, 80)}" for l in sorted(b - a)[:3]]
             return False, "; ".join(diff) or "different order or duplicates"
         return test
-    return [A("branches match: fw rules (iptables-save)", [("m", "fw", "iptables-save"), ("a", "fw", "iptables-save")], cmp("fw")),
+    return [A("branches match: fw rules (iptables-save)", [("m", "fw", FW_SAVE), ("a", "fw", FW_SAVE)], cmp("fw")),
             A("branches match: web nginx config", [("m", "web", "cat /etc/nginx/http.d/*.conf"),
                                                    ("a", "web", "cat /etc/nginx/http.d/*.conf")], cmp("web"))]
 
