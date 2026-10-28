@@ -67,7 +67,7 @@
       "id": "f-neighbour",
       "title": "Nosy Neighbour",
       "joke": "That is not your app. It is a fine app, though. Strictly a look, no touching.",
-      "when": "shell: `curl` or `wget` to a named student's slot on `app-host:8080` (a typed `$USER` is your own and does not count; typing your own account name does, we cannot tell)",
+      "when": "shell: `curl` or `wget` to a named student's slot on `app-host:8080` (your own slot, as `$USER` or by your own account name, does not count)",
       "match": {
         "source": "shell",
         "cmd": [
@@ -76,7 +76,8 @@
           "http",
           "https"
         ],
-        "regex": "app-host:8080/(?!\\$)(?:student|testuser)[0-9]+"
+        "regex": "app-host:8080/(?!\\$)(?:student|testuser)[0-9]+",
+        "regex_not": "app-host:8080/{user}(?![0-9A-Za-z_-])"
       }
     },
     {

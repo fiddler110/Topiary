@@ -309,6 +309,11 @@ class VaultAuditItems(unittest.TestCase):
         self.assertIn("f-neighbour", sh("curl -s http://app-host:8080/student02/"))
         self.assertNotIn("f-neighbour", sh("curl -s http://app-host:8080/$USER/ | grep fingerprint"))
         self.assertNotIn("f-neighbour", sh("curl http://openbao:8200/v1/sys/health"))
+        # your own account name does not count either; student1 vs student10 is told apart
+        own = lambda cmd, user: "f-neighbour" in ids(dict(mt.shell_event(dict(cmd=cmd, exit=0)), user=user))
+        self.assertFalse(own("curl -s http://app-host:8080/student02/", "student02"))
+        self.assertTrue(own("curl -s http://app-host:8080/student02/", "student03"))
+        self.assertTrue(own("curl -s http://app-host:8080/student10/", "student1"))
         m = mt.Matcher(lg.Ledger(catalog.load(PACK, SHARED)[0], lg.Config()).index)
         fixed = mt.shell_event(dict(cmd="LOG_LEVEL=DEBUG python3 app_vault.py", exit=0,
                                     out="DEBUG loaded config keys: ['api_key']"))

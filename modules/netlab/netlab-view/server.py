@@ -9,6 +9,7 @@ State is read over SSH with netlab-checker/checker.py (copied next to this file 
 is shared by every request for TTL seconds, so the class polling costs a bounded number of SSH sessions.
 """
 import concurrent.futures
+import ipaddress
 import json
 import os
 import re
@@ -33,7 +34,7 @@ FILES = {
     "/static/favicon.svg": ("favicon.svg", "image/svg+xml"),
 }
 MARK = "@@@@"
-MGMT_PREFIX = "10.80.0."
+MGMT_NET = ipaddress.ip_network("10.80.0.0/22")   # generate.py MGMT_CIDR
 RULE_LIMIT = 40
 ROLES = ("pc", "sw", "fw", "web")
 IP = checker.PC_TO_WEB
@@ -49,6 +50,13 @@ def command(role):
     return f"ip -j addr; echo {MARK}; {EXTRA[role]}"
 
 
+def _in_mgmt(cidr):
+    try:
+        return ipaddress.ip_interface(cidr).ip in MGMT_NET
+    except ValueError:
+        return False
+
+
 def parse_ifaces(text):
     """[{name, state, addrs}] for the data interfaces (no lo, no management interface)."""
     try:
@@ -59,7 +67,7 @@ def parse_ifaces(text):
     for e in data if isinstance(data, list) else []:
         name = e.get("ifname")
         addrs = [f"{a.get('local')}/{a.get('prefixlen')}" for a in e.get("addr_info", []) if a.get("family") == "inet"]
-        if not name or name == "lo" or any(a.startswith(MGMT_PREFIX) for a in addrs):
+        if not name or name == "lo" or any(_in_mgmt(a) for a in addrs):
             continue
         state = str(e.get("operstate", "UNKNOWN")).lower()
         out.append({"name": checker.clean(name, 32), "state": "up" if state in ("up", "unknown") else "down",

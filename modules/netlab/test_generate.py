@@ -104,7 +104,7 @@ class Isolation(unittest.TestCase):
     def test_every_node_is_labelled_and_on_mgmt(self):
         n = len(services(self.text))
         self.assertEqual(self.text.count("topiary.module: netlab"), n + 4 * 6)
-        self.assertEqual(self.text.count("  - netlab_mgmt\n"), n)
+        self.assertEqual(len(re.findall(r"^      netlab_mgmt:\n        ipv4_address: 10\.80\.1\.\d+$", self.text, re.M)), n)
 
     def test_branches_never_share_a_data_network(self):
         for pod in range(4):

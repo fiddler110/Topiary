@@ -111,6 +111,9 @@ networks:
     internal: true
     ipam:
       config:
-        - subnet: 10.80.0.0/24
+        # The nodes have fixed addresses in 10.80.1.0/24 (generate.py mgmt_ip); the services here take Docker's pick of
+        # ip_range, so nothing dynamic can land on a pod's block. terminal/start.d/50-netlab.sh firewalls by pod.
+        - subnet: 10.80.0.0/22
+          ip_range: 10.80.0.0/24
     labels:
       topiary.module: netlab
