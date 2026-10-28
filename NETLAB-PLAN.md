@@ -22,7 +22,7 @@ result is correct. See section 6 for the labs and section 7 for the bot.
 | Topic | Decision |
 |---|---|
 | Firewall | **Linux netfilter** (iptables/nftables) in a small Alpine container. No licence, no KVM, no containerlab, works offline |
-| Parallelism | **One pod per student** with two branches: `client-NN` plus `fw-m-NN`/`web-m-NN` (manual) and `fw-a-NN`/`web-a-NN` (automated). 5 small containers per student, so 30 students is 150. `NETLAB_MANUAL_BRANCH=0` drops branch M for a big class (3 per student) |
+| Parallelism | **One pod per student** with two branches: `client-NN` plus `fw-m-NN`/`web-m-NN` (manual) and `fw-a-NN`/`web-a-NN` (automated). With the switch that is 8 containers per student. **Capped at 15 students** (`NETLAB_MAX_STUDENTS=15`, the generator refuses more): 120 containers and 90 networks, under the rootless-podman key limit (section 9.1). `NETLAB_MANUAL_BRANCH=0` drops branch M (4 per student) |
 | Reach | Ansible runs from the student's existing terminal and SSHes to every node of the pod. Traffic probes run **from `client` against a web node** as real Ansible tasks |
 | Entry point | Existing gateway and per-student ttyd. No new Caddy and no `student-shell` |
 | Web server | `web-m-NN` and `web-a-NN` run **nginx** (HTTP and HTTPS), configured by the student's playbooks |
@@ -167,8 +167,8 @@ between the VLANs; the switch learns MACs per VLAN (`bridge fdb show`). No extra
 | S2 | **Trunk and router-on-a-stick** | write the subinterface `template` yourself, `loop` over a VLAN data structure, handlers, `serial: 1` | One data structure (VLAN list) drives the switch **and** the firewall |
 | S3 | **Segmentation policy** | `assert`, `block/rescue`, cross-device ordering with `delegate_to`/`run_once` | Open VLAN 10 to VLAN 20's web only; everything else dropped; the bot proves it |
 
-Cost: 4 nodes and 3 data networks per branch, so 8 nodes and 6 networks per student (240 containers and 180 networks for 30
-students). **Scale risk to measure**: Docker handles hundreds of bridge networks, but start time and iptables rule count grow.
+Cost: 4 nodes and 3 data networks per branch, so 8 nodes and 6 networks per student (120 containers and 90 networks for the 15-student cap).
+**Scale risk to measure**: podman starts containers slowly at this size (section 9.1), so start time at 120 is recorded when the node image exists.
 Mitigations: `NETLAB_SWITCH=0` (flat pod, section 3); `NETLAB_MANUAL_BRANCH=0` (automated branch only). Because the switch is now standard, the pod topology (section 3) is the switch topology by default, and the flat pod is the fallback.
 
 ## 7. Fronting and the test bot
@@ -204,7 +204,7 @@ Both reuse patterns from `modules/ctf-range/`.
 
 **Spike (done, results in 9.1):** hand-build one pod **with both branches**; confirm routing through each `fw`, the DROP baseline, `interface_name`
 support and the minimum capabilities (nginx, sshd, iptables, `ping` without `NET_RAW` via `net.ipv4.ping_group_range`); run Ansible against branch A
-(blocked, allowed, blocked); measure memory and start time for one pod and for 30.
+(blocked, allowed, blocked); measure memory and start time for one pod and for 15.
 
 The `sw` node role and the VLAN-aware pod topology are built together with the flat one (step 2-3), not after; the **S1-S3 labs and their bot checks** are built after the firewall labs run end to end.
 
@@ -214,7 +214,7 @@ Steps 1-7 are a usable release on their own (self-checked labs); 8-9 add the bot
 
 **Verification:** unit tests (generator, hook); `lint-repo.sh`; `./dojo <workshop> --dry-run`; every `netlab_*` network
 `Internal: true` and only the gateway publishes a port; five accounts run the core labs at the same time; the bot gives a pass on a correct solution and a specific fail on each wrong one (open too much, open too little, break the page); one account
-cannot log in to another pod; `./dojo stop` leaves no `netlab_*` containers or networks; a 30-student start (150 containers) with idle memory recorded, and the same with `NETLAB_MANUAL_BRANCH=0` (90); with the switch track on, record start time and network count (240 / 180).
+cannot log in to another pod; `./dojo stop` leaves no `netlab_*` containers or networks; a 15-student start with the switch (120 containers, 90 networks) with start time and idle memory recorded, and the same with `NETLAB_MANUAL_BRANCH=0` (60); the generator rejects 16 students.
 
 ### 9.1 Spike results (2026-10-28, this host, Docker 29.8.1, Compose 5.5.1)
 
