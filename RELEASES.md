@@ -7,6 +7,12 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## Nosy Neighbour easter egg and `regex_not` (2026-10-28, `feat/netlab-followups`)
+
+vault-fundamentals gets a zero-point easter egg for curling another student's slot app on `app-host` (slot apps are public in the class by
+design; token audit of every `workshop_lab` service found no holes). The achievements catalog gains `regex_not` (`{user}` is the student's
+own account, so their own slot does not count). Unit tests and a store-level check; not run on a live vault stack.
+
 ## netlab-ansible capstone on (2026-10-28, `feat/netlab-followups`)
 
 "Rebuild From Clean" is on. `netlab-checker` answers `POST /proof` (token derived from `GATEWAY_TOKEN`, held only by the checker and the
