@@ -64,6 +64,9 @@ class Config:
         self.switch = env.get("NETLAB_SWITCH", "1") != "0"
         self.rate_max = int(env.get("NETLAB_CHECK_RATE_MAX", "6"))
         self.rate_window = float(env.get("NETLAB_CHECK_RATE_WINDOW", "60"))
+        # Shared only with the achievements service (module.env derives it from the install's GATEWAY_TOKEN): lets
+        # it ask POST /proof whether a pod's labs last passed. Empty or short = /proof refuses everything.
+        self.proof_token = env.get("NETLAB_PROOF_TOKEN", "")
 
     def pod_of(self, user):
         """Pod number for a user name, or None."""
@@ -384,6 +387,25 @@ def remember(pod, result, store=None, now=time.time):
                                                 "total": len(items), "time": int(now())}
 
 
+def proof(cfg, body, store=None):
+    """(status, reply) for POST /proof {user, labs}: did the checker itself last see every lab in `labs` pass on
+    that user's pod? Reads only what remember() stored after a real run; nothing a student posts reaches it."""
+    store = LAST if store is None else store
+    if not isinstance(body, dict):
+        return 400, {"error": "bad request"}
+    user, labs = body.get("user"), body.get("labs")
+    pod = cfg.pod_of(user)
+    known = {k.upper() for k in (*LABS, "8")}
+    if pod is None or pod == 0:
+        return 403, {"error": "not allowed"}
+    if not isinstance(labs, list) or not 0 < len(labs) <= 16 \
+            or not all(isinstance(x, str) and x.upper() in known for x in labs):
+        return 400, {"error": "unknown lab"}
+    seen = store.get(pod, {})
+    missing = [x for x in labs if not (seen.get(x.upper() if x.upper().startswith("S") else x) or {}).get("ok")]
+    return 200, {"passed": not missing, "missing": missing}
+
+
 def handle(cfg, limiter, body, runner=ssh):
     """(status, reply dict) for a decoded /check body."""
     if not isinstance(body, dict):
@@ -432,7 +454,11 @@ def make_handler(cfg, limiter, gate=threading.BoundedSemaphore(4)):
             self._send(404, {"error": "not found"})
 
         def do_POST(self):
-            if self.path != "/check":
+            if self.path == "/proof":
+                given = self.headers.get("X-Netlab-Proof-Token") or ""
+                if len(cfg.proof_token) < 16 or not hmac.compare_digest(given.encode(), cfg.proof_token.encode()):
+                    return self._send(403, {"error": "not allowed"})
+            elif self.path != "/check":
                 return self._send(404, {"error": "not found"})
             try:
                 n = int(self.headers.get("Content-Length", "0"))
@@ -441,6 +467,8 @@ def make_handler(cfg, limiter, gate=threading.BoundedSemaphore(4)):
                 body = json.loads(self.rfile.read(n))
             except (ValueError, UnicodeDecodeError):
                 return self._send(400, {"error": "bad request"})
+            if self.path == "/proof":
+                return self._send(*proof(cfg, body))
             if not gate.acquire(timeout=30):
                 return self._send(429, {"error": "busy, try again"})
             try:

@@ -281,7 +281,7 @@ in [Manual checks](#manual-checks) above), **dojo-introduction** and **cloud-pol
 ## Later
 
 - **netlab: remaining work** (module built on `feat/netlab-module`, see `NETLAB-PLAN.md`). **S** Run the `netlab-ansible` pack with a room (the demo bots now work it, `--test 3 --fast`, 2026-10-28; slides, `FACILITATOR.md` and achievements exist but a live
-  overflow check and a full-size class start are not done; its capstone needs a netlab verifier verb). **S** The probe agent (the
+  overflow check and a full-size class start are not done). **S** The probe agent (the
   checker and `netlab-view` use SSH for now; `netlab-view` page shipped, add a line to `RELEASES.md` once merged). **S** Measure start time and
   idle memory of the 15-student class; `ansible-lint` for lab 7. **S** The checker's rate limit (6 per minute) is tight for testing.
 

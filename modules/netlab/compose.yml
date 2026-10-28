@@ -57,6 +57,9 @@ services:
       - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
       - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
       - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
+      # POST /proof from the achievements service (capstone verifier): which labs this checker last saw pass. Derived
+      # in module.env, never given to a terminal. `:-` like the rest: ./dojo stop reads this file with the operator files only.
+      - NETLAB_PROOF_TOKEN=${NETLAB_PROOF_TOKEN:-}
     networks:
       - workshop_lab
       - netlab_mgmt

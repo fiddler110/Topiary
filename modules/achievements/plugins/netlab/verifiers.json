@@ -1,0 +1,9 @@
+{
+  "backend": "netlab",
+  "about": "Asks the netlab module's checker (NETLAB_CHECKER_URL, NETLAB_PROOF_TOKEN) which labs it last saw pass on the checking student's own pod. The checker records a verdict only after it has itself logged in to the pod's nodes and run the lab's assertions (`dojo netlab check`), so nothing a student posts, types or edits counts as proof. Reads only; `user` is the checking student and any other value fails.",
+  "impl": "netlabproof.py",
+  "verbs": {
+    "netlab_labs_passed": {"args": ["user", "labs"],
+                           "does": "the checker's latest verdict for each of labs (lab ids as `dojo netlab check` takes them: 0-8, S1-S3) on the student's own pod is a pass; the message names the labs still missing"}
+  }
+}

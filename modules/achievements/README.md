@@ -170,6 +170,11 @@ zellij`, which has no code-server and so no `tmux` either) it instead dumps the 
 though output taller than the viewport is simply missed. Either way it is matched and dropped, never stored. A
 full-screen program (vim, less) or a `clear` leaves nothing to read.
 
+**Netlab proof.** `plugins/netlab` (`netlab_labs_passed`, `labs`: lab ids as `dojo netlab check` takes them) asks the netlab
+module's `netlab-checker` (`NETLAB_CHECKER_URL`, `NETLAB_PROOF_TOKEN`, both derived by that module's `module.env`) which
+labs it last saw pass on the checking student's own pod. The pack's capstone uses it; the checker answers only this
+service's token and records verdicts only from runs it made itself. Tests: `service/test_netlab_pack.py`.
+
 **Adapter events.** A module that owns a backend posts what happened, signed with `ACHIEVEMENTS_ADAPTER_SECRET`
 (HMAC-SHA256 of the raw body, header `X-Adapter-Signature`) to `POST /api/adapter`, best effort and never slowing the
 backend: `dns-gate` (`source: dns`), `cloud-api` (`cloud`), `openbao-audit` (`bao`, the student read from the

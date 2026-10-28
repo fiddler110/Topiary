@@ -38,6 +38,18 @@ things stand between student N and pod M: the pod's derived root password, and a
   `netlab_mgmt` segment as the other pods' nodes and can reach their SSH from there; only the other pod's derived root
   password stops that. Closing it needs a management network per pod, with the terminal on all of them.
 
+## Capstone proof for the achievements module
+
+`netlab-checker` keeps its latest verdict per pod and lab in memory (`LAST`, only ever set after the checker has itself
+SSHed into the nodes and run a lab's assertions). `POST /proof {user, labs}` answers `{passed, missing}` from that record,
+and only to a caller sending `X-Netlab-Proof-Token`. The token is `NETLAB_PROOF_TOKEN`, derived in `module.env` from the
+install's `GATEWAY_TOKEN` and handed to the checker and the `achievements` service only (never to the terminal, never the
+check key a student holds or the view token), so a student cannot ask it or forge its answer. The achievements verb
+`netlab_labs_passed` (`modules/achievements/plugins/netlab`) calls it with the checking student's own user name; the
+pack's `capstone.json` lists labs 0-4, 6 and 8 (lab 8 includes the manual-versus-automated comparison). The record is lost
+when the checker restarts, so students re-run the checks `dojo check capstone` names; a capstone already earned is kept.
+No effect without the achievements module (the token is then unused). Tests: `netlab-checker/test_checker.py` (`Proof`).
+
 ## Demo bots (`--test`)
 
 Bots are treated like students. With `./dojo netlab-ansible --test N [--fast]`, `testuserK` gets pod `STUDENT_COUNT + K`
