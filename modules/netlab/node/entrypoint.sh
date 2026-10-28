@@ -4,7 +4,7 @@
 #   NODE_NAME       the container's name, shown in the web page
 #   ROOT_PASSWORD   the pod's derived root password (SSH only)
 #   MGMT_CIDR       the management network; its interface is left alone and is the only place SSH is allowed
-#   NODE_PORTS      space-separated "<docker /29>|<mode>|<vlans>|<lab address>[|<gateway>]" entries, one per data
+#   NODE_PORTS      space-separated "<docker /29>|<mode>|<vlans>|<lab address>[|<gateway>[|<port name>]]" entries, one per data
 #                   interface. mode: plain (address on the interface), access, trunk (sw ports), tagged (fw
 #                   802.1Q subinterfaces, <lab address> is "<vid>=<addr> ...", comma separated).
 # Interface names differ between runtimes (podman ignores interface_name), so each one is found by its address.
@@ -34,12 +34,13 @@ mgmt_if=$(iface_in "$MGMT_CIDR")
 # --- data interfaces -------------------------------------------------------------------------------
 sw_ports=""
 for entry in $NODE_PORTS; do
-  IFS='|' read -r docker mode vlans addr gw <<EOF2
+  IFS='|' read -r docker mode vlans addr gw pname <<EOF2
 $entry
 EOF2
   dev=$(iface_in "$docker")
   [ -n "$dev" ] || { echo "netlab: no interface in $docker" >&2; exit 1; }
   ip addr flush dev "$dev"
+  if [ -n "${pname:-}" ]; then ip link set "$dev" down; ip link set "$dev" name "$pname"; dev="$pname"; fi
   ip link set "$dev" up
   case "$mode" in
     plain)  ip addr add "$addr" dev "$dev"
@@ -79,8 +80,8 @@ if [ "$NODE_ROLE" = fw ]; then
   iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
   iptables -N LAB
   iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-  iptables -A FORWARD -p icmp --icmp-type echo-request -j ACCEPT
   iptables -A FORWARD -j LAB
+  iptables -A FORWARD -p icmp --icmp-type echo-request -j ACCEPT
 fi
 
 # --- web server -----------------------------------------------------------------------------------------

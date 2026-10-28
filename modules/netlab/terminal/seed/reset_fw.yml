@@ -13,8 +13,8 @@
         iptables -F FORWARD
         iptables -P FORWARD DROP
         iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-        iptables -A FORWARD -p icmp --icmp-type echo-request -j ACCEPT
         iptables -A FORWARD -j LAB
+        iptables -A FORWARD -p icmp --icmp-type echo-request -j ACCEPT
       changed_when: true
 
 - name: Reset the web servers

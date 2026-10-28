@@ -130,6 +130,7 @@ class Wiring(unittest.TestCase):
         sw = re.search(r"^  sw-m-01:\n((?:    .*\n)+)", text, re.M).group(1)
         ports = re.search(r"NODE_PORTS=(.*)", sw).group(1).split()
         self.assertEqual([p.split("|")[1:3] for p in ports], [["access", "10"], ["access", "20"], ["trunk", "10,20"]])
+        self.assertEqual([p.split("|")[5] for p in ports], ["to-pc", "to-web", "to-fw"])
 
     def test_fw_gets_both_vlans_and_pc_routes_via_it(self):
         text = generate.render({**ENV, "STUDENT_COUNT": "1"})

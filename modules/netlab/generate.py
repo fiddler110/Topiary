@@ -77,11 +77,14 @@ def branch_nodes(pod, b, switch, nets):
     def key(seg):
         return f"netlab_{pod:02d}_{b}_{seg}"
 
-    def entry(seg, mode, vlans="", addr="", gw=""):
-        return key(seg), f"{nets[key(seg)]}|{mode}|{vlans}|{addr}" + (f"|{gw}" if gw else "")
+    def entry(seg, mode, vlans="", addr="", gw="", name=""):
+        tail = f"|{gw}|{name}" if name else (f"|{gw}" if gw else "")
+        return key(seg), f"{nets[key(seg)]}|{mode}|{vlans}|{addr}{tail}"
     if switch:
         return [("pc", [entry("acc10", "plain", "", LAB["pc"], "10.10.10.1")]),
-                ("sw", [entry("acc10", "access", "10"), entry("acc20", "access", "20"), entry("trk", "trunk", "10,20")]),
+                # Switch ports are named for what they connect to, so a lab can say `bridge vlan add dev to-pc ...`.
+                ("sw", [entry("acc10", "access", "10", name="to-pc"), entry("acc20", "access", "20", name="to-web"),
+                        entry("trk", "trunk", "10,20", name="to-fw")]),
                 ("fw", [entry("trk", "tagged", "", f"10={LAB['fw10']},20={LAB['fw20']}")]),
                 ("web", [entry("acc20", "plain", "", LAB["web"], "10.10.20.1")])]
     return [("pc", [entry("cl", "plain", "", LAB["pc"], "10.10.10.1")]),
