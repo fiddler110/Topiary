@@ -35,6 +35,15 @@ class NetlabPack(unittest.TestCase):
         self.assertEqual([i for i in sh("echo dojo netlab check 2") if i in LABS.values()], [])
         self.assertNotIn("n1-first-play", sh("dojo netlab check 10"))
 
+    def test_chained_lines_need_the_checks_own_exit(self):
+        labs = lambda cmd, code=0: [i for i in sh(cmd, code) if i in LABS.values()]
+        self.assertEqual(labs("dojo netlab check 3; echo rc=$?"), [])
+        self.assertEqual(labs("dojo netlab check 3 | cat"), [])
+        self.assertEqual(labs("dojo netlab check 3 || true"), [])
+        self.assertEqual(labs("true; dojo netlab check 3"), ["n3-changed-zero"])
+        self.assertEqual(labs("cd ~/netlab && dojo netlab check 3"), ["n3-changed-zero"])
+        self.assertEqual(labs("dojo netlab check 3 && echo ok"), ["n3-changed-zero"])
+
     def test_core_set(self):
         c = catalog.load(PACK, SHARED)[0]
         core = {m["id"] for m in catalog.core_milestones(c)}

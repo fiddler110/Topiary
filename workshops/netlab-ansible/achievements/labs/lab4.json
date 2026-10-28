@@ -10,7 +10,8 @@
         "source": "shell",
         "cmd": "dojo netlab check",
         "regex": "(?i)\\bcheck\\s+4\\b",
-        "exit": 0
+        "exit": 0,
+        "exit_strict": true
       }
     }
   ]
