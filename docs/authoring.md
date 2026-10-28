@@ -200,6 +200,10 @@ modules/<name>/
 ```
 
 - `README.md`'s first line after the heading is the one-line summary `./dojo modules` shows.
+- `generate.py` (optional): for what Compose cannot loop over (netlab's per-student pods). `./dojo` runs it with the
+  resolved environment and writes its stdout to `.generated/modules/<name>.yml` (`.generated/dry-run/` on `--dry-run`),
+  listed after the module's `compose.yml`. Keep it deterministic and stdlib-only; exit non-zero with a message on bad
+  settings, which stops the start.
 - `module.env`: defaults a workshop may override; `SHARED="<context>/<file> ..."` lists shared helper files to copy in
   (read as written: no `$(...)`).
 - `compose.yml`: same rules as an overlay. Extending an engine service merges: `environment` per key (later wins),

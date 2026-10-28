@@ -280,6 +280,11 @@ in [Manual checks](#manual-checks) above), **dojo-introduction** and **cloud-pol
 
 ## Later
 
+- **netlab: remaining work** (module built on `feat/netlab-module`, see `NETLAB-PLAN.md`). **M** The real workshop pack
+  (slides, `FACILITATOR.md`, achievements; `netlab-dev` is a stub). **S** `netlab-view` page and the probe agent (the
+  checker uses SSH for now). **S** Per-uid firewall in the terminal so uid N reaches only pod N. **S** Measure start time and
+  idle memory of the 15-student class; `ansible-lint` for lab 7. **S** The checker's rate limit (6 per minute) is tight for testing.
+
 ### Smoke run
 
 | Check | Stack | Where it stands |
