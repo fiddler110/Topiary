@@ -213,6 +213,8 @@ def _shell_match(m, ev, rx):
         return False
     cmds = [c.split() for c in _as_list(m["cmd"])] if "cmd" in m else [None]
     for seg in segments(ev["cmd"], ev["exit"]):
+        if m.get("exit_strict") and seg["exit"] is None:
+            continue
         if not _exit_ok(m.get("exit"), seg["exit"], ev["exit"]):
             continue
         words = seg["words"]

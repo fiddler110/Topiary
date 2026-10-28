@@ -31,7 +31,7 @@ modules/achievements/catalog/shared.json   cheating tiers and cross-workshop unl
   `catalog.json` sets `"require_match": true` (git-fundamentals does).
 - **`match` fields** (full list in `catalog/catalog.py`, matched by `service/matcher.py`). `shell`: `cmd` (the
   command's first words, a string or a list), `flags` / `flags_none`, `regex` (on the command segment, redirects
-  kept), `exit` (a code, a list, `"nonzero"` or `"any"`), `branch` / `branch_before` (`"HEAD"` when detached),
+  kept), `exit` (a code, a list, `"nonzero"` or `"any"`), `exit_strict` (`true`: count `exit` only when that command's own code is known, so `check 3; echo` or `check 3 | cat` does not pass), `branch` / `branch_before` (`"HEAD"` when detached),
   `in_repo`, `merging`, `merging_after`, `out_regex` (searched in the last lines the command printed, read from
   the pane -- tmux or Zellij, see "Shell output" below; matched and dropped). `forgejo`: `event` (push, create, delete, fork, pull_request,
   pull_request_review), `action` (opened, merged, approved, ...), `ref_type`, `branch`, `tag`, `repo` (`{user}`

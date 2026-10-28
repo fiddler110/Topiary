@@ -1,0 +1,12 @@
+# Lab 7 (stretch): the same result as labs 1-6, split into roles.
+# TODO: one play per role. web servers first, then the firewall (the lockdown tests need the web server running).
+- name: Web servers
+  hosts: web:&auto
+  gather_facts: false
+  roles: []          # TODO: - role: web
+
+- name: Firewall
+  hosts: fw:&auto
+  serial: 1
+  gather_facts: false
+  roles: []          # TODO: - role: firewall

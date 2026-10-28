@@ -1,0 +1,12 @@
+# Lab 8: rebuild branch a from the baseline in one command.
+# TODO: import the lab playbooks in dependency order (web server first, firewall last), for example:
+#   - import_playbook: ../1-first-playbook/site.yml
+# The lockdown (lab 6) must come after the web server is serving, because it tests HTTP and HTTPS.
+- name: Placeholder
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Replace this play with the imports above
+      ansible.builtin.debug:
+        msg: TODO

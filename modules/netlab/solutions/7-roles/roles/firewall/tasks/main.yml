@@ -1,0 +1,8 @@
+---
+- name: Web ports
+  ansible.builtin.import_tasks: ports.yml
+  tags: [firewall, ports]
+
+- name: Lockdown
+  ansible.builtin.import_tasks: lockdown.yml
+  tags: [firewall, lockdown]

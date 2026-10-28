@@ -1,0 +1,6 @@
+server {
+  listen 443 ssl;
+  ssl_certificate {{ tls_dir }}/web.crt;
+  ssl_certificate_key {{ tls_dir }}/web.key;
+  root /var/www/html;
+}

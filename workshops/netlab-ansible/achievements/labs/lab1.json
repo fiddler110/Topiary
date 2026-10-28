@@ -1,0 +1,18 @@
+{
+  "milestones": [
+    {
+      "id": "n1-first-play",
+      "title": "Hello, Playbook",
+      "joke": "Your name, on two web servers, from one file.",
+      "core": true,
+      "when": "shell: `dojo netlab check 1` (exit 0), meaning every assertion for lab 1 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+1\\b",
+        "exit": 0,
+        "exit_strict": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+# Reference solution, lab S1: access ports. Run from the lab folder: ansible-playbook site.yml
+- name: VLANs and access ports on the switch
+  hosts: sw:&auto
+  gather_facts: false
+  vars_files: [vlans.yml]
+  vars:
+    names: "{{ switch_ports | map(attribute='name') | list }}"
+    want: "{{ switch_ports | sort(attribute='name') }}"
+    # What the switch has now, in the same shape as `want`.
+    have: >-
+      {%- set out = [] -%}
+      {%- for e in (bvlan.stdout | from_json) | sort(attribute='ifname') if e.ifname in names -%}
+        {%- set pv = [0] -%}
+        {%- for v in e.vlans -%}
+          {%- if 'PVID' in (v.flags | default([])) -%}{%- set _ = pv.append(v.vlan) -%}{%- endif -%}
+        {%- endfor -%}
+        {%- set _ = out.append({'name': e.ifname, 'vids': e.vlans | map(attribute='vlan') | sort | list, 'pvid': pv | last}) -%}
+      {%- endfor -%}
+      {{ out | to_json }}
+  tasks:
+    - name: Read the VLAN table
+      ansible.builtin.command: bridge -j vlan show
+      register: bvlan
+      changed_when: false
+
+    - name: Is it already right?
+      ansible.builtin.set_fact:
+        in_sync: "{{ (have | from_json) == want }}"
+
+    - name: Write the script that sets the VLANs
+      ansible.builtin.template:
+        src: switch.sh.j2
+        dest: /root/switch-vlans.sh
+        mode: "0700"
+
+    - name: Apply it (only when the table differs)
+      ansible.builtin.command: sh /root/switch-vlans.sh
+      when: not in_sync
+      changed_when: true

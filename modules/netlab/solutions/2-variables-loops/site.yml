@@ -1,0 +1,16 @@
+- name: Open the web ports
+  hosts: fw:&auto
+  gather_facts: false
+  tasks:
+    - name: Allow the pc network to reach the web server on each port
+      ansible.builtin.iptables:
+        chain: LAB
+        protocol: tcp
+        source: "{{ pc_net }}"
+        destination: "{{ web_ip }}"
+        destination_port: "{{ item | string }}"
+        jump: ACCEPT
+      loop: "{{ allowed_ports }}"
+      loop_control:
+        label: "port {{ item }}"
+      when: allowed_ports | length > 0

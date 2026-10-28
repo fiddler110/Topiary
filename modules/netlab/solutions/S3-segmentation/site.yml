@@ -1,0 +1,74 @@
+# Reference solution, lab S3: VLAN 10 may reach the web server on tcp 80 and 443 only. Needs S1 and S2 done first.
+- name: Segmentation policy on the firewall
+  hosts: fw:&auto
+  gather_facts: false
+  vars_files: [vlans.yml]
+  vars:
+    sw: "sw-a-{{ pod }}"
+    pc: "pc-a-{{ pod }}"
+  tasks:
+    - name: Read the switch's VLAN table
+      ansible.builtin.command: bridge -j vlan show
+      register: bvlan
+      changed_when: false
+      delegate_to: "{{ sw }}"
+      run_once: true
+
+    - name: The trunk carries both VLANs (no point filtering a path that is not there)
+      ansible.builtin.assert:
+        that: >-
+          (bvlan.stdout | from_json | selectattr('ifname', 'eq', 'to-fw') | map(attribute='vlans') | first
+           | map(attribute='vlan') | sort | list) == [10, 20]
+        fail_msg: Finish S1 and S2 first
+        quiet: true
+      run_once: true
+
+    - name: Apply and test the policy
+      block:
+        - name: Allow VLAN 10 to the web server on the allowed ports
+          ansible.builtin.iptables:
+            chain: LAB
+            action: append
+            protocol: tcp
+            source: "{{ policy.src_net }}"
+            destination: "{{ policy.dst }}"
+            destination_port: "{{ item | string }}"
+            jump: ACCEPT
+            comment: "S3 allow {{ item }}"
+          loop: "{{ policy.allow_tcp }}"
+
+        - name: Drop everything else from VLAN 10 to VLAN 20
+          ansible.builtin.iptables:
+            chain: LAB
+            action: append
+            source: "{{ policy.src_net }}"
+            destination: "{{ policy.dst_net }}"
+            jump: DROP
+            comment: S3 default drop
+
+        - name: Allowed port works from the pc
+          ansible.builtin.command: curl -s -o /dev/null -m 3 -w '%{http_code}' http://{{ policy.dst }}/
+          register: ok
+          changed_when: false
+          failed_when: not ok.stdout.startswith('2')
+          delegate_to: "{{ pc }}"
+          run_once: true
+
+        - name: Another port is dropped (curl times out, rc 28), and so is ping
+          ansible.builtin.command: "{{ item }}"
+          register: blocked
+          changed_when: false
+          failed_when: blocked.rc == 0 or (item.startswith('curl') and blocked.rc != 28)
+          delegate_to: "{{ pc }}"
+          run_once: true
+          loop:
+            - curl -s -o /dev/null -m 3 http://{{ policy.dst }}:8080/
+            - ping -c 1 -W 2 {{ policy.dst }}
+      rescue:
+        - name: Roll the policy back
+          ansible.builtin.command: iptables -F LAB
+          changed_when: true
+
+        - name: Say why
+          ansible.builtin.fail:
+            msg: The policy did not behave as intended and was removed from LAB

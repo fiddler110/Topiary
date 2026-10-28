@@ -1,0 +1,18 @@
+{
+  "milestones": [
+    {
+      "id": "n5-vaulted",
+      "title": "Locked in the Vault",
+      "joke": "The password is in git. You cannot read it. Good.",
+      "core": false,
+      "when": "shell: `dojo netlab check 5` (exit 0), meaning every assertion for lab 5 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+5\\b",
+        "exit": 0,
+        "exit_strict": true
+      }
+    }
+  ]
+}

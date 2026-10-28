@@ -1,0 +1,18 @@
+{
+  "milestones": [
+    {
+      "id": "ns3-segment",
+      "title": "Fences and Neighbours",
+      "joke": "Only the web ports cross the line.",
+      "core": false,
+      "when": "shell: `dojo netlab check S3` (exit 0), meaning every assertion for lab S3 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+S3\\b",
+        "exit": 0,
+        "exit_strict": true
+      }
+    }
+  ]
+}

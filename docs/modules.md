@@ -14,6 +14,7 @@ one is in the [Authoring guide](authoring.md#6-writing-a-module); each module's 
 | [`sensei`](#sensei) | PR reviewer, help desk (`dojo sensei ask/why/hand`), stuck radar | all main-path workshops |
 | [`achievements`](#achievements) | Scoring, toasts, leaderboard, challenges, certificate | any pack with a catalog, when `ACHIEVEMENTS_ENABLED` |
 | [`ctf-range`](#ctf-range) | Vulnerable targets, boxed Docker host, flag service, attacker bots | ctf-* packs |
+| [`netlab`](#netlab) | Per-student Ansible practice networks: switch, firewall and web node, by hand and by playbook | netlab-ansible |
 | `_shared` | Single copies of helper code (`dojo_http.py`, `adapter_client.py`) | built into several modules via `SHARED=` |
 
 ## Anatomy of every module
@@ -73,6 +74,15 @@ provider.
 - **Settings**: `CLOUD_HOST_MEM_LIMIT` 3g, `CLOUD_HOST_PIDS_LIMIT` 4096, `CLOUD_API_MEM_LIMIT` 256m.
 - Tests: `cd modules/dojo-cloud/cloud-api && python3 -B -m unittest test_portal_api test_executor test_policy_auth test_readiness`;
   `python3 -B -m unittest test_parity` (broker and API derive identical ids).
+
+## netlab
+
+Per-student pods on internal-only networks for learning Ansible: a pc, a VLAN switch, a Linux firewall and an nginx
+web node, twice (a branch the student configures by hand, a branch they automate). Nodes take root over SSH with a
+per-pod password derived from `STUDENT_PASSWORD_SEED`. `modules/netlab/generate.py` writes the pods at start, so
+`STUDENT_COUNT` is capped by `NETLAB_MAX_STUDENTS` (15: a rootless podman host stops near 200 containers). The
+terminal gets Ansible and a seeded `~/netlab` with labs 0-8 and the build-it-yourself switch labs S1-S3;
+`netlab-checker` backs `dojo netlab check <lab>`; `netlab-view` is the read-only "My Network" page (a student sees only their own pod, the facilitator every pod, via an `/admin` tab). Design and spike results: `NETLAB-PLAN.md`; settings: `module.env`.
 
 ## dns-gate
 

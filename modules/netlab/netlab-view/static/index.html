@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>My Network</title>
+  <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+  <link rel="stylesheet" href="static/app.css">
+  <script src="static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="static/favicon.svg" alt="" width="24" height="24">
+      <span id="title">My Network</span>
+      <span class="sub">live from your pod, read-only</span>
+    </div>
+    <label class="pick" id="pick" hidden>
+      <span>Pod</span>
+      <select id="pods"></select>
+    </label>
+  </header>
+  <p class="status" id="status" role="status">Loading&hellip;</p>
+  <main id="pod"></main>
+</body>
+</html>

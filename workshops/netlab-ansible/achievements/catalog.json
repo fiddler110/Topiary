@@ -1,0 +1,56 @@
+{
+  "workshop": "netlab-ansible",
+  "title": "Ansible on a Small Network",
+  "intro": "**What earns a milestone.** Each lab milestone fires when the student's `dojo netlab check <lab>` passes (exit 0): the checker confirms the pod's end state from outside, on both branches, and that the manual and automated branches agree. Labs 5, 7 and S1-S3 are stretch and not `core`. The S labs are numbered 9-11 here because a catalog lab id must be `labN`.",
+  "labs": [
+    {
+      "id": "lab0",
+      "title": "orientation"
+    },
+    {
+      "id": "lab1",
+      "title": "a first playbook: the web page"
+    },
+    {
+      "id": "lab2",
+      "title": "variables, loops and conditionals"
+    },
+    {
+      "id": "lab3",
+      "title": "idempotency and check mode"
+    },
+    {
+      "id": "lab4",
+      "title": "templates, handlers and validate"
+    },
+    {
+      "id": "lab5",
+      "title": "secrets with Vault"
+    },
+    {
+      "id": "lab6",
+      "title": "errors, rollback and tests"
+    },
+    {
+      "id": "lab7",
+      "title": "roles and structure"
+    },
+    {
+      "id": "lab8",
+      "title": "capstone: from clean to done"
+    },
+    {
+      "id": "lab9",
+      "title": "vLANs and access ports"
+    },
+    {
+      "id": "lab10",
+      "title": "trunk and router-on-a-stick"
+    },
+    {
+      "id": "lab11",
+      "title": "segmentation policy"
+    }
+  ],
+  "require_match": true
+}

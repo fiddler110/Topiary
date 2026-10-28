@@ -1,0 +1,18 @@
+{
+  "milestones": [
+    {
+      "id": "n0-lay-of-land",
+      "title": "Know Your Network",
+      "joke": "Asked every node at once. The inventory is a map now.",
+      "core": true,
+      "when": "shell: `dojo netlab check 0` (exit 0), meaning every assertion for lab 0 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+0\\b",
+        "exit": 0,
+        "exit_strict": true
+      }
+    }
+  ]
+}

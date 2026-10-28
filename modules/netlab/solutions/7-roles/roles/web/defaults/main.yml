@@ -1,0 +1,6 @@
+---
+page_title: Netlab student
+tls_dir: /etc/nginx/tls
+sshd_max_auth_tries: 3
+sshd_login_grace_time: 20
+sshd_x11_forwarding: "no"

@@ -1,0 +1,34 @@
+# Put the switch into a BLANK state, or back to the working one.
+#   ansible-playbook reset_switch.yml -e branch=a                 blank: every port in VLAN 1 only, no VLAN 10 or 20
+#   ansible-playbook reset_switch.yml -e branch=m                 the same on the hand-built branch
+#   ansible-playbook reset_switch.yml -e branch=a -e restore=true the working baseline again
+# Blank means pc and web cannot reach each other until you configure VLANs. The firewall's 802.1Q
+# subinterfaces and the addresses on pc and web are not touched. Management SSH is never affected.
+# Baseline: to-pc access VLAN 10, to-web access VLAN 20, to-fw trunk 10 and 20, VLAN 1 removed from the ports.
+- name: Reset the switch
+  hosts: sw
+  gather_facts: false
+  vars:
+    baseline:
+      - {port: to-pc, vids: [10], pvid: 10}
+      - {port: to-web, vids: [20], pvid: 20}
+      - {port: to-fw, vids: [10, 20], pvid: null}
+  tasks:
+    - name: "{{ 'Back to the working baseline' if restore | default(false) | bool else 'Blank: all ports in VLAN 1 only' }}"
+      when: branch is not defined or branch == inventory_hostname.split('-')[1]
+      ansible.builtin.shell: |
+        for p in {{ baseline | map(attribute='port') | join(' ') }}; do
+          for v in 1 10 20; do bridge vlan del dev $p vid $v 2>/dev/null || true; done
+        done
+        {% if restore | default(false) | bool %}
+        {% for b in baseline %}
+        {% for v in b.vids %}
+        bridge vlan add dev {{ b.port }} vid {{ v }}{{ ' pvid untagged' if b.pvid == v else '' }}
+        {% endfor %}
+        {% endfor %}
+        {% else %}
+        {% for b in baseline %}
+        bridge vlan add dev {{ b.port }} vid 1 pvid untagged
+        {% endfor %}
+        {% endif %}
+      changed_when: true

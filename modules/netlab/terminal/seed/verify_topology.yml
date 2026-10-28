@@ -1,0 +1,29 @@
+# Is the pod healthy? Checks every node's job and prints a node x check table; fails if any cell is red.
+- name: Check every node
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Reachable over SSH
+      ansible.builtin.ping:
+
+    - name: Firewall has forwarding on and the LAB chain
+      ansible.builtin.shell: test "$(cat /proc/sys/net/ipv4/ip_forward)" = 1 && iptables -S LAB
+      changed_when: false
+      when: "'fw' in group_names"
+
+    - name: Switch has the VLANs
+      ansible.builtin.shell: bridge vlan show | grep -q ' 10' && bridge vlan show | grep -q ' 20'
+      changed_when: false
+      when: "'sw' in group_names"
+
+    - name: Web server answers on itself
+      ansible.builtin.command: curl -s -o /dev/null -m 3 -w '%{http_code}' http://127.0.0.1/
+      register: local_http
+      changed_when: false
+      failed_when: local_http.stdout != '200'
+      when: "'web' in group_names"
+
+    - name: Pc has a route to the web server's VLAN
+      ansible.builtin.shell: ip route get {{ web_ip }} | grep -q via
+      changed_when: false
+      when: "'pc' in group_names"

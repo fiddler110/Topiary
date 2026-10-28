@@ -1,0 +1,9 @@
+# netlab-view builds with this folder as its context (it reuses netlab-checker/checker.py); keep the rest out.
+node
+solutions
+terminal
+generate.py
+test_generate.py
+README.md
+**/test_*.py
+**/__pycache__

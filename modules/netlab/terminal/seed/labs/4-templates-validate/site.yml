@@ -1,0 +1,17 @@
+# Lab 4: harden sshd on the web servers, validated before it goes live.
+- name: Harden sshd
+  hosts: web:&auto
+  gather_facts: false
+  tasks:
+    # TODO 1: ansible.builtin.template src: sshd_config.j2 -> /etc/ssh/sshd_config, owner root, mode "0600".
+    # TODO 2: add validate: 'sshd -t -f %s'  (the %s is the temporary file Ansible checks).
+    # TODO 3: notify "Reload sshd".
+    - name: TODO
+      ansible.builtin.debug:
+        msg: Replace this task.
+
+  handlers:
+    # TODO 4: reload sshd with ansible.builtin.command: sh -c 'kill -HUP $(cat /run/sshd.pid)'
+    - name: Reload sshd
+      ansible.builtin.debug:
+        msg: Replace this handler.

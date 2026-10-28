@@ -1,0 +1,71 @@
+---
+- name: Lock down, test, roll back on failure
+  block:
+    - name: Drop ICMP (before the baseline echo allow)
+      ansible.builtin.iptables:
+        chain: LAB
+        protocol: icmp
+        jump: DROP
+
+    - name: Drop everything else
+      ansible.builtin.iptables:
+        chain: LAB
+        jump: DROP
+
+    - name: HTTP works from the pc
+      ansible.builtin.uri:
+        url: "http://{{ web_ip }}/"
+        status_code: 200
+        timeout: 5
+      delegate_to: "{{ pc_node }}"
+      register: http
+      retries: 3
+      delay: 2
+      until: http.status == 200
+
+    - name: HTTPS works from the pc
+      ansible.builtin.uri:
+        url: "https://{{ web_ip }}/"
+        status_code: 200
+        validate_certs: false
+        timeout: 5
+      delegate_to: "{{ pc_node }}"
+      register: https
+      retries: 3
+      delay: 2
+      until: https.status == 200
+
+    - name: Ping from the pc
+      ansible.builtin.command: ping -c 1 -W 2 {{ web_ip }}
+      delegate_to: "{{ pc_node }}"
+      register: ping
+      failed_when: false
+      changed_when: false
+
+    - name: Port 8080 from the pc
+      ansible.builtin.command: curl -s -m 3 -o /dev/null http://{{ web_ip }}:8080/
+      delegate_to: "{{ pc_node }}"
+      register: p8080
+      failed_when: false
+      changed_when: false
+
+    - name: Only 80 and 443 got through
+      ansible.builtin.assert:
+        that:
+          - ping.rc != 0
+          - p8080.rc != 0
+        success_msg: "Lockdown holds: ping and 8080 are blocked"
+  rescue:
+    - name: Roll back, flush LAB
+      ansible.builtin.command: iptables -F LAB
+    - name: Fail loudly
+      ansible.builtin.fail:
+        msg: "Lockdown failed its tests on {{ inventory_hostname }} and was rolled back (LAB flushed)."
+  always:
+    - name: Show the rules that are in LAB now
+      ansible.builtin.command: iptables -S LAB
+      register: lab_rules
+      changed_when: false
+    - name: Print them
+      ansible.builtin.debug:
+        var: lab_rules.stdout_lines

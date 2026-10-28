@@ -1,0 +1,16 @@
+{
+  "id": "capstone",
+  "title": "Rebuild From Clean",
+  "enabled": false,
+  "space": "the student's own pod, `{user}`'s branch a, reached only with the account's own pod password",
+  "goal": "Switched off until a netlab verifier verb exists (the achievements service has none yet, and `dojo netlab check 8` already covers the lab 8 rebuild as a normal milestone). Intended: reset your branch a, rebuild it from one playbook, and have the second run change nothing.",
+  "seed": "No seed: the pod is the seed.",
+  "verify_text": "Not checked by the service yet; `dojo netlab check 8` is the check.",
+  "badge_tier": "capstone",
+  "hints": [
+    "Start with the reset playbook.",
+    "Run it twice: the second run is the test."
+  ],
+  "answer": "Run `ansible-playbook reset_fw.yml -e branch=a`, then your lab 8 `site.yml` twice; the second run reports changed=0.",
+  "isolation": "Each student's pod is theirs alone; nothing here is shared."
+}

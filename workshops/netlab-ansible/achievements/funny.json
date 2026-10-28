@@ -1,0 +1,56 @@
+{
+  "unlocks": [
+    {
+      "id": "f-redcell",
+      "title": "Red Cell",
+      "joke": "A failed check is just a to-do list with feelings.",
+      "when": "shell: `dojo netlab check <lab>` fails (exit 1)",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "exit": 1
+      }
+    },
+    {
+      "id": "f-reset",
+      "title": "Have You Tried Turning It Off",
+      "joke": "Reset to the baseline. Nobody saw anything.",
+      "when": "shell: `ansible-playbook reset_fw.yml` (exit 0)",
+      "match": {
+        "source": "shell",
+        "cmd": "ansible-playbook",
+        "regex": "reset_fw\\.yml",
+        "exit": 0
+      }
+    },
+    {
+      "id": "f-drycheck",
+      "title": "Measure Twice",
+      "joke": "Asked Ansible what it would do before letting it.",
+      "when": "shell: `ansible-playbook` with `--check` (exit 0)",
+      "match": {
+        "source": "shell",
+        "cmd": "ansible-playbook",
+        "flags": [
+          "--check",
+          "-C"
+        ],
+        "exit": 0
+      }
+    },
+    {
+      "id": "f-unreachable",
+      "title": "Hello? Anyone?",
+      "joke": "UNREACHABLE. The most honest word in Ansible.",
+      "when": "shell: an `ansible` command prints `UNREACHABLE` (the output is read from the terminal)",
+      "match": {
+        "source": "shell",
+        "cmd": [
+          "ansible",
+          "ansible-playbook"
+        ],
+        "out_regex": "UNREACHABLE"
+      }
+    }
+  ]
+}

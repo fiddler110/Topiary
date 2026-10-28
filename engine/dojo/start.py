@@ -399,7 +399,10 @@ def _plan(o: StartOptions, rt: Runtime) -> Plan:
     terminal_hashes = terminal_input_hashes(links, Builder(rt).salt)
     env["WEB_TERMINAL_IMAGE"] = links[-1][0]
 
-    files = extra_files(res)
+    try:
+        files = extra_files(res, o.dry_run)
+    except RuntimeError as e:
+        raise StartError(str(e))
     overlay_dirs = [f"../modules/{m}" for m in res.modules if (paths.MODULES / m / "compose.yml").is_file()]
     if env.get("COMPOSE_OVERLAY"):
         overlay_dirs.append(os.path.dirname(env["COMPOSE_OVERLAY"]))

@@ -1,0 +1,9 @@
+# The data model: one list of ports, each with the VLANs it carries and its untagged (PVID) VLAN (0 = none).
+# Keep the keys exactly name, vids, pvid: the playbook compares this list with what `bridge -j vlan show` reports.
+vlans:
+  - {id: 10, name: pc, gateway: 10.10.10.1/24}
+  - {id: 20, name: web, gateway: 10.10.20.1/24}
+
+switch_ports:
+  - {name: to-pc, vids: [10], pvid: 10}
+  - {name: to-web, vids: [20], pvid: 20}

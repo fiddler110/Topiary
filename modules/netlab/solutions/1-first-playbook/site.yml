@@ -1,0 +1,16 @@
+- name: Web page
+  hosts: web:&auto
+  gather_facts: false
+  vars:
+    page_title: Netlab student
+  tasks:
+    - name: Page
+      ansible.builtin.template:
+        src: index.html.j2
+        dest: /var/www/html/index.html
+        mode: "0644"
+      notify: Reload nginx
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.command: nginx -s reload

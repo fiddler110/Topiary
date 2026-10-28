@@ -1,0 +1,15 @@
+# One data structure drives the switch (switch_ports) and the firewall (vlans[].gateway).
+vlans:
+  - {id: 10, name: pc, gateway: 10.10.10.1/24}
+  - {id: 20, name: web, gateway: 10.10.20.1/24}
+
+switch_ports:
+  - {name: to-pc, vids: [10], pvid: 10}
+  - {name: to-web, vids: [20], pvid: 20}
+  - {name: to-fw, vids: [10, 20], pvid: 0}
+
+policy:
+  src_net: 10.10.10.0/24      # VLAN 10
+  dst: 10.10.20.10            # the web server in VLAN 20
+  dst_net: 10.10.20.0/24
+  allow_tcp: [80, 443]

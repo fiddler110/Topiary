@@ -1,0 +1,116 @@
+# netlab module, layered on top of engine/docker-compose.yml by dojo when a workshop.env lists it in MODULES.
+# Relative paths resolve against engine/, not this folder.
+#
+# The pods themselves (a pc, switch, firewall and web node per branch, per student) are written by
+# generate.py into .generated/modules/netlab.yml, which ./dojo lists after this file.
+#
+#   web-terminal --netlab_mgmt (internal)--> SSH :22 on every node
+#   pc -- sw -- web, sw -- fw     one internal /29 per link, per branch, per student (generate.py)
+
+services:
+  # Builds the node image once; the generated nodes only reference it. Exits straight away.
+  netlab-image:
+    build:
+      context: ../modules/netlab/node
+    image: gitopsdojo/netlab-node:${WORKSHOP_SLUG:-local}
+    container_name: workshop_netlab_image
+    entrypoint: ["true"]
+    restart: "no"
+    # The image HEALTHCHECK (sshd) can never pass on this one-shot, which left ./dojo waiting on "(starting)".
+    healthcheck:
+      disable: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    network_mode: none
+    mem_limit: 16m
+
+  web-terminal:
+    # Map form: the engine's web-terminal declares its networks as a map, and podman-compose cannot merge a list into it.
+    networks:
+      netlab_mgmt: {}
+    volumes:
+      # The reference solutions, for the demo bots (--test) only: /opt/netlab-private is root-only (terminal/Dockerfile),
+      # so no student can read them; account.d/57-netlab.sh copies them into each bot's own home.
+      - ../modules/netlab/solutions:/opt/netlab-private/solutions:ro
+    environment:
+      - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
+      - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
+      - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
+
+  # POST /check {user, key, lab}: runs a lab's assertions on the caller's own pod over SSH (netlab-checker/checker.py).
+  # `:-` not `:?`: ./dojo stop reads this file with the operator files only.
+  netlab-checker:
+    build:
+      context: ../modules/netlab/netlab-checker
+    image: gitopsdojo/netlab-checker:${WORKSHOP_SLUG:-local}
+    container_name: workshop_netlab_checker
+    init: true
+    environment:
+      - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
+      - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
+      - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - BOT_COUNT=${BOT_COUNT:-0}
+      - BOT_PREFIX=${BOT_PREFIX:-testuser}
+      - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
+      - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
+      - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
+    networks:
+      - workshop_lab
+      - netlab_mgmt
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    pids_limit: 64
+    mem_limit: 64m
+    restart: unless-stopped
+
+  # Read-only page of the caller's own pod (the facilitator sees all): node state, interfaces, VLANs, LAB rules, last
+  # check results. Reuses netlab-checker/checker.py to SSH into the nodes. Route and card: extensions.json.
+  # Build context is modules/netlab/ so the image can copy checker.py; .dockerignore keeps the rest out.
+  netlab-view:
+    build:
+      context: ../modules/netlab
+      dockerfile: netlab-view/Dockerfile
+    image: gitopsdojo/netlab-view:${WORKSHOP_SLUG:-local}
+    container_name: workshop_netlab_view
+    init: true
+    environment:
+      # The page answers only requests carrying this token (set by the gateway).
+      - GATEWAY_TOKEN=${GATEWAY_TOKEN_NETLAB_VIEW:-}
+      - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
+      - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
+      - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - BOT_COUNT=${BOT_COUNT:-0}
+      - BOT_PREFIX=${BOT_PREFIX:-testuser}
+      - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
+      - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
+      - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
+      - NETLAB_CHECKER_URL=http://netlab-checker:8080
+    depends_on:
+      - netlab-checker
+    networks:
+      - workshop_lab
+      - netlab_mgmt
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    pids_limit: 128
+    mem_limit: 96m
+    restart: unless-stopped
+
+networks:
+  # Internal: no route out, no published port. Carries Ansible's SSH from the terminal to the nodes and nothing else.
+  netlab_mgmt:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.80.0.0/24
+    labels:
+      topiary.module: netlab

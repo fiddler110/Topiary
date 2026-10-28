@@ -1,0 +1,18 @@
+{
+  "milestones": [
+    {
+      "id": "n8-capstone",
+      "title": "Clean to Done",
+      "joke": "One playbook rebuilt the network, then politely did nothing.",
+      "core": true,
+      "when": "shell: `dojo netlab check 8` (exit 0), meaning every assertion for lab 8 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+8\\b",
+        "exit": 0,
+        "exit_strict": true
+      }
+    }
+  ]
+}
