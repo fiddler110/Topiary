@@ -35,6 +35,13 @@ class Shape(unittest.TestCase):
         text = generate.render({**ENV, "STUDENT_COUNT": "15"})
         self.assertEqual(len(services(text)), 16 * 8)
 
+    def test_bots_get_pods_after_the_students(self):
+        names = services(generate.render({**ENV, "BOT_COUNT": "2"}))
+        self.assertEqual(len(names), 6 * 8)                   # pods 00..03 plus two bot pods 04, 05
+        for want in ("pc-m-04", "web-a-05"):
+            self.assertIn(want, names)
+        self.assertNotIn("pc-m-06", names)
+
     def test_names_pods_and_roles(self):
         names = services(generate.render(ENV))
         for want in ("pc-m-00", "sw-a-03", "fw-m-02", "web-a-01"):
@@ -45,6 +52,11 @@ class Limits(unittest.TestCase):
     def test_cap_is_enforced(self):
         with self.assertRaisesRegex(generate.ConfigError, "capped at 15"):
             generate.render({**ENV, "STUDENT_COUNT": "16"})
+
+    def test_bots_count_toward_the_cap(self):
+        generate.render({**ENV, "STUDENT_COUNT": "12", "BOT_COUNT": "3"})
+        with self.assertRaisesRegex(generate.ConfigError, r"capped at 15.*BOT_COUNT 4"):
+            generate.render({**ENV, "STUDENT_COUNT": "12", "BOT_COUNT": "4"})
 
     def test_cap_can_be_raised(self):
         generate.render({**ENV, "STUDENT_COUNT": "16", "NETLAB_MAX_STUDENTS": "20"})

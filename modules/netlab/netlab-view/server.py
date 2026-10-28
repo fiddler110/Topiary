@@ -120,11 +120,7 @@ def collect(cfg, pod, runner=checker.ssh):
             nodes.append(got)
         branches.append({"branch": b, "label": "Manual" if b == "m" else "Automated", "nodes": nodes,
                          "probes": probes})
-    return {"pod": pod, "user": cfg_user(cfg, pod), "branches": branches}
-
-
-def cfg_user(cfg, pod):
-    return cfg.facilitator if pod == 0 else f"{cfg.prefix}{pod:02d}"
+    return {"pod": pod, "user": cfg.user_of(pod), "branches": branches}
 
 
 class Cache:

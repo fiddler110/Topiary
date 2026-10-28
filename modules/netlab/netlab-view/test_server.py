@@ -124,6 +124,15 @@ class Http(unittest.TestCase):
         self.assertEqual(self.get("/api/pod/1", "student01", token="bad")[0], 401)
         self.assertEqual(self.get("/", "student01", token="bad")[0], 401)
 
+    def test_bot_sees_only_its_own_pod_and_the_facilitator_sees_it(self):
+        cfg = checker.Config({**ENV, "BOT_COUNT": "1"})
+        self.assertEqual(cfg.user_of(4), "testuser1")
+        self.assertEqual(server.authorize(cfg, "testuser1", 4)[0], 200)
+        self.assertEqual(server.authorize(cfg, "testuser1", 1)[0], 403)
+        self.assertEqual(server.authorize(cfg, "student01", 4)[0], 403)
+        self.assertEqual(server.authorize(cfg, "root", 4)[0], 200)
+        self.assertEqual(server.authorize(cfg, "root", 5)[0], 404)
+
     def test_student_sees_only_own_pod(self):
         self.assertEqual(self.get("/api/pod/1", "student01")[0], 200)
         self.assertEqual(self.get("/api/pod/2", "student01")[0], 403)

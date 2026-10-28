@@ -31,6 +31,10 @@ services:
     # Map form: the engine's web-terminal declares its networks as a map, and podman-compose cannot merge a list into it.
     networks:
       netlab_mgmt: {}
+    volumes:
+      # The reference solutions, for the demo bots (--test) only: /opt/netlab-private is root-only (terminal/Dockerfile),
+      # so no student can read them; account.d/57-netlab.sh copies them into each bot's own home.
+      - ../modules/netlab/solutions:/opt/netlab-private/solutions:ro
     environment:
       - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
       - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
@@ -48,6 +52,8 @@ services:
       - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
       - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
       - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - BOT_COUNT=${BOT_COUNT:-0}
+      - BOT_PREFIX=${BOT_PREFIX:-testuser}
       - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
       - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
       - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}
@@ -79,6 +85,8 @@ services:
       - STUDENT_PASSWORD_SEED=${STUDENT_PASSWORD_SEED:-}
       - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
       - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - BOT_COUNT=${BOT_COUNT:-0}
+      - BOT_PREFIX=${BOT_PREFIX:-testuser}
       - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
       - NETLAB_SWITCH=${NETLAB_SWITCH:-1}
       - NETLAB_MANUAL_BRANCH=${NETLAB_MANUAL_BRANCH:-1}

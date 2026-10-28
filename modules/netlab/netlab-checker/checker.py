@@ -54,7 +54,11 @@ class Config:
         env = os.environ if env is None else env
         self.seed = env.get("STUDENT_PASSWORD_SEED", "")
         self.prefix = env.get("STUDENT_PREFIX", "student") or "student"
-        self.count = int(env.get("STUDENT_COUNT", "30") or 30)
+        self.students = int(env.get("STUDENT_COUNT", "30") or 30)
+        # Demo bots (./dojo --test) are treated like students: testuserK gets the pod after the last student's.
+        self.bots = int(env.get("BOT_COUNT", "0") or 0)
+        self.bot_prefix = env.get("BOT_PREFIX", "testuser") or "testuser"
+        self.count = self.students + self.bots          # pods 1..count
         self.facilitator = env.get("FACILITATOR_USERNAME", "root") or "root"
         self.manual = env.get("NETLAB_MANUAL_BRANCH", "1") != "0"
         self.switch = env.get("NETLAB_SWITCH", "1") != "0"
@@ -67,13 +71,23 @@ class Config:
             return None
         if user == self.facilitator:
             return 0
+        m = re.fullmatch(re.escape(self.bot_prefix) + r"(\d{1,4})", user)
+        if m:
+            n = int(m.group(1))
+            return self.students + n if user == f"{self.bot_prefix}{n}" and 1 <= n <= self.bots else None
         m = re.fullmatch(re.escape(self.prefix) + r"(\d{1,4})", user)
         if not m:
             return None
         n = int(m.group(1))
-        if user != f"{self.prefix}{n:02d}" or not 1 <= n <= self.count:
+        if user != f"{self.prefix}{n:02d}" or not 1 <= n <= self.students:
             return None
         return n
+
+    def user_of(self, pod):
+        """The account that owns a pod (the inverse of pod_of)."""
+        if pod == 0:
+            return self.facilitator
+        return f"{self.prefix}{pod:02d}" if pod <= self.students else f"{self.bot_prefix}{pod - self.students}"
 
     def branches(self):
         return ("m", "a") if self.manual else ("a",)

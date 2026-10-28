@@ -46,6 +46,17 @@ class Keys(unittest.TestCase):
         for bad in ("student04", "student00", "student2", "student002", "x", "", None, "student01;id"):
             self.assertIsNone(c.pod_of(bad), bad)
 
+    def test_bots_are_treated_like_students(self):
+        c = cfg(BOT_COUNT="2")
+        self.assertEqual(c.pod_of("testuser1"), 4)
+        self.assertEqual(c.pod_of("testuser2"), 5)
+        self.assertEqual(c.count, 5)
+        for bad in ("testuser3", "testuser0", "testuser01", "testuser", "student04"):
+            self.assertIsNone(c.pod_of(bad), bad)
+        self.assertIsNone(cfg().pod_of("testuser1"))            # no bots, no pod
+        self.assertEqual([c.user_of(n) for n in (0, 3, 4, 5)], ["root", "student03", "testuser1", "testuser2"])
+        self.assertNotEqual(checker.check_key(SEED, "testuser1"), checker.check_key(SEED, "testuser2"))
+
 
 class Handle(unittest.TestCase):
     def body(self, user="student01", lab="1", key=None):

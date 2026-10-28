@@ -23,4 +23,5 @@ COPY netlab-seed.sh /usr/local/lib/netlab/seed.sh
 COPY start.d/50-netlab.sh /etc/dojo/start.d/50-netlab.sh
 COPY account.d/57-netlab.sh /etc/dojo/account.d/57-netlab.sh
 COPY cmd.d/netlab /usr/local/share/dojo/cmd.d/netlab
-RUN chmod 0755 /usr/local/share/dojo/cmd.d/netlab /usr/local/lib/netlab/seed.sh /etc/dojo/start.d/50-netlab.sh /etc/dojo/account.d/57-netlab.sh
+RUN install -d -m 0700 /opt/netlab-private \
+ && chmod 0755 /usr/local/share/dojo/cmd.d/netlab /usr/local/lib/netlab/seed.sh /etc/dojo/start.d/50-netlab.sh /etc/dojo/account.d/57-netlab.sh
