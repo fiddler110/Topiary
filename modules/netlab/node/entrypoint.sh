@@ -41,6 +41,10 @@ EOF2
   [ -n "$dev" ] || { echo "netlab: no interface in $docker" >&2; exit 1; }
   ip addr flush dev "$dev"
   if [ -n "${pname:-}" ]; then ip link set "$dev" down; ip link set "$dev" name "$pname"; dev="$pname"; fi
+  # Which of a link's two ends got 1500 and which 65520 varies with how the runtime created the network, and a
+  # bridge drops frames bigger than the smallest port without a word (a TLS handshake to the web server hangs on
+  # one pod and works on its neighbour). Pin every data port to 1500 (lowering is always allowed).
+  ip link set "$dev" mtu 1500 2>/dev/null || true
   ip link set "$dev" up
   case "$mode" in
     plain)  ip addr add "$addr" dev "$dev"
