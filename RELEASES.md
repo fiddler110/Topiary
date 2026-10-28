@@ -7,6 +7,15 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## netlab-ansible capstone on (2026-10-28, `feat/netlab-followups`)
+
+"Rebuild From Clean" is on. `netlab-checker` answers `POST /proof` (token derived from `GATEWAY_TOKEN`, held only by the checker and the
+achievements service) with which labs it last saw pass on a user's pod, and the new achievements verb `netlab_labs_passed`
+(`modules/achievements/plugins/netlab`) asks it for labs 0-4, 6 and 8 when a student runs `dojo check capstone`. Tested locally with
+`./dojo netlab-ansible --test 3 --fast`: the expert and intermediate bots got the capstone (+300), the novice (labs 0-3 only) was told
+which labs the checker had not seen pass, and from the novice's terminal `/proof` without or with a wrong token, `/last`, a spoofed
+identity and an unsigned adapter event were all refused. The checker's record is in memory (a checker restart means re-running checks).
+
 ## netlab per-uid firewall in the terminal (2026-10-28, `feat/netlab-followups`)
 
 Student N's uid (and demo bot K's, pod STUDENT_COUNT+K) can open connections only to pod N's management addresses on `netlab_mgmt`;
