@@ -131,21 +131,19 @@ structured `verify` assertion mentions `{user}`.
 
 Each has two hints (25% each by default) and an answer that scores zero. The check is by outcome, so any way of doing it counts.
 
-## Capstone (300 points, optional): Rebuild From Clean (off)
+## Capstone (300 points, optional): Rebuild From Clean
 
 - **Points:** 300
 - **Where it runs:** the student's own pod, `{user}`'s branch a, reached only with the account's own pod password
-- **Goal shown to the student:** Switched off until a netlab verifier verb exists (the achievements service has none yet, and `dojo netlab check 8` already covers the lab 8 rebuild as a normal milestone). Intended: reset your branch a, rebuild it from one playbook, and have the second run change nothing.
+- **Goal shown to the student:** Finish the whole core path on your own pod: labs 0 to 4, 6 and 8 each passing `dojo netlab check`, with lab 8 as the rebuild from clean (reset branch a, one `site.yml`, a second run that changes nothing) and your manual and automated branches agreeing. Then run `dojo check capstone`.
 - **Seed:** No seed: the pod is the seed.
-- **Verify:** Not checked by the service yet; `dojo netlab check 8` is the check.
-- **Hint 1:** Start with the reset playbook.
-- **Hint 2:** Run it twice: the second run is the test.
-- **Answer:** Run `ansible-playbook reset_fw.yml -e branch=a`, then your lab 8 `site.yml` twice; the second run reports changed=0.
-- **Collision check:** Each student's pod is theirs alone; nothing here is shared.
+- **Verify:** The service asks the netlab checker, from outside your terminal, whether it last saw labs 0, 1, 2, 3, 4, 6 and 8 pass on your own pod (lab 8 includes the manual-versus-automated branch comparison). Run `dojo netlab check N` for any lab it names, then `dojo check capstone` again.
+- **Hint 1:** `dojo check capstone` names the labs the checker has not seen pass yet.
+- **Hint 2:** It reads the checker's latest result for each lab, so re-run `dojo netlab check N` for the one it names.
+- **Answer:** Run `dojo netlab check 0`, `1`, `2`, `3`, `4`, `6` and `8` until each passes (lab 8 after `ansible-playbook reset_fw.yml -e branch=a`, then your `site.yml` twice, the second run reporting changed=0), then `dojo check capstone`.
+- **Collision check:** Each student's pod is theirs alone, and the proof is the checker's record for that pod; the verb takes the pod from the checking student's name, never from an argument.
 - **Badge tier:** capstone (stars)
 
 ## Totals (computed)
 
-7 core milestones (70 points) of 12 milestones (120) · 4 funny unlocks (0 points each) · 0 challenges (0) · capstone 0 · plus first blood and class-clear bonuses. Everything: 120 points.
-
-1 item(s) marked (off) are switched off (`"enabled": false`): hidden from students, never fire, and left out of these totals and of completion.
+7 core milestones (70 points) of 12 milestones (120) · 4 funny unlocks (0 points each) · 0 challenges (0) · capstone 300 · plus first blood and class-clear bonuses. Everything: 420 points.

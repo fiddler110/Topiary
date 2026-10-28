@@ -64,6 +64,23 @@
       }
     },
     {
+      "id": "f-neighbour",
+      "title": "Nosy Neighbour",
+      "joke": "That is not your app. It is a fine app, though. Strictly a look, no touching.",
+      "when": "shell: `curl` or `wget` to a named student's slot on `app-host:8080` (your own slot, as `$USER` or by your own account name, does not count)",
+      "match": {
+        "source": "shell",
+        "cmd": [
+          "curl",
+          "wget",
+          "http",
+          "https"
+        ],
+        "regex": "app-host:8080/(?!\\$)(?:student|testuser)[0-9]+",
+        "regex_not": "app-host:8080/{user}(?![0-9A-Za-z_-])"
+      }
+    },
+    {
       "id": "f-paste",
       "title": "Paste Bin Energy",
       "joke": "A secret in the chat. It happens.",

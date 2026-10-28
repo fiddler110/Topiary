@@ -24,6 +24,16 @@ dojo netlab check 8
 
 Each line says `PASS` or `FAIL` with the reason. Fix what failed and run it again (the checker allows about six runs a minute).
 
+## The capstone
+
+When labs 0 to 4, 6 and this one each pass, run:
+
+```sh
+dojo check capstone
+```
+
+It asks the checker which labs it last saw pass on your pod and names any it has not. Re-run `dojo netlab check N` for those and try again.
+
 ## If you are stuck
 
 | You see | Cause and fix |

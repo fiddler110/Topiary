@@ -441,6 +441,7 @@ class Store:
         event = matcher.shell_event(body)
         if event is None:
             raise Denied(400, "expected {cmd, exit}")
+        event["user"] = user    # for `regex_not` ({user} is the account running the command)
         now = self.clock()
         with self.lock:
             self._student(user)

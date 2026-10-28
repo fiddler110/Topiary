@@ -280,10 +280,7 @@ in [Manual checks](#manual-checks) above), **dojo-introduction** and **cloud-pol
 
 ## Later
 
-- **netlab: remaining work** (module built on `feat/netlab-module`, see `NETLAB-PLAN.md`). **S** Run the `netlab-ansible` pack with a room (the demo bots now work it, `--test 3 --fast`, 2026-10-28; slides, `FACILITATOR.md` and achievements exist but a live
-  overflow check and a full-size class start are not done; its capstone needs a netlab verifier verb). **S** The probe agent (the
-  checker and `netlab-view` use SSH for now; `netlab-view` page shipped, add a line to `RELEASES.md` once merged). **S** Per-uid firewall in the terminal so uid N reaches only pod N. **S** Measure start time and
-  idle memory of the 15-student class; `ansible-lint` for lab 7. **S** The checker's rate limit (6 per minute) is tight for testing.
+- **netlab: remaining work** (module merged; see `NETLAB-PLAN.md`). **S** Run the `netlab-ansible` pack with a room (demo bots, the capstone and the per-uid firewall are done and tested locally, 2026-10-28; a live slide overflow check and a full-size class start are not). **S** The probe agent (the checker and `netlab-view` use SSH for now). **S** Measure start time and idle memory of the 15-student class. **S** The checker's rate limit (6 per minute) is tight for testing. **M** A management network per pod, so a student with root on their own nodes cannot reach other pods' SSH (the per-uid firewall only covers the terminal). **S** Stopping a 138-container stack takes about 7 minutes: a rootless `podman rm` costs about 3 s per container here, not helped by `-t 0`, parallel removal, cgroupfs or no network (measured 2026-10-28); cause not found (storage or conmon?), so try `podman system` options or fewer containers per pod. **S** The netlab capstone verifies from the checker's in-memory record, so a checker restart means students re-run their checks.
 
 ### Smoke run
 

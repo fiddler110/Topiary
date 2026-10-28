@@ -21,7 +21,14 @@ import os
 import sys
 
 IMAGE = "topiary/netlab-node:${WORKSHOP_SLUG:-local}"
-MGMT_CIDR = "10.80.0.0/24"          # must match compose.yml
+MGMT_CIDR = "10.80.0.0/22"          # must match compose.yml
+# Every node has a fixed management address, so terminal/start.d/50-netlab.sh can firewall by pod (terminal/netlab_fw.py
+# derives the same block): pod N owns the 8 addresses 10.80.1.(8N)..(8N+7), a node's slot is branch * 4 + role.
+# 10.80.0.0/24 stays for the dynamic addresses (compose.yml ip_range): the terminal, the checker and the view.
+MGMT_POD_BASE = "10.80.1."
+MGMT_MAX_PODS = 32
+ROLE_SLOT = {"pc": 0, "sw": 1, "fw": 2, "web": 3}
+BRANCH_SLOT = {"m": 0, "a": 4}
 LAB = {"pc": "10.10.10.10/24", "web": "10.10.20.10/24", "fw10": "10.10.10.1/24", "fw20": "10.10.20.1/24"}
 # ping_group_range is "0 0": nodes run ping as root, and a rootless user namespace rejects gids it does not map.
 # What sshd, nginx and the interface set-up need, measured in NETLAB-PLAN.md 9.1.
@@ -36,6 +43,11 @@ def password(seed, pod):
     """The pod's root password. modules/netlab/terminal/ derives the same value for the student's home."""
     mac = hmac.new(seed.encode(), f"netlab:{pod:02d}".encode(), hashlib.sha256).digest()
     return base64.b32encode(mac).decode()[:24].lower()
+
+
+def mgmt_ip(pod, b, role):
+    """The node's fixed management address."""
+    return f"{MGMT_POD_BASE}{8 * pod + BRANCH_SLOT[b] + ROLE_SLOT[role]}"
 
 
 def settings(env):
@@ -59,6 +71,9 @@ def settings(env):
         raise ConfigError(f"netlab is capped at {s['max']} students (NETLAB_MAX_STUDENTS): each student runs "
                           f"{8 if s['switch'] else 6} containers and a rootless host runs out of kernel keys near 200. "
                           f"STUDENT_COUNT is {s['students']}{bots}; lower STUDENT_COUNT or use fewer bots.")
+    if s["pods"] + 1 > MGMT_MAX_PODS:
+        raise ConfigError(f"the management network holds {MGMT_MAX_PODS} pods (the facilitator's and {MGMT_MAX_PODS - 1} "
+                          f"more); STUDENT_COUNT + BOT_COUNT is {s['pods']}")
     if not s["seed"]:
         raise ConfigError("STUDENT_PASSWORD_SEED is empty; the pods' root passwords cannot be derived")
     return s
@@ -138,7 +153,8 @@ def service(name, role, pod, b, root_pw, net_keys, ports):
         lines += ["sysctls:", "  net.ipv4.ping_group_range: \"0 0\""]
     if role == "fw":
         lines += ["sysctls:", "  net.ipv4.ip_forward: \"1\""]
-    lines += ["networks:", "  - netlab_mgmt"] + [f"  - {k}" for k in net_keys]
+    # Map form, so netlab_mgmt can carry the fixed address; the data networks take Docker's.
+    lines += ["networks:", "  netlab_mgmt:", f"    ipv4_address: {mgmt_ip(pod, b, role)}"] + [f"  {k}: {{}}" for k in net_keys]
     return name, lines
 
 

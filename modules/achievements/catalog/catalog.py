@@ -71,6 +71,8 @@ ADAPTER_EVENTS = {
 #     out_regex    searched (multiline) in the last lines the command printed (read from the tmux pane,
 #                  so only under tmux); a list matches if any does. Matched and dropped, never kept
 #     regex        searched in the segment ("git diff main..x", redirects kept: "echo x >> .gitignore")
+#     regex_not    like regex, but the segment must NOT match it; `{user}` is the student's own account, so a joke about
+#                  touching someone else's thing can skip the student's own (a string or a list; any match excludes)
 #     exit         0, a list of codes, "nonzero" or "any" (default "any"): the line's exit status
 #     exit_strict  true: credit `exit` only when this command's own code is known (it is the last command, or part of
 #                  an `&&` chain that succeeded), never from the line's code alone, so `check 3; echo` or `check 3 | cat`
@@ -119,7 +121,7 @@ ADAPTER_EVENTS = {
 #   {"any": [match, ...]} fires when one of the listed matches does.
 MATCH_FIELDS = {
     "shell": {"cmd", "flags", "flags_none", "regex", "exit", "branch", "branch_not", "branch_before",
-              "branch_before_not", "in_repo", "merging", "merging_after", "out_regex", "requires", "requires_not", "count", "exit_strict"},
+              "branch_before_not", "in_repo", "merging", "merging_after", "out_regex", "requires", "requires_not", "count", "exit_strict", "regex_not"},
     "forgejo": {"event", "action", "ref_type", "branch", "branch_not", "tag", "repo", "repo_not", "head",
                 "head_prefix", "requires", "requires_not", "count"},
     "dns": {"event", "zone", "first", "created_min", "changed_min", "deleted_min", "ttl_below", "requires",
@@ -195,11 +197,11 @@ def check_match(match, where):
             isinstance(e, list) and e and all(isinstance(x, int) and not isinstance(x, bool) for x in e))
         if not ok:
             problems.append(f"{where}: match.exit must be a code, a list of codes, 'nonzero' or 'any'")
-    for rkey in ("regex", "out_regex"):
+    for rkey in ("regex", "out_regex", "regex_not"):
         if rkey not in match:
             continue
         try:
-            for r in match[rkey] if rkey == "out_regex" and isinstance(match[rkey], list) else [match[rkey]]:
+            for r in match[rkey] if rkey in ("out_regex", "regex_not") and isinstance(match[rkey], list) else [match[rkey]]:
                 re.compile(r)
         except (re.error, TypeError) as exc:
             problems.append(f"{where}: match.{rkey} does not compile ({exc})")

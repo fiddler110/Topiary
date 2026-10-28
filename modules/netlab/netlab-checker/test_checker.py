@@ -1,7 +1,10 @@
 import json
 import os
 import sys
+import threading
 import unittest
+import urllib.error
+import urllib.request
 
 sys.path.insert(0, os.path.dirname(__file__))
 import checker  # noqa: E402
@@ -222,6 +225,71 @@ class Labs(unittest.TestCase):
 
     def test_view_token_differs_from_check_keys(self):
         self.assertNotEqual(checker.view_token(SEED), checker.check_key(SEED, "student01"))
+
+
+TOKEN = "t" * 40
+
+
+class Proof(unittest.TestCase):
+    """POST /proof: the achievements service asks what the checker itself last saw pass."""
+
+    def seen(self, **labs):
+        return {1: {k: {"ok": v, "passed": 1, "total": 1, "time": 1} for k, v in labs.items()}}
+
+    def test_passes_only_when_every_lab_last_passed(self):
+        c = cfg()
+        st = self.seen(**{"0": True, "1": True, "2": False, "S1": True})
+        self.assertEqual(checker.proof(c, {"user": "student01", "labs": ["0", "1"]}, st), (200, {"passed": True, "missing": []}))
+        self.assertEqual(checker.proof(c, {"user": "student01", "labs": ["0", "2", "3"]}, st),
+                         (200, {"passed": False, "missing": ["2", "3"]}))
+        self.assertTrue(checker.proof(c, {"user": "student01", "labs": ["s1"]}, st)[1]["passed"])
+
+    def test_is_per_pod_and_never_for_the_facilitator(self):
+        c = cfg()
+        st = self.seen(**{"0": True})
+        self.assertFalse(checker.proof(c, {"user": "student02", "labs": ["0"]}, st)[1]["passed"])
+        self.assertEqual(checker.proof(c, {"user": "root", "labs": ["0"]}, st)[0], 403)
+        self.assertEqual(checker.proof(c, {"user": "nobody", "labs": ["0"]}, st)[0], 403)
+
+    def test_bad_bodies(self):
+        c = cfg()
+        for body in (None, [], {"user": "student01"}, {"user": "student01", "labs": []},
+                     {"user": "student01", "labs": ["99"]}, {"user": "student01", "labs": "0"},
+                     {"user": "student01", "labs": [0]}):
+            self.assertIn(checker.proof(c, body, {})[0], (400, 403), body)
+
+    def serve(self, **env):
+        srv = checker.ThreadingHTTPServer(("127.0.0.1", 0), checker.make_handler(cfg(**env), checker.RateLimit(5, 60)))
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        self.addCleanup(srv.shutdown)
+        return srv.server_address[1]
+
+    def post(self, port, body, token=None):
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/proof", json.dumps(body).encode(),
+                                     {"X-Netlab-Proof-Token": token} if token is not None else {})
+        try:
+            with urllib.request.urlopen(req, timeout=5) as r:
+                return r.status, json.load(r)
+        except urllib.error.HTTPError as e:
+            return e.code, json.load(e)
+
+    def test_http_needs_the_token(self):
+        checker.LAST[1] = {"0": {"ok": True}}
+        self.addCleanup(checker.LAST.clear)
+        port = self.serve(NETLAB_PROOF_TOKEN=TOKEN)
+        body = {"user": "student01", "labs": ["0"]}
+        self.assertEqual(self.post(port, body, TOKEN), (200, {"passed": True, "missing": []}))
+        self.assertEqual(self.post(port, body)[0], 403)
+        self.assertEqual(self.post(port, body, "x" * 40)[0], 403)
+        # a student's own check key, or the view token, is not the proof token
+        self.assertEqual(self.post(port, body, checker.check_key(SEED, "student01"))[0], 403)
+        self.assertEqual(self.post(port, body, checker.view_token(SEED))[0], 403)
+
+    def test_http_unset_or_short_token_refuses_everything(self):
+        port = self.serve()
+        self.assertEqual(self.post(port, {"user": "student01", "labs": ["0"]}, "")[0], 403)
+        port = self.serve(NETLAB_PROOF_TOKEN="short")
+        self.assertEqual(self.post(port, {"user": "student01", "labs": ["0"]}, "short")[0], 403)
 
 
 if __name__ == "__main__":

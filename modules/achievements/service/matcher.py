@@ -228,6 +228,9 @@ def _shell_match(m, ev, rx):
                 continue
             if rx is not None and not rx.search(seg["text"]):
                 continue
+            if "regex_not" in m and ev.get("user") and any(
+                    re.search(r.replace("{user}", re.escape(ev["user"])), seg["text"]) for r in _as_list(m["regex_not"])):
+                continue
             return True
     return False
 

@@ -75,7 +75,10 @@ reference: "does your playbook end where your hands ended?". Tell students to ru
 
 **Achievements.** Each lab milestone fires when that lab's `dojo netlab check` passes. They are listed in
 [`ACHIEVEMENTS.md`](ACHIEVEMENTS.md); the seven core-path labs (0-4, 6, 8) count towards the certificate, stretch labs
-do not. The capstone is switched off until the service has a netlab verifier verb.
+do not. The capstone, "Rebuild From Clean", is a challenge-style unlock: once a student has passed `dojo netlab check` on labs 0-4, 6
+and 8, `dojo check capstone` asks the netlab checker (not the terminal) whether it last saw each of them pass on that
+student's pod. The checker's record is in memory, so after a checker restart (`./dojo restart netlab-checker`) students
+re-run the checks it names before the capstone passes; one already earned stays earned.
 
 ## When something breaks
 

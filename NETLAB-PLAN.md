@@ -63,7 +63,15 @@ All pods share `netlab_mgmt` and all students share one terminal container, so n
 
 1. **Per-pod credentials**: each pod's `root` password is `HMAC(STUDENT_PASSWORD_SEED, "netlab:<NN>")`, written only to that
    student's `~/.config/dojo/netlab-password` (`0600`), the same pattern as `modules/dns-gate/terminal/start.d/50-dns-key.sh`.
-2. **Per-uid firewall in the terminal** (phase 2): reuse the hook in `modules/ctf-range/terminal/` so uid N reaches only pod N.
+2. **Per-uid firewall in the terminal** (built, same shape as `modules/ctf-range/terminal/start.d/50-ctf-range.sh`): every node
+   has a fixed management address (pod N: `10.80.1.(8N)`..`(8N+7)`; `netlab_mgmt` is `10.80.0.0/22`, services take
+   dynamic addresses from `10.80.0.0/24`), and `terminal/start.d/50-netlab.sh` runs `netlab_fw.py` to load a
+   `NETLAB_ISOLATION` chain on `OUTPUT`: root returns, studentN's uid (and demo bot K's, pod STUDENT_COUNT+K) returns for
+   pod N's block only, everything else to `netlab_mgmt` is dropped (`REJECT` never reaches the local socket from `OUTPUT` here). It fails closed: if the rules cannot be
+   loaded and read back the hook exits 1 and the engine stops the container, because starting with every pod open would
+   only be noticed after someone read another pod's nodes. `NET_ADMIN` is already on `web-terminal` (engine, for
+   `DOJO_ISOLATION`). **Residual:** root on one's own node shares the `netlab_mgmt` segment, so another pod's SSH is
+   reachable from there (password only); closing it needs a management network per pod.
 
 ## 4. Engine change: a per-module generator
 

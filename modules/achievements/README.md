@@ -31,7 +31,7 @@ modules/achievements/catalog/shared.json   cheating tiers and cross-workshop unl
   `catalog.json` sets `"require_match": true` (git-fundamentals does).
 - **`match` fields** (full list in `catalog/catalog.py`, matched by `service/matcher.py`). `shell`: `cmd` (the
   command's first words, a string or a list), `flags` / `flags_none`, `regex` (on the command segment, redirects
-  kept), `exit` (a code, a list, `"nonzero"` or `"any"`), `exit_strict` (`true`: count `exit` only when that command's own code is known, so `check 3; echo` or `check 3 | cat` does not pass), `branch` / `branch_before` (`"HEAD"` when detached),
+  kept), `regex_not` (the segment must not match; `{user}` is the student's own account), `exit` (a code, a list, `"nonzero"` or `"any"`), `exit_strict` (`true`: count `exit` only when that command's own code is known, so `check 3; echo` or `check 3 | cat` does not pass), `branch` / `branch_before` (`"HEAD"` when detached),
   `in_repo`, `merging`, `merging_after`, `out_regex` (searched in the last lines the command printed, read from
   the pane -- tmux or Zellij, see "Shell output" below; matched and dropped). `forgejo`: `event` (push, create, delete, fork, pull_request,
   pull_request_review), `action` (opened, merged, approved, ...), `ref_type`, `branch`, `tag`, `repo` (`{user}`
@@ -169,6 +169,11 @@ zellij`, which has no code-server and so no `tmux` either) it instead dumps the 
 (`zellij action dump-screen`), since Zellij's CLI has no range query -- good enough for an optional easter egg,
 though output taller than the viewport is simply missed. Either way it is matched and dropped, never stored. A
 full-screen program (vim, less) or a `clear` leaves nothing to read.
+
+**Netlab proof.** `plugins/netlab` (`netlab_labs_passed`, `labs`: lab ids as `dojo netlab check` takes them) asks the netlab
+module's `netlab-checker` (`NETLAB_CHECKER_URL`, `NETLAB_PROOF_TOKEN`, both derived by that module's `module.env`) which
+labs it last saw pass on the checking student's own pod. The pack's capstone uses it; the checker answers only this
+service's token and records verdicts only from runs it made itself. Tests: `service/test_netlab_pack.py`.
 
 **Adapter events.** A module that owns a backend posts what happened, signed with `ACHIEVEMENTS_ADAPTER_SECRET`
 (HMAC-SHA256 of the raw body, header `X-Adapter-Signature`) to `POST /api/adapter`, best effort and never slowing the

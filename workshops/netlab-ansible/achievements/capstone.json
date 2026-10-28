@@ -1,16 +1,30 @@
 {
   "id": "capstone",
   "title": "Rebuild From Clean",
-  "enabled": false,
   "space": "the student's own pod, `{user}`'s branch a, reached only with the account's own pod password",
-  "goal": "Switched off until a netlab verifier verb exists (the achievements service has none yet, and `dojo netlab check 8` already covers the lab 8 rebuild as a normal milestone). Intended: reset your branch a, rebuild it from one playbook, and have the second run change nothing.",
+  "goal": "Finish the whole core path on your own pod: labs 0 to 4, 6 and 8 each passing `dojo netlab check`, with lab 8 as the rebuild from clean (reset branch a, one `site.yml`, a second run that changes nothing) and your manual and automated branches agreeing. Then run `dojo check capstone`.",
   "seed": "No seed: the pod is the seed.",
-  "verify_text": "Not checked by the service yet; `dojo netlab check 8` is the check.",
+  "verify_text": "The service asks the netlab checker, from outside your terminal, whether it last saw labs 0, 1, 2, 3, 4, 6 and 8 pass on your own pod (lab 8 includes the manual-versus-automated branch comparison). Run `dojo netlab check N` for any lab it names, then `dojo check capstone` again.",
   "badge_tier": "capstone",
   "hints": [
-    "Start with the reset playbook.",
-    "Run it twice: the second run is the test."
+    "`dojo check capstone` names the labs the checker has not seen pass yet.",
+    "It reads the checker's latest result for each lab, so re-run `dojo netlab check N` for the one it names."
   ],
-  "answer": "Run `ansible-playbook reset_fw.yml -e branch=a`, then your lab 8 `site.yml` twice; the second run reports changed=0.",
-  "isolation": "Each student's pod is theirs alone; nothing here is shared."
+  "verify": [
+    {
+      "verb": "netlab_labs_passed",
+      "user": "{user}",
+      "labs": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "6",
+        "8"
+      ]
+    }
+  ],
+  "answer": "Run `dojo netlab check 0`, `1`, `2`, `3`, `4`, `6` and `8` until each passes (lab 8 after `ansible-playbook reset_fw.yml -e branch=a`, then your `site.yml` twice, the second run reporting changed=0), then `dojo check capstone`.",
+  "isolation": "Each student's pod is theirs alone, and the proof is the checker's record for that pod; the verb takes the pod from the checking student's name, never from an argument."
 }
