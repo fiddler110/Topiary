@@ -1,0 +1,17 @@
+{
+  "milestones": [
+    {
+      "id": "ns1-vlans",
+      "title": "Tagged and Proud",
+      "joke": "No module? You wrote the template yourself.",
+      "core": false,
+      "when": "shell: `dojo netlab check S1` (exit 0), meaning every assertion for lab S1 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+S1\\b",
+        "exit": 0
+      }
+    }
+  ]
+}

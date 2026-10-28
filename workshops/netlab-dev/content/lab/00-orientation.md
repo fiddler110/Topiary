@@ -1,3 +1,0 @@
-# Netlab
-
-Placeholder lab.

@@ -60,6 +60,6 @@ cp -r /usr/local/share/netlab/seed "$ws" || exit 0
     echo
   done
 } > "$ws/hosts.ini"
-sed -i "s/@POD@/$pod/g" "$ws/group_vars/all.yml" "$ws/LAB-README.md"
+sed -i "s/@POD@/$pod/g" "$ws/group_vars/all.yml" "$ws/LAB-README.md" "$ws"/labs/*/README.md
 chown -R "$user:$group" "$ws"
 exit 0

@@ -1,0 +1,17 @@
+{
+  "milestones": [
+    {
+      "id": "n4-validated",
+      "title": "Look Before You Reload",
+      "joke": "Validate first, so sshd never meets your typo.",
+      "core": true,
+      "when": "shell: `dojo netlab check 4` (exit 0), meaning every assertion for lab 4 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+4\\b",
+        "exit": 0
+      }
+    }
+  ]
+}

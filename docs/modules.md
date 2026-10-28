@@ -14,7 +14,7 @@ one is in the [Authoring guide](authoring.md#6-writing-a-module); each module's 
 | [`sensei`](#sensei) | PR reviewer, help desk (`dojo sensei ask/why/hand`), stuck radar | all main-path workshops |
 | [`achievements`](#achievements) | Scoring, toasts, leaderboard, challenges, certificate | any pack with a catalog, when `ACHIEVEMENTS_ENABLED` |
 | [`ctf-range`](#ctf-range) | Vulnerable targets, boxed Docker host, flag service, attacker bots | ctf-* packs |
-| [`netlab`](#netlab) | Per-student Ansible practice networks: switch, firewall and web node, by hand and by playbook | netlab-dev (a full pack is on the roadmap) |
+| [`netlab`](#netlab) | Per-student Ansible practice networks: switch, firewall and web node, by hand and by playbook | netlab-ansible |
 | `_shared` | Single copies of helper code (`dojo_http.py`, `adapter_client.py`) | built into several modules via `SHARED=` |
 
 ## Anatomy of every module

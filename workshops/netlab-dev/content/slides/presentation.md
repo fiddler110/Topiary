@@ -1,5 +1,0 @@
----
-marp: true
----
-
-# Netlab

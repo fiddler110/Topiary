@@ -1,0 +1,17 @@
+{
+  "milestones": [
+    {
+      "id": "n6-rollback",
+      "title": "Tested, Locked, Recoverable",
+      "joke": "Locked it down, tested it, and kept an undo.",
+      "core": true,
+      "when": "shell: `dojo netlab check 6` (exit 0), meaning every assertion for lab 6 passed",
+      "match": {
+        "source": "shell",
+        "cmd": "dojo netlab check",
+        "regex": "(?i)\\bcheck\\s+6\\b",
+        "exit": 0
+      }
+    }
+  ]
+}
