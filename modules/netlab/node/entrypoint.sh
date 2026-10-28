@@ -116,7 +116,6 @@ cat > /etc/ssh/sshd_config <<SSHD
 Port 22
 PermitRootLogin yes
 PasswordAuthentication yes
-UsePAM no
 PrintMotd no
 Subsystem sftp internal-sftp
 SSHD

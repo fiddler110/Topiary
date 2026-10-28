@@ -1,0 +1,23 @@
+# Lab 1: serve a page on the automated branch's web server.
+- name: Web page
+  hosts: web:&auto
+  gather_facts: false
+  vars:
+    page_title: TODO   # your name
+  tasks:
+    # TODO 1: put a file at /var/www/html/index.html. Start with ansible.builtin.copy and a fixed `content:`.
+    #         Run the playbook twice: what does the second run say?
+
+    # TODO 2: replace copy with ansible.builtin.template (src: index.html.j2) so {{ page_title }} is filled in.
+    #         Create index.html.j2 next to this file.
+
+    # TODO 3: notify a handler "Reload nginx" when the page changes.
+    - name: TODO
+      ansible.builtin.debug:
+        msg: Replace this task.
+
+  handlers:
+    # TODO 4: the handler runs `nginx -s reload` with ansible.builtin.command.
+    - name: Reload nginx
+      ansible.builtin.debug:
+        msg: Replace this handler.

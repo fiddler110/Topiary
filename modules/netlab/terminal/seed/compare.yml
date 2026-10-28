@@ -1,0 +1,46 @@
+# Do the hand-built branch (m) and the automated branch (a) agree? Compares each firewall's rules and each web
+# server's nginx config. Counters, comments and the date iptables-save adds are left out.
+- name: Read each node's state
+  hosts: "fw:web"
+  gather_facts: false
+  tasks:
+    - name: Firewall rules
+      ansible.builtin.shell: iptables-save | grep -v -e '^#' -e '^:' | sed 's/ -m comment --comment "[^"]*"//'
+      register: rules
+      changed_when: false
+      when: "'fw' in group_names"
+
+    - name: nginx config files
+      ansible.builtin.shell: cat /etc/nginx/http.d/*.conf | sed 's/^[[:space:]]*//' | grep -v '^$' | sort
+      register: nginx
+      changed_when: false
+      when: "'web' in group_names"
+
+    - name: Keep what was read, per branch
+      ansible.builtin.set_fact:
+        state: "{{ (rules.stdout_lines | default([])) if 'fw' in group_names else (nginx.stdout_lines | default([])) }}"
+
+- name: Compare the branches
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    pairs:
+      - {role: fw, what: firewall rules}
+      - {role: web, what: nginx config}
+  tasks:
+    - name: Show what differs
+      ansible.builtin.debug:
+        msg: |-
+          {{ item.what }}: {{ 'same' if only_m == [] and only_a == [] else 'DIFFERENT' }}
+          {% for l in only_m %}only in m: {{ l }}
+          {% endfor %}{% for l in only_a %}only in a: {{ l }}
+          {% endfor %}
+      vars:
+        m: "{{ hostvars['%s-m-%s' | format(item.role, pod)].state }}"
+        a: "{{ hostvars['%s-a-%s' | format(item.role, pod)].state }}"
+        only_m: "{{ m | difference(a) }}"
+        only_a: "{{ a | difference(m) }}"
+      loop: "{{ pairs }}"
+      loop_control:
+        label: "{{ item.what }}"

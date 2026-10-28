@@ -1,0 +1,31 @@
+# Does traffic from this branch's pc reach its web server?
+#   ansible-playbook probe.yml -e branch=a -e expect=allowed                  # HTTP, the default port 80
+#   ansible-playbook probe.yml -e branch=m -e port=443 -e expect=blocked
+#   ansible-playbook probe.yml -e branch=a -e proto=icmp -e expect=allowed
+# Prints PASS when the result is what you expected, FAIL (and exits non-zero) when it is not.
+- name: Probe the web server from the pc
+  hosts: "pc:&{{ 'manual' if (branch | default('a')) == 'm' else 'auto' }}"
+  gather_facts: false
+  vars:
+    proto: "{{ 'https' if (port | default(80) | int) == 443 else 'http' }}"
+    expect: allowed
+  tasks:
+    - name: Try to reach {{ web_ip }}
+      ansible.builtin.command:
+        argv: >-
+          {{ ['ping', '-c', '1', '-W', '2', web_ip] if proto == 'icmp'
+             else ['curl', '-ks', '-o', '/dev/null', '-m', '3', '-w', '%{http_code}',
+                   proto ~ '://' ~ web_ip ~ ':' ~ (port | default(80))] }}
+      register: probe
+      changed_when: false
+      failed_when: false
+
+    - name: Work out whether it got through
+      ansible.builtin.set_fact:
+        got_through: "{{ probe.rc == 0 and (proto == 'icmp' or probe.stdout.startswith(('2', '3'))) }}"
+
+    - name: Check it matches what you expected
+      ansible.builtin.assert:
+        that: (got_through | bool) == (expect == 'allowed')
+        success_msg: "PASS: {{ proto }} to {{ web_ip }} is {{ 'allowed' if got_through | bool else 'blocked' }}, as expected"
+        fail_msg: "FAIL: {{ proto }} to {{ web_ip }} is {{ 'allowed' if got_through | bool else 'blocked' }}, expected {{ expect }}"

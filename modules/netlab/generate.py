@@ -22,6 +22,7 @@ import sys
 IMAGE = "gitopsdojo/netlab-node:${WORKSHOP_SLUG:-local}"
 MGMT_CIDR = "10.80.0.0/24"          # must match compose.yml
 LAB = {"pc": "10.10.10.10/24", "web": "10.10.20.10/24", "fw10": "10.10.10.1/24", "fw20": "10.10.20.1/24"}
+# ping_group_range is "0 0": nodes run ping as root, and a rootless user namespace rejects gids it does not map.
 # What sshd, nginx and the interface set-up need, measured in NETLAB-PLAN.md 9.1.
 CAPS = ["NET_ADMIN", "SETUID", "SETGID", "SYS_CHROOT", "CHOWN", "DAC_OVERRIDE", "NET_BIND_SERVICE"]
 
@@ -126,7 +127,7 @@ def service(name, role, pod, b, root_pw, net_keys, ports):
              "cap_drop: [ALL]", f"cap_add: [{', '.join(CAPS)}]", "security_opt: [\"no-new-privileges:true\"]",
              "pids_limit: 64", f"mem_limit: {'48m' if role == 'web' else '32m'}"]
     if role == "pc":
-        lines += ["sysctls:", "  net.ipv4.ping_group_range: \"0 2147483647\""]
+        lines += ["sysctls:", "  net.ipv4.ping_group_range: \"0 0\""]
     if role == "fw":
         lines += ["sysctls:", "  net.ipv4.ip_forward: \"1\""]
     lines += ["networks:", "  - netlab_mgmt"] + [f"  - {k}" for k in net_keys]

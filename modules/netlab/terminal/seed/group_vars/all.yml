@@ -1,0 +1,11 @@
+# Everything every node shares. The pod number is filled in when the workspace is created.
+pod: "@POD@"
+
+# The nodes take root over SSH with this pod's password (no sudo: the containers run with no-new-privileges).
+ansible_user: root
+ansible_password: "{{ lookup('ansible.builtin.file', '~/.config/dojo/netlab-password') | trim }}"
+ansible_become: false
+
+# The lab network is the same in both branches (each branch is isolated from the other).
+web_ip: 10.10.20.10
+pc_ip: 10.10.10.10
