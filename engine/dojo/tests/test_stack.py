@@ -76,3 +76,59 @@ class BuildImages(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ModuleGenerators(unittest.TestCase):
+    """modules/<m>/generate.py: its stdout becomes .generated/modules/<m>.yml, listed after the module's compose.yml."""
+
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        self.modules, self.engine = root / "modules", root / "engine"
+        self.engine.mkdir()
+        for name, gen in (("plain", None), ("gen", "import os\nprint('x: ' + os.environ['PROBE'])\n"),
+                          ("bad", "import sys\nsys.stderr.write('nope')\nsys.exit(3)\n")):
+            (self.modules / name).mkdir(parents=True)
+            (self.modules / name / "compose.yml").write_text("services: {}\n")
+            if gen:
+                (self.modules / name / "generate.py").write_text(gen)
+        patches = [mock.patch.object(stack.paths, "MODULES", self.modules),
+                   mock.patch.object(stack.paths, "ENGINE", self.engine)]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+        self.addCleanup(self.tmp.cleanup)
+
+    def res(self, modules, **env):
+        return mock.Mock(modules=modules, env={"PROBE": "1", **env})
+
+    def test_no_generator_is_unchanged(self):
+        self.assertEqual(stack.extra_files(self.res(["plain"])), ["../modules/plain/compose.yml"])
+
+    def test_generated_file_follows_the_compose_file(self):
+        files = stack.extra_files(self.res(["gen", "plain"]))
+        self.assertEqual(files, ["../modules/gen/compose.yml", ".generated/modules/gen.yml",
+                                 "../modules/plain/compose.yml"])
+        self.assertEqual((self.engine / ".generated/modules/gen.yml").read_text(), "x: 1\n")
+
+    def test_resolved_env_reaches_the_generator(self):
+        stack.extra_files(self.res(["gen"], PROBE="42"))
+        self.assertEqual((self.engine / ".generated/modules/gen.yml").read_text(), "x: 42\n")
+
+    def test_dry_run_writes_elsewhere(self):
+        files = stack.extra_files(self.res(["gen"]), dry_run=True)
+        self.assertEqual(files[1], ".generated/dry-run/modules/gen.yml")
+        self.assertFalse((self.engine / ".generated/modules").exists())
+
+    def test_unchanged_output_is_not_rewritten(self):
+        stack.extra_files(self.res(["gen"]))
+        path = self.engine / ".generated/modules/gen.yml"
+        before = path.stat().st_mtime_ns
+        stack.extra_files(self.res(["gen"]))
+        self.assertEqual(path.stat().st_mtime_ns, before)
+
+    def test_failure_carries_the_generators_message(self):
+        with self.assertRaisesRegex(RuntimeError, "bad/generate.py failed: nope"):
+            stack.extra_files(self.res(["bad"]))

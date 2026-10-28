@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shlex
 import shutil
@@ -15,11 +16,40 @@ from .envfiles import Resolution
 from .runtime import Runtime
 
 
-def extra_files(res: Resolution) -> List[str]:
+def module_generated(module: str, env: Dict[str, str], dry_run: bool = False) -> Optional[str]:
+    """Run modules/<module>/generate.py with the resolved environment and write its YAML to
+    .generated/modules/<module>.yml (.generated/dry-run/modules/ on a dry run). Returns the path
+    relative to engine/, or None if the module has no generator. The file is only rewritten when
+    it changed, so a restart keeps the same bytes."""
+    script = paths.MODULES / module / "generate.py"
+    if not script.is_file():
+        return None
+    run_env = {**os.environ, **env}
+    try:
+        res = subprocess.run([sys.executable, "-B", str(script)], cwd=str(script.parent), env=run_env,
+                             capture_output=True, text=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"modules/{module}/generate.py took longer than 60 s")
+    if res.returncode != 0 or not res.stdout.strip():
+        raise RuntimeError(f"modules/{module}/generate.py failed: {(res.stderr or res.stdout).strip() or 'no output'}")
+    out = paths.ENGINE / ".generated" / ("dry-run" if dry_run else "") / "modules" / f"{module}.yml"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if not out.is_file() or out.read_text() != res.stdout:
+        out.write_text(res.stdout)
+    return str(out.relative_to(paths.ENGINE))
+
+
+def extra_files(res: Resolution, dry_run: bool = False) -> List[str]:
     """The -f files after docker-compose.yml, relative to engine/ as dojo writes
-    them: each module's compose.yml in MODULES order, then the workshop overlay."""
-    files = [f"../modules/{m}/compose.yml" for m in res.modules
-             if (paths.MODULES / m / "compose.yml").is_file()]
+    them: each module's compose.yml in MODULES order (followed by the file its generate.py
+    writes, if it has one), then the workshop overlay."""
+    files: List[str] = []
+    for m in res.modules:
+        if (paths.MODULES / m / "compose.yml").is_file():
+            files.append(f"../modules/{m}/compose.yml")
+        generated = module_generated(m, res.env, dry_run)
+        if generated:
+            files.append(generated)
     overlay = res.env.get("COMPOSE_OVERLAY", "")
     if overlay:
         files.append(overlay)
