@@ -12,7 +12,7 @@ services:
   netlab-image:
     build:
       context: ../modules/netlab/node
-    image: gitopsdojo/netlab-node:${WORKSHOP_SLUG:-local}
+    image: topiary/netlab-node:${WORKSHOP_SLUG:-local}
     container_name: workshop_netlab_image
     entrypoint: ["true"]
     restart: "no"
@@ -45,7 +45,7 @@ services:
   netlab-checker:
     build:
       context: ../modules/netlab/netlab-checker
-    image: gitopsdojo/netlab-checker:${WORKSHOP_SLUG:-local}
+    image: topiary/netlab-checker:${WORKSHOP_SLUG:-local}
     container_name: workshop_netlab_checker
     init: true
     environment:
@@ -76,7 +76,7 @@ services:
     build:
       context: ../modules/netlab
       dockerfile: netlab-view/Dockerfile
-    image: gitopsdojo/netlab-view:${WORKSHOP_SLUG:-local}
+    image: topiary/netlab-view:${WORKSHOP_SLUG:-local}
     container_name: workshop_netlab_view
     init: true
     environment:

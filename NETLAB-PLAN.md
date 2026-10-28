@@ -48,7 +48,7 @@ result is correct. See section 6 for the labs and section 7 for the bot.
 - Each pod has four data networks, `netlab_NN_cm`, `_mw`, `_ca`, `_aw`: `internal: true`, a **/29** each (Docker keeps `.1`
   as the gateway, so a /30 cannot hold two nodes), two members each. The terminal is not on them. `client` has two data
   interfaces, one per branch, and the two branches use different subnets so a mistake in one cannot reach the other.
-- One image, `gitopsdojo/netlab-node`, picks its job from `NODE_ROLE`:
+- One image, `topiary/netlab-node`, picks its job from `NODE_ROLE`:
   - `fw`: IP forwarding on; baseline `FORWARD` policy DROP with a jump to a student-owned chain `LAB`; SSH allowed only from the management network.
   - `web`: **nginx** serving a default page on 80, the thing to reach. The student adds HTTPS, content and hardening.
   - `client`: a normal host with `curl` and `nc`; the probe runs here, once per branch.

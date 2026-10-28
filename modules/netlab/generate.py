@@ -20,7 +20,7 @@ import json
 import os
 import sys
 
-IMAGE = "gitopsdojo/netlab-node:${WORKSHOP_SLUG:-local}"
+IMAGE = "topiary/netlab-node:${WORKSHOP_SLUG:-local}"
 MGMT_CIDR = "10.80.0.0/24"          # must match compose.yml
 LAB = {"pc": "10.10.10.10/24", "web": "10.10.20.10/24", "fw10": "10.10.10.1/24", "fw20": "10.10.20.1/24"}
 # ping_group_range is "0 0": nodes run ping as root, and a rootless user namespace rejects gids it does not map.
