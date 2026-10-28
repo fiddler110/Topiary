@@ -8,7 +8,8 @@ To try one on a pod, copy it over the lab folder and put its `group_vars/` where
 ```sh
 cd ~/netlab
 cp -r /path/to/solutions/2-variables-loops/. labs/2-variables-loops/
-cp labs/2-variables-loops/group_vars/*.yml group_vars/      # labs 2, 4, 7, 8 have group_vars
+mv labs/2-variables-loops/group_vars/*.yml group_vars/      # labs 2, 4, 7, 8 have group_vars; move, don't copy:
+                                                            # a copy next to the playbook outranks ~/netlab/group_vars
 ansible-playbook labs/2-variables-loops/site.yml
 ```
 

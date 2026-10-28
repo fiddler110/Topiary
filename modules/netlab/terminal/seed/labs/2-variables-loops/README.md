@@ -26,15 +26,14 @@ You will use:
 ## 3. Prove it
 
 ```sh
-ansible-playbook labs/2-variables-loops/site.yml          # changed=2
+ansible-playbook labs/2-variables-loops/site.yml          # changed=1 (one task, two loop items)
 ansible-playbook labs/2-variables-loops/site.yml          # changed=0
 ansible-playbook probe.yml -e branch=a -e expect=allowed                 # port 80
-ansible-playbook probe.yml -e branch=a -e port=443 -e expect=allowed
 ansible-playbook probe.yml -e branch=a -e port=8080 -e expect=blocked
 ansible-playbook compare.yml                              # firewall rules match m
 ```
 
-Port 443 has no listener yet (lab 3 adds one), so use the rule listing to check it: `ansible 'fw:&auto' -m ansible.builtin.command -a "iptables -S LAB"`.
+Port 443 has no listener yet (lab 3 adds one), so a probe of 443 would fail for now. Use the rule listing to check it: `ansible 'fw:&auto' -m ansible.builtin.command -a "iptables -S LAB"`.
 
 ## The twist
 

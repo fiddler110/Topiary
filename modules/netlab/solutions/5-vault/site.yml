@@ -35,22 +35,15 @@
         dest: /var/www/html/admin/index.html
         mode: "0644"
 
-    - name: Location block
-      ansible.builtin.copy:
-        content: |
-          location /admin {
-            auth_basic "admin";
-            auth_basic_user_file /etc/nginx/.htpasswd;
-          }
-        dest: /etc/nginx/admin.inc
-        mode: "0644"
-      notify: Reload nginx
-
-    - name: Include it in the default server
-      ansible.builtin.lineinfile:
+    - name: Protect /admin in the default server block
+      ansible.builtin.blockinfile:
         path: /etc/nginx/http.d/default.conf
         insertafter: 'root /var/www/html;'
-        line: '  include /etc/nginx/admin.inc;'
+        block: |2
+            location /admin {
+              auth_basic "admin";
+              auth_basic_user_file /etc/nginx/.htpasswd;
+            }
       notify: Reload nginx
 
   handlers:

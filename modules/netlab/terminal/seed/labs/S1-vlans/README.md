@@ -5,12 +5,14 @@ for this switch and no starter playbook.** `site.yml` here is an empty file. You
 the idempotency check yourself.
 
 Start by breaking it. This puts the switch of branch m and a into a blank state (every port in VLAN 1, no VLAN 10 or 20),
-so `pc` can no longer reach `web`:
+so `pc` can no longer reach `web`. (The `reset_fw.yml` first clears the lockdown from lab 6, which would block ping and
+HTTP for a different reason and hide what the switch is doing; it also undoes your firewall work from labs 1-8.)
 
 ```sh
 cd ~/netlab
+ansible-playbook reset_fw.yml                           # firewalls and web servers back to the baseline (ping allowed, LAB empty)
 ansible-playbook reset_switch.yml                       # both branches
-ansible-playbook probe.yml -e branch=a -e proto=icmp -e expect=blocked
+ansible-playbook probe.yml -e branch=a -e proto=icmp -e expect=blocked    # PASS: the switch is blank
 ```
 
 (`reset_switch.yml -e restore=true` puts the working configuration back if you want to start over.)

@@ -11,7 +11,7 @@
         msg: Replace this task.
 
   handlers:
-    # TODO 4: reload sshd with ansible.builtin.command: pkill -HUP -x sshd
+    # TODO 4: reload sshd with ansible.builtin.command: sh -c 'kill -HUP $(cat /run/sshd.pid)'
     - name: Reload sshd
       ansible.builtin.debug:
         msg: Replace this handler.

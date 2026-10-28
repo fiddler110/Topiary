@@ -168,7 +168,7 @@ class Labs(unittest.TestCase):
         self.assertFalse(self.run_lab("S2", {("sw", "bridge"): (0, bad)}, NETLAB_MANUAL_BRANCH="0")["ok"])
 
     def test_s3_attacker_view(self):
-        t = {("pc", "for p in"): (0, "open 80\nopen 443\nopen 3306\n")}
+        t = {("pc", "for p in"): (0, "open 80\nopen 443\nopen 3306\n"), ("fw", "iptables -S"): (0, "--dport 443")}
         r = self.run_lab("S3", t, NETLAB_MANUAL_BRANCH="0")
         self.assertIn("attacker view", self.failed(r)[-1])
         self.assertIn("3306", r["assertions"][-1]["detail"])

@@ -13,4 +13,4 @@
 
   handlers:
     - name: Reload sshd
-      ansible.builtin.command: pkill -HUP -x sshd
+      ansible.builtin.command: sh -c 'kill -HUP $(cat /run/sshd.pid)'

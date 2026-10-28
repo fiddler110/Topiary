@@ -14,9 +14,9 @@
 
     # TODO 4: ansible.builtin.file for /var/www/html/admin (directory) and a copy of a small admin/index.html.
 
-    # TODO 5: ansible.builtin.copy /etc/nginx/admin.inc with the `location /admin { auth_basic ...; }` block,
-    #         then ansible.builtin.lineinfile in /etc/nginx/http.d/default.conf:
-    #         insertafter: 'root /var/www/html;'  line: '  include /etc/nginx/admin.inc;'   notify "Reload nginx".
+    # TODO 5: ansible.builtin.blockinfile in /etc/nginx/http.d/default.conf, insertafter: 'root /var/www/html;',
+    #         with the `location /admin { auth_basic "admin"; auth_basic_user_file /etc/nginx/.htpasswd; }` block
+    #         (the same lines you typed on m, so compare.yml stays empty). notify "Reload nginx".
     - name: TODO
       ansible.builtin.debug:
         msg: Replace this task.

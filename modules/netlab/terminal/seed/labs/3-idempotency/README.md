@@ -41,7 +41,7 @@ Check mode shows what **would** change without touching anything. Edit `tls.conf
 ansible-playbook labs/3-idempotency/site.yml --check --diff
 ```
 
-You get a diff and no change. Note the `command` task is skipped in check mode: why is `creates:` the only reason it is safe to run twice?
+You get a diff and no change. Note that the `nginx -t` command is skipped in check mode (Ansible cannot know a bare command is read-only), while the certificate task is not touched because `creates:` says the file already exists. Why is `creates:` the only reason the certificate is safe to run twice?
 Then run it for real and compare against m, where you would be hand-editing a file with no preview.
 
 Next lab: `labs/4-templates-validate/README.md`.

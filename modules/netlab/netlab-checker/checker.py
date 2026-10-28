@@ -92,8 +92,9 @@ def http_code(port, scheme="http", path="/"):
 
 
 def scan(ports):
+    # In parallel: dropped ports each cost the full -w2, and a wide scan must finish inside SSH_TIMEOUT.
     return ("for p in " + " ".join(str(p) for p in ports) +
-            f"; do nc -z -w2 {PC_TO_WEB} $p && echo open $p; done; true")
+            f"; do (nc -z -w2 {PC_TO_WEB} $p && echo open $p) & done; wait; true")
 
 
 def open_ports(out):
@@ -216,7 +217,11 @@ def s3(b):
     def test(rc, out):
         extra = open_ports(out) - {80, 443}
         return not extra, ("nothing else open" if not extra else "open: " + ", ".join(map(str, sorted(extra))))
-    return [a_open(b, (80, 443)), a_blocked(b, (22,), "SSH (22) blocked from pc"),
+    # 443 needs a listener (lab 3) to be reachable, and the S labs start from a baseline web server: judge it by the rule.
+    return [a_open(b, (80,)),
+            a_cmd(b, "fw", "iptables -S LAB", "fw LAB chain has a dport 443 rule",
+                  lambda rc, out: ("--dport 443" in out, "rule present" if "--dport 443" in out else "no dport 443 rule")),
+            a_blocked(b, (22,), "SSH (22) blocked from pc"),
             A("attacker view: nothing but 80 and 443 is open", [(b, "pc", scan(WIDE_SCAN))], one(test))]
 
 
