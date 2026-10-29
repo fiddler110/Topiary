@@ -17,9 +17,10 @@ PACK = os.path.join(HERE, "..", "..", "..", "workshops", "netlab-ansible")
 SHARED = os.path.join(HERE, "..", "catalog", "shared.json")
 NETLAB = os.path.join(HERE, "..", "plugins", "netlab")
 CORE = os.path.join(HERE, "..", "achievements")
-LABS = {"0": "n0-lay-of-land", "1": "n1-first-play", "2": "n2-open-ports", "3": "n3-changed-zero",
-        "4": "n4-validated", "5": "n5-vaulted", "6": "n6-rollback", "7": "n7-roles", "8": "n8-capstone",
-        "S1": "ns1-vlans", "S2": "ns2-trunk", "S3": "ns3-segment"}
+LABS = {"A1": "n0-lay-of-land", "A2": "ns1-vlans", "A3": "ns2-trunk", "A4": "n1-first-play", "A5": "n2-open-ports",
+        "A6": "n3-changed-zero", "A7": "n4-validated", "A8": "n6-rollback", "A9": "n8-capstone",
+        "A10": "n5-vaulted", "A11": "n7-roles"}
+CORE_LABS = [f"A{n}" for n in range(1, 10)]
 
 
 def sh(cmd, exit=0, **kw):
@@ -34,25 +35,25 @@ class NetlabPack(unittest.TestCase):
             self.assertEqual([i for i in got if i in LABS.values()], [ident], lab)
 
     def test_failed_or_other_commands_do_not_fire(self):
-        self.assertEqual([i for i in sh("dojo netlab check 2", 1) if i in LABS.values()], [])
-        self.assertIn("f-redcell", sh("dojo netlab check 2", 1))
-        self.assertEqual([i for i in sh("dojo check 2") if i in LABS.values()], [])
-        self.assertEqual([i for i in sh("echo dojo netlab check 2") if i in LABS.values()], [])
-        self.assertNotIn("n1-first-play", sh("dojo netlab check 10"))
+        self.assertEqual([i for i in sh("dojo netlab check A2", 1) if i in LABS.values()], [])
+        self.assertIn("f-redcell", sh("dojo netlab check A2", 1))
+        self.assertEqual([i for i in sh("dojo check A2") if i in LABS.values()], [])
+        self.assertEqual([i for i in sh("echo dojo netlab check A2") if i in LABS.values()], [])
+        self.assertNotIn("n1-first-play", sh("dojo netlab check A10"))
 
     def test_chained_lines_need_the_checks_own_exit(self):
         labs = lambda cmd, code=0: [i for i in sh(cmd, code) if i in LABS.values()]
-        self.assertEqual(labs("dojo netlab check 3; echo rc=$?"), [])
-        self.assertEqual(labs("dojo netlab check 3 | cat"), [])
-        self.assertEqual(labs("dojo netlab check 3 || true"), [])
-        self.assertEqual(labs("true; dojo netlab check 3"), ["n3-changed-zero"])
-        self.assertEqual(labs("cd ~/netlab && dojo netlab check 3"), ["n3-changed-zero"])
-        self.assertEqual(labs("dojo netlab check 3 && echo ok"), ["n3-changed-zero"])
+        self.assertEqual(labs("dojo netlab check A6; echo rc=$?"), [])
+        self.assertEqual(labs("dojo netlab check A6 | cat"), [])
+        self.assertEqual(labs("dojo netlab check A6 || true"), [])
+        self.assertEqual(labs("true; dojo netlab check A6"), ["n3-changed-zero"])
+        self.assertEqual(labs("cd ~/netlab && dojo netlab check A6"), ["n3-changed-zero"])
+        self.assertEqual(labs("dojo netlab check A6 && echo ok"), ["n3-changed-zero"])
 
     def test_core_set(self):
         c = catalog.load(PACK, SHARED)[0]
         core = {m["id"] for m in catalog.core_milestones(c)}
-        self.assertEqual(core, {LABS[k] for k in "0123468"})
+        self.assertEqual(core, {LABS[k] for k in CORE_LABS})
 
     def test_funny(self):
         self.assertIn("f-reset", sh("ansible-playbook reset_fw.yml -e branch=a"))
@@ -79,20 +80,20 @@ class Capstone(unittest.TestCase):
         cap = self.cat["capstone"]
         self.assertNotEqual(cap.get("enabled"), False)
         self.assertEqual(self.runner.unknown_verbs(self.cat), [])
-        self.assertEqual(cap["verify"][0]["labs"], ["0", "1", "2", "3", "4", "6", "8"])
+        self.assertEqual(cap["verify"][0]["labs"], CORE_LABS)
 
     def test_asks_for_the_core_labs_of_the_checking_student_only(self):
         self.assertTrue(self.runner.verify(self.cat["capstone"], "student03")["passed"])
-        self.assertEqual(self.sent, [("student03", ["0", "1", "2", "3", "4", "6", "8"])])
+        self.assertEqual(self.sent, [("student03", CORE_LABS)])
 
     def test_missing_labs_are_named(self):
-        self.reply = {"passed": False, "missing": ["3", "8"]}
+        self.reply = {"passed": False, "missing": ["A6", "A8"]}
         got = self.runner.verify(self.cat["capstone"], "student03")
         self.assertFalse(got["passed"])
-        self.assertIn("3, 8", got["message"])
+        self.assertIn("A6, A8", got["message"])
 
     def test_cannot_name_another_pod(self):
-        ch = dict(self.cat["capstone"], verify=[{"verb": "netlab_labs_passed", "user": "student04", "labs": ["0"]}])
+        ch = dict(self.cat["capstone"], verify=[{"verb": "netlab_labs_passed", "user": "student04", "labs": ["A1"]}])
         self.assertFalse(self.runner.verify(ch, "student03")["passed"])
         self.assertEqual(self.sent, [])
 
@@ -124,7 +125,7 @@ class Capstone(unittest.TestCase):
         self.mod.urllib.request.urlopen = lambda req, timeout: seen.append(req) or R()
         os.environ.update(NETLAB_CHECKER_URL="http://netlab-checker:8080/", NETLAB_PROOF_TOKEN="tok")
         try:
-            self.mod._ask("student03", ["0"])
+            self.mod._ask("student03", ["A1"])
         finally:
             self.mod.urllib.request.urlopen = orig
             os.environ.clear()
@@ -132,7 +133,7 @@ class Capstone(unittest.TestCase):
         req = seen[0]
         self.assertEqual(req.full_url, "http://netlab-checker:8080/proof")
         self.assertEqual(req.get_header("X-netlab-proof-token"), "tok")
-        self.assertEqual(json.loads(req.data), {"user": "student03", "labs": ["0"]})
+        self.assertEqual(json.loads(req.data), {"user": "student03", "labs": ["A1"]})
 
 
 if __name__ == "__main__":
