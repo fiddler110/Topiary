@@ -11,7 +11,7 @@
 # layer set a value. Unknown sections or keys are rejected, so a typo is an error.
 
 [general]
-student_count = 3                 # studentNN Linux + Forgejo accounts
+student_count = 1                # studentNN Linux + Forgejo accounts
 student_prefix = "student"
 class_username = "student"        # the shared sign-in on the slide (its password is in .env)
 facilitator_username = "facilitator"   # signs in to /admin, has sudo in the terminal

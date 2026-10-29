@@ -8,7 +8,7 @@ hand) and **a** (by playbook). Labs 0-8 guide the firewall and web work; S1-S3 a
 
 ```sh
 ./dojo setup               # first time only
-./dojo netlab-ansible      # up to 15 students (NETLAB_MAX_STUDENTS); default STUDENT_COUNT=12
+./dojo netlab-ansible      # up to 15 students (NETLAB_MAX_STUDENTS); class size from student_count in dojo.toml
 ```
 
 | Part | Where |
@@ -24,7 +24,7 @@ catalog). The pack adds no compose overlay of its own.
 
 ## Demo bots
 
-`./dojo netlab-ansible --test 3 --fast` starts three bots that work their own pods (pods 13-15 beside 12 students; see
+`./dojo netlab-ansible --test 3 --fast` starts three bots that work their own pods (pods 13-15 beside a class of 12; see
 the module README for the cap). Each runs `dojo netlab check N` after every lab it does, so lab achievements unlock for
 them: `testuser1` (expert) does labs 0-8 and S1-S3 with one deliberate failed check, `testuser2` (intermediate) labs 0-8
 with a failed check before every fix, `testuser3` (novice) labs 0-3 with wrong-directory runs, typos and early checks.

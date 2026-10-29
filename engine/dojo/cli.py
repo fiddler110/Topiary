@@ -765,6 +765,40 @@ def operator_env_cmd(env_name: Optional[str]) -> None:
         click.echo(f"export {key}={shlex.quote(value)}")
 
 
+@cli.command(context_settings=SETTINGS)
+@click.argument("count", type=click.IntRange(min=1), required=False)
+def students(count: Optional[int]) -> None:
+    """Show or set the class size (student_count in dojo.toml).
+
+    `./dojo students 3` rewrites that one line, keeping its comment; with no
+    number it prints the current value and what a running stack was started with.
+    The change applies at the next start (`./dojo restart`)."""
+    import re
+    from . import config as config_mod
+    try:
+        current = {k: v for k, v, _ in config_mod.base_rows(paths.CONFIG)}.get("STUDENT_COUNT", "?")
+        local = {k: (v, w) for k, v, w in config_mod.base_rows(paths.LOCAL_CONFIG)}.get("STUDENT_COUNT")
+        if count is None:
+            click.echo(f"student_count = {current} (dojo.toml)")
+            if local:
+                click.echo(f"overridden by {local[1]}: {local[0]}")
+            return
+        text = paths.CONFIG.read_text()
+        new_text, n = re.subn(r"(?m)^(\s*student_count\s*=\s*)\d+", rf"\g<1>{count}", text, count=1)
+        if not n:
+            fail("dojo.toml has no student_count line under [general]")
+            sys.exit(1)
+        paths.CONFIG.write_text(new_text)
+        config_mod.read(paths.CONFIG)
+    except config_mod.ConfigError as exc:
+        fail(str(exc))
+        sys.exit(1)
+    console.print(f"student_count: {current} -> [bold]{count}[/] in dojo.toml")
+    if local:
+        console.print(f"[yellow]{escape(local[1])} still sets {local[0]} and wins; remove it to use this.[/]")
+    console.print("Takes effect at the next start (./dojo restart, or ./dojo <workshop>).")
+
+
 @cli.command("_config-get", context_settings=SETTINGS, hidden=True)
 @click.argument("key")
 @ENV_OPTION

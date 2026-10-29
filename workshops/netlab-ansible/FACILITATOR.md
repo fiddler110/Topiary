@@ -35,7 +35,7 @@ in each lab (run it twice, undo it, change one value) is where the playbook wins
    **Key-limit caveat:** a rootless podman host allows about 200 containers per user (`kernel.keys.maxkeys`, one key
    each), and a start of this size is slow (many minutes). Do not run another large stack beside it. Raising
    `kernel.keys.maxkeys` needs root. `NETLAB_MANUAL_BRANCH=0` halves the load (the labs then lose their by-hand half),
-   and `NETLAB_SWITCH=0` removes the switch and with it labs S1-S3. The default here is `STUDENT_COUNT=12`.
+   and `NETLAB_SWITCH=0` removes the switch and with it labs S1-S3. The class size is `student_count` in `dojo.toml`.
 3. `./dojo netlab-ansible` and open `/admin`. Wait for **Terminals**, **Slides**, **netlab-checker** and the netlab
    status checks to go green. Account creation is the slowest part; yellow there is normal.
 4. **Rehearse as a student** in a private window: labs 0 to 4 and 8 with `dojo netlab check`, then `./dojo stop` and start clean.

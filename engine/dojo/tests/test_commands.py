@@ -524,3 +524,35 @@ class CliSurface(unittest.TestCase):
                 mock.patch("dojo.doctor.run_checks", return_value=[]), mock.patch("dojo.cli.Runtime"):
             r = CliRunner().invoke(cli.cli, ["doctor", "--fix", "--json"])
         self.assertEqual(json.loads(r.output)["fixed"], ["removed the stale run lock"])
+
+
+class StudentsCommandTests(unittest.TestCase):
+    def run_cmd(self, toml, local, *args):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d, True)
+        (d / "dojo.toml").write_text(toml)
+        if local is not None:
+            (d / "dojo.local.toml").write_text(local)
+        with mock.patch.object(paths, "CONFIG", d / "dojo.toml"), \
+                mock.patch.object(paths, "LOCAL_CONFIG", d / "dojo.local.toml"), \
+                mock.patch.object(paths, "REPO", d):
+            res = CliRunner().invoke(cli.cli, ["students", *args])
+        return res, (d / "dojo.toml").read_text()
+
+    TOML = '[general]\nstudent_count = 1                # accounts\nstudent_prefix = "student"\n'
+
+    def test_sets_and_keeps_comment(self):
+        res, text = self.run_cmd(self.TOML, None, "3")
+        self.assertEqual(res.exit_code, 0, res.output)
+        self.assertIn("student_count = 3                # accounts", text)
+
+    def test_show_and_local_override_warning(self):
+        res, _ = self.run_cmd(self.TOML, "[general]\nstudent_count = 9\n")
+        self.assertIn("student_count = 1", res.output)
+        self.assertIn("9", res.output)
+        res, text = self.run_cmd(self.TOML, "[general]\nstudent_count = 9\n", "4")
+        self.assertIn("still sets 9", res.output)
+
+    def test_rejects_zero(self):
+        res, _ = self.run_cmd(self.TOML, None, "0")
+        self.assertNotEqual(res.exit_code, 0)
