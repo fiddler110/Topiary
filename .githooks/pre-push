@@ -1,10 +1,10 @@
 #!/bin/sh
-# Unit tests and every workshop's dry run (~3.5 min) before a push, so a PR doesn't
+# Unit tests, dry runs, shellcheck and gitleaks (~4 min) before a push, so a PR doesn't
 # go red on CI's `unit-tests` / `dry-runs` jobs. Cross-pack tests (e.g. the
 # achievements service reading a workshop's labs) mean a changed folder can break a
 # suite elsewhere, so this runs everything rather than guessing which suites.
 # Pushes that change only docs or text are skipped; deleting a branch is skipped.
-# Skip once with:  git push --no-verify   (the full set: sh .github/scripts/pre-pr.sh)
+# Skip once with:  git push --no-verify   (same checks by hand: sh .github/scripts/pre-pr.sh)
 root="$(git rev-parse --show-toplevel)"
 zero=0000000000000000000000000000000000000000
 need=""
