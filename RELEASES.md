@@ -7,6 +7,10 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## Terminal clipboard and colours in the base image (2026-10-29, `feat/netlab-openbao-vault-lab`)
+
+Every terminal image gets `pbcopy`/`pbpaste` (OSC 52 clipboard, tmux `set-clipboard on`) and the shared One Dark `COLORTERM`/`BAT_THEME` in the base zshrc, for both the code-server and Zellij flavors.
+
 ## netlab-ansible lab 5: two repos, two vaults (2026-10-29, `feat/netlab-openbao-vault-lab`)
 
 Lab 5 is now "Secrets with OpenBao": the student makes `fw` and `sw` team vaults (child namespaces of `students/<name>`), and
@@ -882,4 +886,3 @@ OpenTofu on "Dojo Cloud", an Azure-inspired control plane (no Microsoft names or
 
 The platform and the first three workshops: the engine (Caddy `gateway`, `allocator`, `web-terminal`, Forgejo, Marp
 slides, `run.sh`), `git-fundamentals`, `dns-as-code` and `cert-autorenewal`.
-- Every terminal image gets `pbcopy`/`pbpaste` (OSC 52 clipboard, tmux `set-clipboard on`) and the shared One Dark `COLORTERM`/`BAT_THEME` in the base zshrc, for both the code-server and Zellij flavors.
