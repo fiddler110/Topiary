@@ -28,6 +28,7 @@ that forwards to `./dojo`. Run from the repo root or from `engine/` (same result
 | `./dojo exec <service> [-- cmd...]` / `shell [service]` | Command or shell (bash if present) in a service's container |
 | `./dojo urls [--json]` / `open [student\|admin\|slides]` | Student, admin and slides addresses and logins (passwords only if public defaults); open one in a browser |
 | `./dojo wait [--timeout S]` | Block until every service is healthy; exit 1 on timeout |
+| `./dojo students [N]` | Show, or set, the class size (`student_count` in `dojo.toml`, comment kept); warns if `dojo.local.toml` overrides it; applies at the next start |
 | `./dojo roster [--json]` / `reset-student USER [-y]` | The students and bots, and the Roster's Reset for one (through the allocator's admin API) |
 | `./dojo export-results [--format csv\|json] [--out FILE]` | Scores, unlocks and (json) SOC data from the achievements module; fails if it isn't running |
 | `./dojo backup [PATH]` / `restore PATH [-y]` | Tar of every volume via `podman volume export/import`; restore only into a stopped stack of the same workshop |

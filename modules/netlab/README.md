@@ -55,8 +55,8 @@ No effect without the achievements module (the token is then unused). Tests: `ne
 Bots are treated like students. With `./dojo netlab-ansible --test N [--fast]`, `testuserK` gets pod `STUDENT_COUNT + K`
 (`generate.py` reads `BOT_COUNT`; `netlab-checker` and `netlab-view` map the same names to the same pods, and the
 facilitator sees the bot pods like any other). Students and bots share the cap: `STUDENT_COUNT + BOT_COUNT` must stay at or
-below `NETLAB_MAX_STUDENTS` (15), or the generator fails with a message saying so. The pack's default is 12 students, so
-`--test 3` fits and `--test 4` needs `STUDENT_COUNT` lowered (`--env`/`dojo.local.toml`).
+below `NETLAB_MAX_STUDENTS` (15), or the generator fails with a message saying so. The class size is `student_count` in `dojo.toml`; with 12 students,
+`--test 3` fits and `--test 4` needs it lowered.
 
 `account.d/57-netlab.sh` seeds a bot's `~/netlab` like a student's and also copies `solutions/` into the bot's own
 `~/.netlab-solutions`. The folder is mounted read-only at `/opt/netlab-private/solutions`, a root-only directory, so no
