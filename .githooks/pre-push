@@ -15,4 +15,4 @@ while read -r _ local_sha _ _; do
   if git diff --name-only "$base" "$local_sha" | grep -qvE '\.(md|txt)$|^docs/'; then need=1; fi
 done
 [ -n "$need" ] || { echo "pre-push: docs/text only, skipping tests"; exit 0; }
-exec sh "$root/.github/scripts/pre-pr.sh" unit dry
+exec sh "$root/.github/scripts/pre-pr.sh" unit dry lint leaks
