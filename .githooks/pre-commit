@@ -1,0 +1,4 @@
+#!/bin/sh
+# Fast repo lint (~3 s): fence tags, retired command names, pin sync, Caddy rules.
+# The same script CI's lint job runs. Skip once with:  git commit --no-verify
+exec sh "$(git rev-parse --show-toplevel)/.github/scripts/lint-repo.sh"
