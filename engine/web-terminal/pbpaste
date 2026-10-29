@@ -1,0 +1,7 @@
+#!/bin/sh
+# pbpaste: print the last thing copied with pbcopy (the tmux paste buffer, which a mouse
+# selection in tmux fills too). A browser will not let a terminal read its clipboard, so
+# paste from the browser with Ctrl+Shift+V instead.
+if [ -n "$TMUX" ] && tmux show-buffer 2>/dev/null; then exit 0; fi
+echo "pbpaste: nothing copied yet. Use Ctrl+Shift+V to paste from your browser." >&2
+exit 1

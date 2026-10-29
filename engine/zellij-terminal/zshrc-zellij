@@ -2,8 +2,7 @@
 # ---- Zellij terminal flavor (appended to /opt/dojo-shell/zshrc by the zellij-terminal image) ----
 # Runs last, after the shared prompt and aliases above, and only inside a Zellij pane.
 if [ -n "$ZELLIJ" ]; then
-  # Colour: one palette (One Dark) in Zellij, the browser terminal, bat and micro.
-  export COLORTERM=truecolor BAT_THEME=OneHalfDark
+  # Colour: COLORTERM and BAT_THEME come from the shared zshrc; micro matches the palette.
   alias micro='micro -colorscheme one-dark'
 
   # Modern prompt: directory, git branch and state, then a coloured arrow.

@@ -70,6 +70,9 @@ alias egrep='egrep --color=auto'
 # RipGrep Alias for Case-Insensitive by Default
 alias rg="rg -i"
 
+# One palette (One Dark) in the terminal, bat and micro, for every flavor.
+export COLORTERM=truecolor BAT_THEME=OneHalfDark
+
 # Bat Alias for Colours
 alias bat="bat --color=always --paging=auto"
 alias battf="bat --language=terraform"

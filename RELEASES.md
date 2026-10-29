@@ -882,3 +882,4 @@ OpenTofu on "Dojo Cloud", an Azure-inspired control plane (no Microsoft names or
 
 The platform and the first three workshops: the engine (Caddy `gateway`, `allocator`, `web-terminal`, Forgejo, Marp
 slides, `run.sh`), `git-fundamentals`, `dns-as-code` and `cert-autorenewal`.
+- Every terminal image gets `pbcopy`/`pbpaste` (OSC 52 clipboard, tmux `set-clipboard on`) and the shared One Dark `COLORTERM`/`BAT_THEME` in the base zshrc, for both the code-server and Zellij flavors.
