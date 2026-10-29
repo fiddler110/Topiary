@@ -38,6 +38,21 @@ things stand between student N and pod M: the pod's derived root password, and a
   `netlab_mgmt` segment as the other pods' nodes and can reach their SSH from there; only the other pod's derived root
   password stops that. Closing it needs a management network per pod, with the terminal on all of them.
 
+## Lab A10 and the openbao module
+
+Lab A10 (folder `5-vault`; two repos, two vaults) needs the `openbao` module next to this one: each student is admin of a namespace
+`students/<name>`, makes `fw` and `sw` team vaults inside it, and each repo's `vault-pass.sh` reads its own vault with the
+student's own CLI login (`openbao-login`). The workshop supplies the namespace and the `student` policy
+(`workshops/netlab-ansible/compose/openbao-setup.d/`). The checker only sees the nodes (`/etc/fw-admin.conf` and
+`/etc/sw-mgmt.conf`, mode 600, with a real password; never echoed); `dojo netlab check A10` also checks, in the terminal
+(`terminal/cmd.d/netlab`, `local_lab5`), that no `.vault_pass` exists, each `vault-pass.sh` works, each `secrets.yml` is
+encrypted and opens with its own script, and that the two vault passwords differ. A workshop that uses lab A10 without
+`openbao` fails those checks.
+
+Student reset is on for the vault part: the workshop's `extensions.json` declares the `openbao-reset` hook, and `reset.hcl` +
+`10-tenancy.sh` (one-user mode) delete the student's `fw`/`sw` namespaces and `students/<name>`, then make it again. It does not
+touch the student's home folder or pod (`reset_fw.yml` does the pod).
+
 ## Capstone proof for the achievements module
 
 `netlab-checker` keeps its latest verdict per pod and lab in memory (`LAST`, only ever set after the checker has itself
@@ -46,7 +61,7 @@ and only to a caller sending `X-Netlab-Proof-Token`. The token is `NETLAB_PROOF_
 install's `GATEWAY_TOKEN` and handed to the checker and the `achievements` service only (never to the terminal, never the
 check key a student holds or the view token), so a student cannot ask it or forge its answer. The achievements verb
 `netlab_labs_passed` (`modules/achievements/plugins/netlab`) calls it with the checking student's own user name; the
-pack's `capstone.json` lists labs 0-4, 6 and 8 (lab 8 includes the manual-versus-automated comparison). The record is lost
+pack's `capstone.json` lists labs A1 to A9 (A9 includes the manual-versus-automated comparison). The record is lost
 when the checker restarts, so students re-run the checks `dojo check capstone` names; a capstone already earned is kept.
 No effect without the achievements module (the token is then unused). Tests: `netlab-checker/test_checker.py` (`Proof`).
 

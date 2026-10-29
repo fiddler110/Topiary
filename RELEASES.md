@@ -7,6 +7,17 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## netlab-ansible lab 5: two repos, two vaults (2026-10-29, `feat/netlab-openbao-vault-lab`)
+
+Lab 5 is now "Secrets with OpenBao": the student makes `fw` and `sw` team vaults (child namespaces of `students/<name>`), and
+each of two repos (`fw-repo/`, `sw-repo/`) reads its own vault password through its own `vault-pass.sh`, so no `.vault_pass`
+file exists. `netlab-ansible` now loads the `openbao` module and mounts its own `compose/openbao-setup.d/` hooks. `dojo netlab
+check 5` checks the nodes (`/etc/fw-admin.conf`, `/etc/sw-mgmt.conf`, mode 600) and, in the terminal, that each script,
+`secrets.yml` and vault password works and the two differ. Slides 12 and 35-39 now say where Ansible runs and cover `pass`/`gopass`,
+a shared control node with Azure Key Vault (and an OpenBao/Vault pop-out) and the three-persona table. Tested locally with
+`./dojo netlab-ansible --test 1 --fast`: lab 5 all 12 checks pass, a second run is `changed=0`, the fw token is refused by the sw vault. Student reset is on (`extensions.json` + `reset.hcl`, tenancy hook in one-user mode); tested locally on `student01` through the Roster route: the `fw`/`sw` namespaces were deleted, `students/student01` re-created, and the student's CLI login still worked.
+Not run: labs 6-8 and S1-S3 after the change, the facilitator's `/admin` Vault tab, and the lab text typed by hand in a browser.
+
 ## Nosy Neighbour easter egg and `regex_not` (2026-10-28, `feat/netlab-followups`)
 
 vault-fundamentals gets a zero-point easter egg for curling another student's slot app on `app-host` (slot apps are public in the class by

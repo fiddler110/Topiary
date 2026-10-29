@@ -1,5 +1,5 @@
 # netlab-ansible demo bot steps (see engine/web-terminal/bot-runner.sh's BOT_STEPS_FILE): each bot works its own pod
-# like a student, labs 0-8 then the switch labs S1-S3, and asks the checker (`dojo netlab check N`) after each.
+# like a student, the A labs in order (A1 look around; A2-A3 the switch; A4-A9 the firewall and web path; A10-A11 extras), and asks the checker (`dojo netlab check A<n>`) after each.
 # Bots are treated like students: testuserK owns the pod after the last student's (modules/netlab/generate.py), and
 # the terminal copies the reference solutions into the bot's own ~/.netlab-solutions (account.d/57-netlab.sh).
 #
@@ -8,8 +8,8 @@
 # ~/netlab/.m with `:&auto` -> `:&manual` and `-a-` -> `-m-`), so both branches end in the same state, which is
 # what the checker compares. The bot does not type the hand-built commands.
 #
-# Personas (engine/README.md): expert = every lab with one deliberate mistake; intermediate = labs 0-8, a failed
-# check before every fix, every round; novice = labs 0-3 only, with the most mistakes (wrong directory, typos, a check
+# Personas (engine/README.md): expert = every lab with one deliberate mistake; intermediate = labs A1-A11, a failed
+# check before every fix, every round; novice = A1-A5 only, with the most mistakes (wrong directory, typos, a check
 # before any work). The checker allows 6 checks a minute per pod, so check_lab spaces them even with --fast.
 #
 # Every step is safe to re-run from the top (the runner retries a failed step); a step returns the final check's
@@ -18,8 +18,8 @@
 NL="$HOME/netlab"
 SOL="$HOME/.netlab-solutions"
 LAST_CHECK=-100
-declare -A NDIR=([1]=1-first-playbook [2]=2-variables-loops [3]=3-idempotency [4]=4-templates-validate
-  [5]=5-vault [6]=6-lockdown [7]=7-roles [8]=8-capstone [S1]=S1-vlans [S2]=S2-trunk [S3]=S3-segmentation)
+declare -A NDIR=([A2]=S1-vlans [A3]=S2-trunk [A4]=1-first-playbook [A5]=2-variables-loops [A6]=3-idempotency
+  [A7]=4-templates-validate [A8]=6-lockdown [A9]=8-capstone [A10]=5-vault [A11]=7-roles)
 
 # The engine's orient() looks around a git repo; ~/netlab is not one.
 orient() {
@@ -50,7 +50,7 @@ check_lab() {
 # Who makes a deliberate mistake on lab $1 this round.
 wants_mistake() {
   case "$PERSONA" in
-    expert) [ "$1" = 1 ] && [ "$ROUND" = 1 ] ;;
+    expert) [ "$1" = A4 ] && [ "$ROUND" = 1 ] ;;
     *) return 0 ;;
   esac
 }
@@ -130,7 +130,7 @@ step_n0_orient() {
     run_cmd "ansible-playbook reset_fw.yml" || return 1
     run_cmd "ansible-playbook reset_switch.yml -e restore=true" || return 1
   fi
-  narrate "Lab 0 -- orientation: what Ansible knows about the pod, then ask every node"
+  narrate "Lab A1 -- orientation: what Ansible knows about the pod, then ask every node"
   if [ "$PERSONA" = novice ]; then
     narrate "(demo) asking Ansible from the wrong directory"
     run_cmd "cd /tmp && ansible-inventory --graph"
@@ -143,118 +143,133 @@ step_n0_orient() {
   run_cmd "ansible fw -m ansible.builtin.command -a 'iptables -S'"
   run_cmd "ansible-playbook probe.yml -e branch=a -e proto=icmp -e expect=allowed"
   run_cmd "ansible-playbook probe.yml -e branch=a -e expect=blocked"
-  check_lab 0
+  check_lab A1
 }
 
-step_n1() {
-  lab_start 1 "a first playbook: the web page" || return 1
-  check_unsolved 1
-  wrong_dir 1
-  apply_solution 1 || return 1
+step_nA4() {
+  lab_start A4 "a first playbook: the web page" || return 1
+  check_unsolved A4
+  wrong_dir A4
+  apply_solution A4 || return 1
   typo "ansible-playbok labs/1-first-playbook/site.yml" "echo 'ansible-playbook it is'"
-  do_lab 1 || return 1
+  do_lab A4 || return 1
   run_cmd "ansible 'web:&auto' -m ansible.builtin.command -a 'curl -s http://127.0.0.1/'"
   run_cmd "ansible-playbook compare.yml"
-  check_lab 1
+  check_lab A4
 }
 
-step_n2() {
-  lab_start 2 "variables and loops: open HTTP and HTTPS" || return 1
-  check_unsolved 2
-  wrong_dir 2
-  apply_solution 2 || return 1
-  do_lab 2 || return 1
+step_nA5() {
+  lab_start A5 "variables and loops: open HTTP and HTTPS" || return 1
+  check_unsolved A5
+  wrong_dir A5
+  apply_solution A5 || return 1
+  do_lab A5 || return 1
   run_cmd "ansible-playbook probe.yml -e branch=a -e expect=allowed"
-  check_lab 2
+  check_lab A5
 }
 
-step_n3() {
-  lab_start 3 "idempotency: a certificate and HTTPS" || return 1
-  check_unsolved 3
-  wrong_dir 3
-  apply_solution 3 || return 1
-  do_lab 3 || return 1
+step_nA6() {
+  lab_start A6 "idempotency: a certificate and HTTPS" || return 1
+  check_unsolved A6
+  wrong_dir A6
+  apply_solution A6 || return 1
+  do_lab A6 || return 1
   run_cmd "ansible-playbook probe.yml -e branch=a -e port=443 -e expect=allowed"
-  check_lab 3
+  check_lab A6
 }
 
-step_n4() {
-  lab_start 4 "templates and validate: a hardened sshd_config" || return 1
-  check_unsolved 4
-  apply_solution 4 || return 1
-  do_lab 4 || return 1
-  check_lab 4
+step_nA7() {
+  lab_start A7 "templates and validate: a hardened sshd_config" || return 1
+  check_unsolved A7
+  apply_solution A7 || return 1
+  do_lab A7 || return 1
+  check_lab A7
 }
 
-step_n5() {
-  lab_start 5 "secrets with Vault: /admin behind a password" || return 1
-  check_unsolved 5
-  apply_solution 5 || return 1
-  run_cmd "echo 'bot-vault-pass' > .vault_pass && chmod 600 .vault_pass"
-  run_cmd "cp $SOL/5-vault/secrets.yml.example labs/5-vault/secrets.yml && sed -i 's/change-me/$BOT_USER-secret/' labs/5-vault/secrets.yml && ansible-vault encrypt labs/5-vault/secrets.yml --vault-password-file .vault_pass" || return 1
-  run_cmd "head -1 labs/5-vault/secrets.yml"
-  do_lab 5 --vault-password-file .vault_pass || return 1
-  check_lab 5
+step_nA10() {
+  lab_start A10 "secrets with OpenBao: two repos, two vaults" || return 1
+  check_unsolved A10
+  local ns="students/$BOT_USER" t
+  narrate "as the admin: one vault per team, a generated vault password in each, and a policy to read just that"
+  for t in fw sw; do
+    run_cmd "bao namespace create -namespace=$ns $t >/dev/null 2>&1 || true; bao secrets enable -namespace=$ns/$t -path=secret kv-v2 >/dev/null 2>&1 || true" || return 1
+    # the first write to a new KV v2 engine can fail for a moment
+    run_cmd "for try in 1 2 3 4 5 6 7 8; do bao kv put -namespace=$ns/$t secret/ansible password=\"\$(openssl rand -base64 18)\" >/dev/null 2>&1 && break; sleep 3; done; bao kv metadata get -namespace=$ns/$t secret/ansible >/dev/null && echo stored" || return 1
+    run_cmd "printf 'path \"secret/data/ansible\" { capabilities = [\"read\"] }\n' | bao policy write -namespace=$ns/$t $t-team -" || return 1
+  done
+  apply_solution A10 || return 1
+  for t in fw sw; do
+    cd "$NL/labs/5-vault/$t-repo" || return 1
+    run_cmd "chmod +x vault-pass.sh && ./vault-pass.sh | wc -c" || return 1
+    local var=${t}_admin_password; [ "$t" = sw ] && var=sw_mgmt_password
+    run_cmd "printf '%s: \"%s-secret\"\n' $var $BOT_USER > secrets.yml && ansible-vault encrypt secrets.yml --vault-password-file ./vault-pass.sh" || return 1
+    run_cmd "head -1 secrets.yml"
+    run_cmd "ansible-playbook site.yml --vault-password-file ./vault-pass.sh" || return 1
+    run_cmd "ansible-playbook site.yml --vault-password-file ./vault-pass.sh 2>&1 | tail -n 4"
+  done
+  narrate "the twist: the firewall team's token is refused by the switch vault"
+  run_cmd "tok=\$(bao token create -namespace=$ns/fw -policy=fw-team -ttl=10m -field=token); cd $NL/labs/5-vault/sw-repo; BAO_TOKEN=\$tok ./vault-pass.sh; echo exit=\$?"
+  # branch m: the same secrets, put on the manual nodes (the playbooks aimed at the manual group)
+  narrate "branch m: the same repos, aimed at the manual branch"
+  for t in fw sw; do
+    run_cmd "rm -rf $NL/.m5-$t && cp -r $NL/labs/5-vault/$t-repo $NL/.m5-$t && sed -i 's/:&auto/:\&manual/' $NL/.m5-$t/site.yml && sed -i 's#^inventory = .*#inventory = ../hosts.ini#' $NL/.m5-$t/ansible.cfg" || return 1
+    run_cmd "cd $NL/.m5-$t && ansible-playbook site.yml --vault-password-file ./vault-pass.sh" || return 1
+  done
+  cd "$NL" || return 1
+  run_cmd "rm -rf $NL/.m5-fw $NL/.m5-sw"
+  check_lab A10
 }
 
-step_n6() {
-  lab_start 6 "lockdown: block/rescue and a default drop" || return 1
-  check_unsolved 6
-  apply_solution 6 || return 1
-  do_lab 6 || return 1
-  check_lab 6
+step_nA8() {
+  lab_start A8 "lockdown: block/rescue and a default drop" || return 1
+  check_unsolved A8
+  apply_solution A8 || return 1
+  do_lab A8 || return 1
+  check_lab A8
 }
 
-step_n7() {
-  lab_start 7 "roles: the same end state, organised" || return 1
-  apply_solution 7 || return 1
+step_nA11() {
+  lab_start A11 "roles: the same end state, organised" || return 1
+  apply_solution A11 || return 1
   run_cmd "ansible-playbook labs/7-roles/site.yml" || return 1
   run_cmd "ansible-playbook labs/7-roles/site.yml 2>&1 | tail -n 4"
   command -v ansible-lint >/dev/null 2>&1 && run_cmd "ansible-lint labs/7-roles/site.yml 2>&1 | tail -n 5"
-  check_lab 7
+  check_lab A11
 }
 
-step_n8() {
-  lab_start 8 "capstone: rebuild branch a from the baseline with one command" || return 1
-  apply_solution 8 || return 1
-  narrate "lab 5's /admin is not part of the capstone: both branches back to the baseline, m rebuilt as the reference"
+step_nA9() {
+  lab_start A9 "capstone: rebuild branch a from the baseline with one command" || return 1
+  apply_solution A9 || return 1
+  narrate "lab A10's /admin is not part of the capstone: both branches back to the baseline, m rebuilt as the reference"
   run_cmd "ansible-playbook reset_fw.yml" || return 1
   run_m 8-capstone/site.yml || return 1
   cd "$NL" || return 1
-  check_unsolved 8
+  check_unsolved A9
   run_cmd "ansible-playbook labs/8-capstone/site.yml" || return 1
   run_cmd "ansible-playbook labs/8-capstone/site.yml 2>&1 | tail -n 4"
   run_cmd "ansible-playbook probe.yml -e branch=a -e port=8080 -e expect=blocked"
   run_cmd "ansible-playbook compare.yml"
-  check_lab 8
+  check_lab A9
 }
 
-step_nS1() {
-  lab_start S1 "VLANs and access ports (switch)" || return 1
+step_nA2() {
+  lab_start A2 "VLANs and access ports (switch)" || return 1
   narrate "starting from a blank switch: baseline firewalls, both switches blanked"
   run_cmd "ansible-playbook reset_fw.yml" || return 1
   run_cmd "ansible-playbook reset_switch.yml" || return 1
   run_cmd "ansible-playbook probe.yml -e branch=a -e proto=icmp -e expect=blocked"
-  check_unsolved S1
-  apply_solution S1 || return 1
-  do_lab S1 || return 1
-  check_lab S1
+  check_unsolved A2
+  apply_solution A2 || return 1
+  do_lab A2 || return 1
+  check_lab A2
 }
 
-step_nS2() {
-  lab_start S2 "the trunk and router-on-a-stick" || return 1
-  check_unsolved S2
-  apply_solution S2 || return 1
-  do_lab S2 || return 1
-  check_lab S2
-}
-
-step_nS3() {
-  lab_start S3 "segmentation policy" || return 1
-  check_unsolved S3
-  apply_solution S3 || return 1
-  do_lab S3 || return 1
-  check_lab S3
+step_nA3() {
+  lab_start A3 "the trunk and router-on-a-stick" || return 1
+  check_unsolved A3
+  apply_solution A3 || return 1
+  do_lab A3 || return 1
+  check_lab A3
 }
 
 # The runner's step_wrap_round needs the git-fundamentals clone; this pack has none.
@@ -267,12 +282,12 @@ step_nwrap() {
 
 case "$PERSONA" in
   expert)
-    STEPS=(step_n0_orient step_n1 step_n2 step_n3 step_n4 step_n5 step_n6 step_n7 step_n8 step_nS1 step_nS2 step_nS3 step_nwrap)
+    STEPS=(step_n0_orient step_nA2 step_nA3 step_nA4 step_nA5 step_nA6 step_nA7 step_nA8 step_nA9 step_nA10 step_nA11 step_nwrap)
     ;;
   intermediate)
-    STEPS=(step_n0_orient step_n1 step_n2 step_n3 step_n4 step_n5 step_n6 step_n7 step_n8 step_nwrap)
+    STEPS=(step_n0_orient step_nA2 step_nA3 step_nA4 step_nA5 step_nA6 step_nA7 step_nA8 step_nA9 step_nA10 step_nA11 step_nwrap)
     ;;
   novice)
-    STEPS=(step_n0_orient step_n1 step_n2 step_n3 step_nwrap)
+    STEPS=(step_n0_orient step_nA2 step_nA3 step_nA4 step_nA5 step_nwrap)
     ;;
 esac

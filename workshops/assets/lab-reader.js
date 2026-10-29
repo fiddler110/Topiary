@@ -195,24 +195,25 @@
   // always succeeds; probing each neighbour 404'd on the missing ones).
   // README and cheat-sheet get no pager.
   function renderPager(file) {
-    var match = /^lab(\d+)\.md\.txt$/.exec(file);
+    var match = /^lab([A-Za-z]*)(\d+)\.md\.txt$/.exec(file);
     if (!match) return;
     var pager = document.getElementById('lab-pager');
-    var n = parseInt(match[1], 10);
+    var prefix = match[1];
+    var n = parseInt(match[2], 10);
     fetch('../lab/README.md.txt', { credentials: 'same-origin' })
       .then(function (res) { return res.ok ? res.text() : ''; })
       .then(function (text) {
         var have = {};
-        (text.match(/\blab\d+\.md\b/g) || []).forEach(function (m) {
-          have[parseInt(m.slice(3), 10)] = true;
+        (text.match(/\blab[A-Za-z]*\d+\.md\b/g) || []).forEach(function (m) {
+          have[m.slice(3, -3)] = true;
         });
         [
-          { n: n - 1, text: '\u2190 Lab ' + (n - 1) },
-          { n: n + 1, text: 'Lab ' + (n + 1) + ' \u2192' }
+          { n: n - 1, text: '\u2190 Lab ' + prefix + (n - 1) },
+          { n: n + 1, text: 'Lab ' + prefix + (n + 1) + ' \u2192' }
         ].forEach(function (item) {
-          if (!have[item.n]) return;
+          if (!have[prefix + item.n]) return;
           var link = document.createElement('a');
-          link.href = 'lab-reader.html?file=lab' + item.n + '.md.txt';
+          link.href = 'lab-reader.html?file=lab' + prefix + item.n + '.md.txt';
           link.textContent = item.text;
           pager.appendChild(link);
         });
@@ -246,7 +247,13 @@
 
   Promise.all([lab, whoami])
     .then(function (results) {
-      var text = results[1] ? results[0].replace(/studentXX/g, results[1]) : results[0];
+      var text = results[0];
+      if (results[1]) {
+        text = text.replace(/studentXX/g, results[1]);
+        // "@POD@" is the trailing number of the username (student07 -> 07).
+        var pod = /(\d+)$/.exec(results[1]);
+        if (pod) text = text.replace(/@POD@/g, pod[1]);
+      }
       render(text, file, !!results[1]);
       renderPager(file);
     })

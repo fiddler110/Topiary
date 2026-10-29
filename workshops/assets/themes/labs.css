@@ -175,3 +175,9 @@ footer { color: var(--muted) !important; font-size: 16px; }
 .lab-index .lab-links { columns: 3; font-size: 19px !important; margin-top: 14px !important; }
 .lab-index .lab-links li { margin-bottom: 4px !important; }
 .lab-index .lab-links .topic { font-size: 14px !important; }
+/* A lab index with two lists (a two-part workshop): one column each, topic on the same line. */
+.lab-index .parts { display: grid; gap: 28px; grid-template-columns: 1fr 1fr; }
+.lab-index .parts .lab-links { columns: 1; font-size: 17px !important; line-height: 1.1 !important; margin-top: 2px !important; padding-left: 0 !important; }
+.lab-index .parts .lab-links li { margin-bottom: 0 !important; }
+.lab-index .parts .setup-label { margin: 4px 0 2px !important; }
+.lab-index .parts .lab-links .topic { display: inline; font-size: 15px !important; margin-left: 8px; }

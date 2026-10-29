@@ -452,9 +452,11 @@ def _safety_gates(o: StartOptions, env: Dict[str, str]) -> None:
         console.print(f"[yellow]WARNING: {mismatch} Links the lab prints won't load.[/]")
     weak = checks.default_passwords(env)
     if weak and not checks.local_only(env) and not o.build_only:
-        if o.allow_default_passwords or env.get("ALLOW_DEFAULT_PASSWORDS") == "1":
+        if o.allow_default_passwords:
             console.print(f"[yellow]WARNING: default passwords in use ({' '.join(weak)}) on {env.get('PUBLIC_BASE_URL')},\n"
-                          "         reachable beyond this machine (--allow-default-passwords / ALLOW_DEFAULT_PASSWORDS=1).[/]")
+                          "         reachable beyond this machine (--allow-default-passwords).[/]")
+        elif env.get("ALLOW_DEFAULT_PASSWORDS") == "1":
+            pass  # a profile's allow_default_passwords = true: the operator said this stack is not exposed
         else:
             raise StartError(
                 f"Refusing to start: default passwords ({' '.join(weak)}) with PUBLIC_BASE_URL={env.get('PUBLIC_BASE_URL')}\n"

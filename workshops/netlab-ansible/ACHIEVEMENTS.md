@@ -21,7 +21,7 @@ what they did to earn it, in their own "Moments" table on the landing page. Chea
 bonuses and never count toward completion. The shared cheating and "bumped into your neighbour" unlocks live with the
 module, not in a workshop.
 
-**What earns a milestone.** Each lab milestone fires when the student's `dojo netlab check <lab>` passes (exit 0): the checker confirms the pod's end state from outside, on both branches, and that the manual and automated branches agree. Labs 5, 7 and S1-S3 are stretch and not `core`. The S labs are numbered 9-11 here because a catalog lab id must be `labN`.
+**What earns a milestone.** Each lab milestone fires when the student's `dojo netlab check A<n>` passes (exit 0): the checker confirms the pod's end state from outside, on both branches, and that the manual and automated branches agree. The A labs are the playbook labs; the M labs they repeat by hand have no check. Labs A10 and A11 are stretch and not `core`.
 
 ## Rules for challenges and capstones (apply to every workshop)
 
@@ -44,77 +44,71 @@ breaks for the second person to try it. Every challenge and capstone must follow
 The catalog validator enforces what it can: every challenge declares a `space` containing `{user}`, and every
 structured `verify` assertion mentions `{user}`.
 
-## Lab 0: orientation
+## Lab 1: orientation
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| n0-lay-of-land | Know Your Network | "Asked every node at once. The inventory is a map now." | 10 | yes | shell: `dojo netlab check 0` (exit 0), meaning every assertion for lab 0 passed |
+| n0-lay-of-land | Know Your Network | "Asked every node at once. The inventory is a map now." | 10 | yes | shell: `dojo netlab check A1` (exit 0), meaning every assertion for lab A1 passed |
 
-## Lab 1: a first playbook: the web page
-
-| ID | Title | Joke | Pts | Core | When |
-|---|---|---|---|---|---|
-| n1-first-play | Hello, Playbook | "Your name, on two web servers, from one file." | 10 | yes | shell: `dojo netlab check 1` (exit 0), meaning every assertion for lab 1 passed |
-
-## Lab 2: variables, loops and conditionals
+## Lab 2: vLANs and access ports
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| n2-open-ports | Loop de Loop | "Two ports, one variable list, zero copy-paste." | 10 | yes | shell: `dojo netlab check 2` (exit 0), meaning every assertion for lab 2 passed |
+| ns1-vlans | Tagged and Proud | "No module? You wrote the template yourself." | 10 | yes | shell: `dojo netlab check A2` (exit 0), meaning every assertion for lab A2 passed |
 
-## Lab 3: idempotency and check mode
-
-| ID | Title | Joke | Pts | Core | When |
-|---|---|---|---|---|---|
-| n3-changed-zero | Changed: Zero | "Ran it twice. The second time, nothing happened. Perfect." | 10 | yes | shell: `dojo netlab check 3` (exit 0), meaning every assertion for lab 3 passed |
-
-## Lab 4: templates, handlers and validate
+## Lab 3: trunk and router-on-a-stick
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| n4-validated | Look Before You Reload | "Validate first, so sshd never meets your typo." | 10 | yes | shell: `dojo netlab check 4` (exit 0), meaning every assertion for lab 4 passed |
+| ns2-trunk | Router on a Stick | "One VLAN list drove the switch and the firewall." | 10 | yes | shell: `dojo netlab check A3` (exit 0), meaning every assertion for lab A3 passed |
 
-## Lab 5: secrets with Vault
-
-| ID | Title | Joke | Pts | Core | When |
-|---|---|---|---|---|---|
-| n5-vaulted | Locked in the Vault | "The password is in git. You cannot read it. Good." | 10 | no | shell: `dojo netlab check 5` (exit 0), meaning every assertion for lab 5 passed |
-
-## Lab 6: errors, rollback and tests
+## Lab 4: a first playbook: the web page
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| n6-rollback | Tested, Locked, Recoverable | "Locked it down, tested it, and kept an undo." | 10 | yes | shell: `dojo netlab check 6` (exit 0), meaning every assertion for lab 6 passed |
+| n1-first-play | Hello, Playbook | "Your name, on two web servers, from one file." | 10 | yes | shell: `dojo netlab check A4` (exit 0), meaning every assertion for lab A4 passed |
 
-## Lab 7: roles and structure
-
-| ID | Title | Joke | Pts | Core | When |
-|---|---|---|---|---|---|
-| n7-roles | Role Model | "Same behaviour, better furniture." | 10 | no | shell: `dojo netlab check 7` (exit 0), meaning every assertion for lab 7 passed |
-
-## Lab 8: capstone: from clean to done
+## Lab 5: variables, loops and conditionals
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| n8-capstone | Clean to Done | "One playbook rebuilt the network, then politely did nothing." | 10 | yes | shell: `dojo netlab check 8` (exit 0), meaning every assertion for lab 8 passed |
+| n2-open-ports | Loop de Loop | "Two ports, one variable list, zero copy-paste." | 10 | yes | shell: `dojo netlab check A5` (exit 0), meaning every assertion for lab A5 passed |
 
-## Lab 9: vLANs and access ports
-
-| ID | Title | Joke | Pts | Core | When |
-|---|---|---|---|---|---|
-| ns1-vlans | Tagged and Proud | "No module? You wrote the template yourself." | 10 | no | shell: `dojo netlab check S1` (exit 0), meaning every assertion for lab S1 passed |
-
-## Lab 10: trunk and router-on-a-stick
+## Lab 6: idempotency and check mode
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| ns2-trunk | Router on a Stick | "One VLAN list drove the switch and the firewall." | 10 | no | shell: `dojo netlab check S2` (exit 0), meaning every assertion for lab S2 passed |
+| n3-changed-zero | Changed: Zero | "Ran it twice. The second time, nothing happened. Perfect." | 10 | yes | shell: `dojo netlab check A6` (exit 0), meaning every assertion for lab A6 passed |
 
-## Lab 11: segmentation policy
+## Lab 7: templates, handlers and validate
 
 | ID | Title | Joke | Pts | Core | When |
 |---|---|---|---|---|---|
-| ns3-segment | Fences and Neighbours | "Only the web ports cross the line." | 10 | no | shell: `dojo netlab check S3` (exit 0), meaning every assertion for lab S3 passed |
+| n4-validated | Look Before You Reload | "Validate first, so sshd never meets your typo." | 10 | yes | shell: `dojo netlab check A7` (exit 0), meaning every assertion for lab A7 passed |
+
+## Lab 8: lockdown and segmentation: errors, rollback and tests
+
+| ID | Title | Joke | Pts | Core | When |
+|---|---|---|---|---|---|
+| n6-rollback | Tested, Locked, Recoverable | "Locked it down, tested it, and kept an undo." | 10 | yes | shell: `dojo netlab check A8` (exit 0), meaning every assertion for lab A8 passed |
+
+## Lab 9: capstone: from clean to done
+
+| ID | Title | Joke | Pts | Core | When |
+|---|---|---|---|---|---|
+| n8-capstone | Clean to Done | "One playbook rebuilt the network, then politely did nothing." | 10 | yes | shell: `dojo netlab check A9` (exit 0), meaning every assertion for lab A9 passed |
+
+## Lab 10: secrets with Vault
+
+| ID | Title | Joke | Pts | Core | When |
+|---|---|---|---|---|---|
+| n5-vaulted | Locked in the Vault | "The password is in git. You cannot read it. Good." | 10 | no | shell: `dojo netlab check A10` (exit 0), meaning every assertion for lab A10 passed |
+
+## Lab 11: roles and structure
+
+| ID | Title | Joke | Pts | Core | When |
+|---|---|---|---|---|---|
+| n7-roles | Role Model | "Same behaviour, better furniture." | 10 | no | shell: `dojo netlab check A11` (exit 0), meaning every assertion for lab A11 passed |
 
 ## Funny unlocks (0 points, any time; shown in the student's Moments table)
 
@@ -135,15 +129,15 @@ Each has two hints (25% each by default) and an answer that scores zero. The che
 
 - **Points:** 300
 - **Where it runs:** the student's own pod, `{user}`'s branch a, reached only with the account's own pod password
-- **Goal shown to the student:** Finish the whole core path on your own pod: labs 0 to 4, 6 and 8 each passing `dojo netlab check`, with lab 8 as the rebuild from clean (reset branch a, one `site.yml`, a second run that changes nothing) and your manual and automated branches agreeing. Then run `dojo check capstone`.
+- **Goal shown to the student:** Finish the whole core path on your own pod: labs A1 to A8 each passing `dojo netlab check`, with A9 as the rebuild from clean (reset branch a, one `site.yml`, a second run that changes nothing) and your manual and automated branches agreeing. Then run `dojo check capstone`.
 - **Seed:** No seed: the pod is the seed.
-- **Verify:** The service asks the netlab checker, from outside your terminal, whether it last saw labs 0, 1, 2, 3, 4, 6 and 8 pass on your own pod (lab 8 includes the manual-versus-automated branch comparison). Run `dojo netlab check N` for any lab it names, then `dojo check capstone` again.
+- **Verify:** The service asks the netlab checker, from outside your terminal, whether it last saw labs A1 to A9 pass on your own pod (A9 includes the manual-versus-automated branch comparison). Run `dojo netlab check A<n>` for any lab it names, then `dojo check capstone` again.
 - **Hint 1:** `dojo check capstone` names the labs the checker has not seen pass yet.
-- **Hint 2:** It reads the checker's latest result for each lab, so re-run `dojo netlab check N` for the one it names.
-- **Answer:** Run `dojo netlab check 0`, `1`, `2`, `3`, `4`, `6` and `8` until each passes (lab 8 after `ansible-playbook reset_fw.yml -e branch=a`, then your `site.yml` twice, the second run reporting changed=0), then `dojo check capstone`.
+- **Hint 2:** It reads the checker's latest result for each lab, so re-run `dojo netlab check A<n>` for the one it names.
+- **Answer:** Run `dojo netlab check A1` to `A9` until each passes (A9 after `ansible-playbook reset_fw.yml -e branch=a`, then your `site.yml` twice, the second run reporting changed=0), then `dojo check capstone`.
 - **Collision check:** Each student's pod is theirs alone, and the proof is the checker's record for that pod; the verb takes the pod from the checking student's name, never from an argument.
 - **Badge tier:** capstone (stars)
 
 ## Totals (computed)
 
-7 core milestones (70 points) of 12 milestones (120) · 4 funny unlocks (0 points each) · 0 challenges (0) · capstone 300 · plus first blood and class-clear bonuses. Everything: 420 points.
+9 core milestones (90 points) of 11 milestones (110) · 4 funny unlocks (0 points each) · 0 challenges (0) · capstone 300 · plus first blood and class-clear bonuses. Everything: 410 points.

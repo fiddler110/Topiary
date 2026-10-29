@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "n7-roles",
-      "title": "Role Model",
-      "joke": "Same behaviour, better furniture.",
-      "core": false,
-      "when": "shell: `dojo netlab check 7` (exit 0), meaning every assertion for lab 7 passed",
+      "id": "n4-validated",
+      "title": "Look Before You Reload",
+      "joke": "Validate first, so sshd never meets your typo.",
+      "core": true,
+      "when": "shell: `dojo netlab check A7` (exit 0), meaning every assertion for lab A7 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+7\\b",
+        "regex": "(?i)\\bcheck\\s+A7\\b",
         "exit": 0,
         "exit_strict": true
       }

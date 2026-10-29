@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "n1-first-play",
-      "title": "Hello, Playbook",
-      "joke": "Your name, on two web servers, from one file.",
+      "id": "n0-lay-of-land",
+      "title": "Know Your Network",
+      "joke": "Asked every node at once. The inventory is a map now.",
       "core": true,
-      "when": "shell: `dojo netlab check 1` (exit 0), meaning every assertion for lab 1 passed",
+      "when": "shell: `dojo netlab check A1` (exit 0), meaning every assertion for lab A1 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+1\\b",
+        "regex": "(?i)\\bcheck\\s+A1\\b",
         "exit": 0,
         "exit_strict": true
       }

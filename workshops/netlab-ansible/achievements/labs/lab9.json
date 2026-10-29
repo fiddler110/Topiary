@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "ns1-vlans",
-      "title": "Tagged and Proud",
-      "joke": "No module? You wrote the template yourself.",
-      "core": false,
-      "when": "shell: `dojo netlab check S1` (exit 0), meaning every assertion for lab S1 passed",
+      "id": "n8-capstone",
+      "title": "Clean to Done",
+      "joke": "One playbook rebuilt the network, then politely did nothing.",
+      "core": true,
+      "when": "shell: `dojo netlab check A9` (exit 0), meaning every assertion for lab A9 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+S1\\b",
+        "regex": "(?i)\\bcheck\\s+A9\\b",
         "exit": 0,
         "exit_strict": true
       }

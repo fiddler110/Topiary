@@ -2,13 +2,16 @@
 # dojo-summary: check your netlab pod against a lab's goals: dojo netlab check <lab>
 """dojo netlab check <lab>: ask netlab-checker whether your pod meets the lab's goals.
 
-    dojo netlab check 2      lab 2 (labs 0-8, S1-S3)
+    dojo netlab check A5     lab A5 (the playbook labs A1-A11)
+
+Lab A10 (secrets) also checks, on this terminal, your two repos and your vault logins (it never prints a password).
 
 Posts to netlab-checker on workshop_lab as the account, proven by its own key (~/.config/dojo/netlab-check-key).
 Prints one line per assertion. Exits 0 if all pass, 1 if some fail, 2 if it could not ask.
 """
 import json
 import os
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -29,6 +32,48 @@ def clean(text):
     return "".join(c if " " <= c <= "~" else "?" for c in str(text))
 
 
+def local_lab5():
+    """Lab A10's checks on what only this terminal can see: your two repos and your vault logins. Never prints a password."""
+    base = os.path.expanduser("~/netlab/labs/5-vault")
+    env = {k: v for k, v in os.environ.items() if k != "BAO_TOKEN"}   # your own login, not a team token left in the shell
+    out, got = [], {}
+    stray = [p for p in (os.path.expanduser("~/netlab/.vault_pass"), os.path.join(base, ".vault_pass"),
+                         *[os.path.join(base, r + "-repo", ".vault_pass") for r in ("fw", "sw")]) if os.path.exists(p)]
+    out.append((not stray, "no plain-text .vault_pass file", "none found" if not stray else "remove " + clean(stray[0])))
+    for r in ("fw", "sw"):
+        d, name = os.path.join(base, r + "-repo"), r + "-repo"
+        script = os.path.join(d, "vault-pass.sh")
+        if not os.access(script, os.X_OK):
+            out.append((False, f"{name}: vault-pass.sh prints its vault's password", "missing or not executable (chmod +x)"))
+            continue
+        try:
+            p = subprocess.run(["./vault-pass.sh"], cwd=d, env=env, capture_output=True, text=True, timeout=20)
+            got[r] = p.stdout.strip()
+            ok, why = p.returncode == 0 and bool(got[r]), "got a password" if p.returncode == 0 and got[r] else \
+                "failed: " + clean(p.stderr.strip().splitlines()[-1] if p.stderr.strip() else "no output", 80)
+        except (OSError, subprocess.SubprocessError) as e:
+            ok, why = False, "failed: " + clean(e, 80)
+        out.append((ok, f"{name}: vault-pass.sh prints its vault's password", why))
+        try:
+            with open(os.path.join(d, "secrets.yml"), encoding="utf-8", errors="replace") as fh:
+                enc = fh.readline().startswith("$ANSIBLE_VAULT")
+        except OSError:
+            enc = False
+        out.append((enc, f"{name}: secrets.yml is encrypted", "starts with $ANSIBLE_VAULT" if enc else "missing or still plain text"))
+        if enc and ok:
+            try:
+                v = subprocess.run(["ansible-vault", "view", "secrets.yml", "--vault-password-file", "./vault-pass.sh"],
+                                   cwd=d, env=env, capture_output=True, text=True, timeout=30)
+                good = v.returncode == 0
+            except (OSError, subprocess.SubprocessError):
+                good = False
+            out.append((good, f"{name}: its own vault password opens secrets.yml", "decrypts" if good else "does not decrypt"))
+    if got.get("fw") and got.get("sw"):
+        diff = got["fw"] != got["sw"]
+        out.append((diff, "the two repos use different vault passwords", "different" if diff else "the same: make one vault per repo"))
+    return out
+
+
 def main(argv):
     if len(argv) != 2 or argv[0] != "check":
         print(__doc__.strip().splitlines()[0])
@@ -38,6 +83,11 @@ def main(argv):
     if not key:
         print("No check key found (~/.config/dojo/netlab-check-key). Ask the facilitator.", file=sys.stderr)
         return 2
+    local_ok = True
+    if argv[1].upper() == "A10":
+        for ok, name, detail in local_lab5():
+            print(f"  {'PASS' if ok else 'FAIL'}  {clean(name)}: {clean(detail)}")
+            local_ok = local_ok and ok
     req = urllib.request.Request(ADDR + "/check", method="POST", headers={"Content-Type": "application/json"},
                                  data=json.dumps({"user": user, "key": key, "lab": argv[1]}).encode())
     try:
@@ -55,8 +105,9 @@ def main(argv):
         return 2
     for a in res.get("assertions", []):
         print(f"  {'PASS' if a.get('ok') else 'FAIL'}  {clean(a.get('name'))}: {clean(a.get('detail'))}")
-    print(f"Lab {clean(res.get('lab'))}: " + ("all checks passed." if res.get("ok") else "some checks failed."))
-    return 0 if res.get("ok") else 1
+    ok = bool(res.get("ok")) and local_ok
+    print(f"Lab {clean(res.get('lab'))}: " + ("all checks passed." if ok else "some checks failed."))
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

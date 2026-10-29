@@ -1,0 +1,8 @@
+# netlab-ansible extras. Lab 5 keeps its vault passwords in the openbao module's shared OpenBao; this mounts the
+# workshop's set-up hooks into the module's openbao-setup, which sources every /etc/openbao-setup.d/*.sh on each start
+# with the provisioner token (modules/openbao/README.md).
+
+services:
+  openbao-setup:
+    volumes:
+      - ../workshops/netlab-ansible/compose/openbao-setup.d:/etc/openbao-setup.d:ro

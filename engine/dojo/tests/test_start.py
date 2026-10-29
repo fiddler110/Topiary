@@ -77,6 +77,22 @@ class SafetyGates(unittest.TestCase):
         self.gates(StartOptions("x", build_only=True), {})
         self.gates(StartOptions("x"), {"STUDENT_PASSWORD_SEED": "ab" * 32})
 
+    def test_default_password_warning_only_for_the_flag(self):
+        env = {"PUBLIC_BASE_URL": "https://dojoh.example.org", "LAB_HOST_IP": "0.0.0.0",
+               "STUDENT_PASSWORD": "student", "FACILITATOR_PASSWORD": "dojo-admin", "STUDENT_PASSWORD_SEED": "ab" * 32}
+        with mock.patch.object(start, "console") as con, \
+                mock.patch.object(start.checks, "default_passwords", return_value=["STUDENT_PASSWORD"]), \
+                mock.patch.object(start.checks, "local_only", return_value=False), \
+                mock.patch.object(start.checks, "plain_http_offbox", return_value=False), \
+                mock.patch.object(start.checks, "port_mismatch", return_value=""), \
+                mock.patch.object(start.checks, "missing_required", return_value=[]):
+            start._safety_gates(StartOptions("x"), {**env, "ALLOW_DEFAULT_PASSWORDS": "1"})
+            con.print.assert_not_called()
+            start._safety_gates(StartOptions("x", allow_default_passwords=True), env)
+            self.assertIn("default passwords in use", con.print.call_args[0][0])
+            with self.assertRaises(StartError):
+                start._safety_gates(StartOptions("x"), env)
+
     def test_empty_required_password_refused(self):
         with self.assertRaises(StartError) as cm:
             self.gates(StartOptions("x", test=""), {"FACILITATOR_PASSWORD": ""})
