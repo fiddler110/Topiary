@@ -196,6 +196,31 @@ def lab4(b):
     return [a_cmd(b, "web", "sshd -T", "sshd on web: MaxAuthTries 3, LoginGraceTime 20, X11Forwarding no", test)]
 
 
+def secret_file(b, role, path, label):
+    """The node holds a 0600 credential file with a real password. The password itself is never shown."""
+    def test(rc, out):
+        lines = out.splitlines()
+        mode, pw = (lines[0].strip() if lines else ""), (lines[1].strip() if len(lines) > 1 else "")
+        if rc != 0 or not mode:
+            return False, f"{path} is missing"
+        bad = []
+        if mode != "600":
+            bad.append(f"mode is {clean(mode, 6)}, want 600")
+        if len(pw) < 8 or pw == "change-me":
+            bad.append("no real admin_password in it")
+        return not bad, "; ".join(bad) or "mode 600, password set"
+    return a_cmd(b, role, f"stat -c %a {path} && sed -n 's/^admin_password=//p' {path}",
+                 f"{label} holds its secret in {path} (mode 600)", test)
+
+
+def lab5(b, cfg):
+    """Two repos, two vaults: the firewall repo's secret reaches fw, the switch repo's reaches sw."""
+    out = [secret_file(b, "fw", "/etc/fw-admin.conf", "fw")]
+    if cfg.switch:
+        out.append(secret_file(b, "sw", "/etc/sw-mgmt.conf", "sw"))
+    return out
+
+
 def lab6(b):
     return [a_open(b, (80, 443)),
             a_blocked(b, (22, 23, 25, 8080, 8443)),
@@ -235,16 +260,11 @@ def s2(b):
             a_ping_works(b)]
 
 
-def s3(b):
+def attacker_view(b):
     def test(rc, out):
         extra = open_ports(out) - {80, 443}
         return not extra, ("nothing else open" if not extra else "open: " + ", ".join(map(str, sorted(extra))))
-    # 443 needs a listener (lab 3) to be reachable, and the S labs start from a baseline web server: judge it by the rule.
-    return [a_open(b, (80,)),
-            a_cmd(b, "fw", "iptables -S LAB", "fw LAB chain has a dport 443 rule",
-                  lambda rc, out: ("--dport 443" in out, "rule present" if "--dport 443" in out else "no dport 443 rule")),
-            a_blocked(b, (22,), "SSH (22) blocked from pc"),
-            A("attacker view: nothing but 80 and 443 is open", [(b, "pc", scan(WIDE_SCAN))], one(test))]
+    return A("attacker view: nothing but 80 and 443 is open", [(b, "pc", scan(WIDE_SCAN))], one(test))
 
 
 def lab0(b, cfg):
@@ -284,28 +304,29 @@ def info_only(text):
 
 
 # lab -> (builder(branch, cfg) -> [A], needs_switch, compare branches). Add a lab by adding a line.
+# Part 1 finishes all of branch m before Part 2 starts, so m only matches a at the end: only A9 compares them.
+# The A labs are the playbook labs; the M labs they repeat by hand have no check of their own (probe.yml shows them).
 LABS = {
-    "0": (lab0, False, False),
-    "1": (lambda b, c: lab1(b), False, True),
-    "2": (lambda b, c: lab2(b), False, True),
-    "3": (lambda b, c: lab3(b), False, True),
-    "4": (lambda b, c: lab4(b), False, True),
-    "5": (lambda b, c: [a_cmd(b, "pc", http_code(80, "http", "/admin"), "/admin returns 401 without credentials",
-                              lambda rc, out: (out.strip() == "401", f"HTTP {clean(out.strip(), 8) or 'no answer'}"))],
-          False, True),
-    "6": (lambda b, c: lab6(b), False, True),
-    "7": (info_only("roles/ directory exists in ~/netlab"), False, False),
-    "S1": (lambda b, c: s1(b), True, True),
-    "S2": (lambda b, c: s2(b), True, True),
-    "S3": (lambda b, c: s3(b), True, True),
+    "A1": (lab0, False, False),
+    "A2": (lambda b, c: s1(b), True, True),
+    "A3": (lambda b, c: s2(b), True, True),
+    "A4": (lambda b, c: lab1(b), False, False),
+    "A5": (lambda b, c: lab2(b), False, False),
+    "A6": (lambda b, c: lab3(b), False, False),
+    "A7": (lambda b, c: lab4(b), False, False),
+    "A8": (lambda b, c: lab6(b) + [attacker_view(b)], False, False),
+    "A10": (lab5, False, False),
+    "A11": (info_only("roles/ directory exists in ~/netlab"), False, False),
 }
+CAPSTONE = "A9"
 LAB8 = (lab2, lab3, lab4, lab6)
+LAB_KEYS = {k.upper() for k in (*LABS, CAPSTONE)}
 
 
 def build(lab, cfg):
     """[(label or None, A)] for a lab, or None for an unknown lab / one the config cannot run."""
     out = []
-    if lab == "8":
+    if lab == CAPSTONE:
         out += [("A", a) for f in LAB8 for a in f("a")]
         if cfg.manual:
             out += [(None, a) for a in match_assertions()]
@@ -315,7 +336,7 @@ def build(lab, cfg):
     builder, needs_switch, compare = LABS[lab]
     if needs_switch and not cfg.switch:
         return None
-    if lab == "7":
+    if lab == "A11":
         return [(None, a) for a in builder("a", cfg)]
     for b in cfg.branches():
         out += [(b.upper(), a) for a in builder(b, cfg)]
@@ -395,14 +416,14 @@ def proof(cfg, body, store=None):
         return 400, {"error": "bad request"}
     user, labs = body.get("user"), body.get("labs")
     pod = cfg.pod_of(user)
-    known = {k.upper() for k in (*LABS, "8")}
+    known = LAB_KEYS
     if pod is None or pod == 0:
         return 403, {"error": "not allowed"}
     if not isinstance(labs, list) or not 0 < len(labs) <= 16 \
             or not all(isinstance(x, str) and x.upper() in known for x in labs):
         return 400, {"error": "unknown lab"}
     seen = store.get(pod, {})
-    missing = [x for x in labs if not (seen.get(x.upper() if x.upper().startswith("S") else x) or {}).get("ok")]
+    missing = [x for x in labs if not (seen.get(x.upper()) or {}).get("ok")]
     return 200, {"passed": not missing, "missing": missing}
 
 
@@ -416,11 +437,11 @@ def handle(cfg, limiter, body, runner=ssh):
         return 403, {"error": "not allowed"}
     if not hmac.compare_digest(key.encode("utf-8", "replace"), check_key(cfg.seed, user).encode()):
         return 403, {"error": "not allowed"}
-    if not isinstance(lab, str) or lab.upper() not in {k.upper() for k in (*LABS, "8")}:
+    if not isinstance(lab, str) or lab.upper() not in LAB_KEYS:
         return 400, {"error": "unknown lab"}
     if not limiter.allow(user):
         return 429, {"error": "slow down: too many checks, try again in a minute"}
-    result = run_check(cfg, pod, lab.upper() if lab.upper().startswith("S") else lab, runner)
+    result = run_check(cfg, pod, lab.upper(), runner)
     if result is None:
         return 400, {"error": "that lab needs the switch, which this run does not have"}
     remember(pod, result)

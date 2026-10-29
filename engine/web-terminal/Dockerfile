@@ -83,6 +83,8 @@ RUN set -eux; \
 # `fix-terminal`, and each module and workshop adds its own links there. dojo-fix-terminal is the
 # old name; completion is picked up by the shared compinit.
 COPY dojo /usr/local/bin/dojo
+COPY pbcopy pbpaste /usr/local/bin/
+RUN chmod 0755 /usr/local/bin/pbcopy /usr/local/bin/pbpaste
 COPY dojo-fix-terminal /usr/local/share/dojo/cmd.d/fix-terminal
 COPY _dojo /usr/share/zsh/vendor-completions/_dojo
 RUN chmod 0755 /usr/local/bin/dojo /usr/local/share/dojo/cmd.d/fix-terminal \

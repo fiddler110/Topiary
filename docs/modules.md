@@ -81,7 +81,7 @@ Per-student pods on internal-only networks for learning Ansible: a pc, a VLAN sw
 web node, twice (a branch the student configures by hand, a branch they automate). Nodes take root over SSH with a
 per-pod password derived from `STUDENT_PASSWORD_SEED`. `modules/netlab/generate.py` writes the pods at start, so
 `STUDENT_COUNT` is capped by `NETLAB_MAX_STUDENTS` (15: a rootless podman host stops near 200 containers). The
-terminal gets Ansible and a seeded `~/netlab` with labs 0-8 and the build-it-yourself switch labs S1-S3;
+terminal gets Ansible and a seeded `~/netlab` with the Part 1 by-hand labs M1-M9 and the Part 2 playbook labs A1-A11 (A2 and A3 are the build-it-yourself switch labs);
 `netlab-checker` backs `dojo netlab check <lab>`; `netlab-view` is the read-only "My Network" page (a student sees only their own pod, the facilitator every pod, via an `/admin` tab). Design and spike results: `NETLAB-PLAN.md`; settings: `module.env`.
 
 ## dns-gate

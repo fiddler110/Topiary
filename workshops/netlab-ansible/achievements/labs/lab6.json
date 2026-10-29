@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "n6-rollback",
-      "title": "Tested, Locked, Recoverable",
-      "joke": "Locked it down, tested it, and kept an undo.",
+      "id": "n3-changed-zero",
+      "title": "Changed: Zero",
+      "joke": "Ran it twice. The second time, nothing happened. Perfect.",
       "core": true,
-      "when": "shell: `dojo netlab check 6` (exit 0), meaning every assertion for lab 6 passed",
+      "when": "shell: `dojo netlab check A6` (exit 0), meaning every assertion for lab A6 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+6\\b",
+        "regex": "(?i)\\bcheck\\s+A6\\b",
         "exit": 0,
         "exit_strict": true
       }

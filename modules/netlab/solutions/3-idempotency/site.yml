@@ -33,6 +33,7 @@
       ansible.builtin.file:
         path: "{{ tls_dir }}/web.key"
         mode: "0600"
+      when: not ansible_check_mode   # the key does not exist yet in a preview on a clean node
 
     - name: HTTPS server block
       ansible.builtin.template:

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "resets": [
+    { "id": "netlab-openbao", "label": "OpenBao: namespace and team vaults", "upstream": "openbao-reset:8080",
+      "path": "/_dojo/reset/{user}", "timeout": 120 }
+  ]
+}

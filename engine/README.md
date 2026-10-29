@@ -467,7 +467,7 @@ that's an Azure-side step you control per-deployment.
 applies the `home` profile: `[profiles.home.*]` in `dojo.toml`/`dojo.local.toml` for its settings
 (URL, proxy) and a `[home]` section in `.env` for its secrets, so it only needs the values that
 differ and everyday runs are unchanged. A profile never touches settings it does not name, so the
-terminal flavor, set once under `[terminal]`, applies to `--env home` and `--env live` alike. Join
+terminal flavor, set once under `[terminal]`, applies to `--env home` and `--env prod` alike. Join
 profiles with commas (`--env mac-podman,home`, the last wins). The profile must exist somewhere, or
 the start stops and lists the known names.
 

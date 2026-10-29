@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "n3-changed-zero",
-      "title": "Changed: Zero",
-      "joke": "Ran it twice. The second time, nothing happened. Perfect.",
+      "id": "ns2-trunk",
+      "title": "Router on a Stick",
+      "joke": "One VLAN list drove the switch and the firewall.",
       "core": true,
-      "when": "shell: `dojo netlab check 3` (exit 0), meaning every assertion for lab 3 passed",
+      "when": "shell: `dojo netlab check A3` (exit 0), meaning every assertion for lab A3 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+3\\b",
+        "regex": "(?i)\\bcheck\\s+A3\\b",
         "exit": 0,
         "exit_strict": true
       }

@@ -1,0 +1,12 @@
+# Lab 5: the fw repo. Put this team's secret on its own node, mode 0600.
+- name: Firewall secret
+  hosts: fw:&auto
+  gather_facts: false
+  vars_files:
+    - secrets.yml          # TODO 1: create it with `ansible-vault create`; it defines fw_admin_password
+  tasks:
+    # TODO 2: ansible.builtin.copy, content "admin_password={{ fw_admin_password }}\n", dest /etc/fw-admin.conf,
+    #         owner root, group root, mode "0600", and no_log: true.
+    - name: TODO
+      ansible.builtin.debug:
+        msg: Replace this task.

@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "ns3-segment",
-      "title": "Fences and Neighbours",
-      "joke": "Only the web ports cross the line.",
+      "id": "n7-roles",
+      "title": "Role Model",
+      "joke": "Same behaviour, better furniture.",
       "core": false,
-      "when": "shell: `dojo netlab check S3` (exit 0), meaning every assertion for lab S3 passed",
+      "when": "shell: `dojo netlab check A11` (exit 0), meaning every assertion for lab A11 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+S3\\b",
+        "regex": "(?i)\\bcheck\\s+A11\\b",
         "exit": 0,
         "exit_strict": true
       }

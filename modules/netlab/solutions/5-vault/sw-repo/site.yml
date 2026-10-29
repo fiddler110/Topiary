@@ -1,0 +1,14 @@
+- name: Switch secret
+  hosts: sw:&auto
+  gather_facts: false
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Switch credential file
+      ansible.builtin.copy:
+        content: "admin_password={{ sw_mgmt_password }}\n"
+        dest: /etc/sw-mgmt.conf
+        owner: root
+        group: root
+        mode: "0600"
+      no_log: true

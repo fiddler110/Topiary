@@ -1,3 +1,0 @@
-# Lab S3: a blank file on purpose. There is no switch module, so the design is yours:
-# a VLAN list in group_vars, a Jinja2 template, and a guard that makes reruns report changed=0.
-# Read README.md in this folder for the target state and a command reference.

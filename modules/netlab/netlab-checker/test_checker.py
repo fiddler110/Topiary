@@ -62,7 +62,7 @@ class Keys(unittest.TestCase):
 
 
 class Handle(unittest.TestCase):
-    def body(self, user="student01", lab="1", key=None):
+    def body(self, user="student01", lab="A4", key=None):
         return {"user": user, "key": checker.check_key(SEED, user) if key is None else key, "lab": lab}
 
     def test_wrong_key_and_other_user(self):
@@ -87,7 +87,7 @@ class Handle(unittest.TestCase):
         self.assertEqual(checker.handle(c, lim, self.body(), run)[0], 200)
 
     def test_facilitator(self):
-        st, r = checker.handle(cfg(), checker.RateLimit(5, 60), self.body(user="root", lab="0"), fake({}))
+        st, r = checker.handle(cfg(), checker.RateLimit(5, 60), self.body(user="root", lab="A1"), fake({}))
         self.assertEqual(st, 200)
         self.assertTrue(r["ok"])
 
@@ -100,36 +100,38 @@ class Labs(unittest.TestCase):
         return [a["name"] for a in r["assertions"] if not a["ok"]]
 
     def test_lab0_unreachable(self):
-        r = self.run_lab("0", {("sw", "true"): (255, "")})
+        r = self.run_lab("A1", {("sw", "true"): (255, "")})
         self.assertFalse(r["ok"])
         self.assertTrue(all("sw node" in n for n in self.failed(r)))
         self.assertEqual(len(self.failed(r)), 2)  # sw-m, sw-a
 
     def test_lab1(self):
-        r = self.run_lab("1", {("web", "index.html"): (0, "<p>nginx default page.</p>")})
+        r = self.run_lab("A4", {("web", "index.html"): (0, "<p>nginx default page.</p>")})
         self.assertFalse(r["ok"])
-        r = self.run_lab("1", {("web", "index.html"): (0, "<h1>mine</h1>")})
+        r = self.run_lab("A4", {("web", "index.html"): (0, "<h1>mine</h1>")})
         self.assertTrue(r["ok"], r)
 
     def test_lab2_open_too_much(self):
         table = {("pc", "for p in"): (0, "open 80\nopen 22\n"), ("pc", "curl"): (0, "200"),
                  ("fw", "iptables -S"): (0, "-A LAB -p tcp --dport 443 -j ACCEPT")}
-        r = self.run_lab("2", table, NETLAB_MANUAL_BRANCH="0")
+        r = self.run_lab("A5", table, NETLAB_MANUAL_BRANCH="0")
         self.assertEqual(self.failed(r), ["[A] ports 22 and 8080 blocked from pc"])
         self.assertIn("22", r["assertions"][1]["detail"])
 
-    def test_lab2_pass_with_match(self):
-        table = {("pc", "for p in"): (0, "open 80\n"), ("pc", "curl"): (0, "200"),
-                 ("fw", "iptables -S"): (0, "--dport 443"), ("fw", "iptables-save"): (0, "-A LAB -j X\n# c\n:LAB - [0:0]")}
-        r = self.run_lab("2", table)
+    def test_lab2_does_not_compare_branches(self):
+        # Part 1 finishes all of branch m before Part 2 starts, so m only matches a at the end (A9).
+        table = {("pc", "for p in"): (0, "open 80\n"), ("pc", "curl"): (0, "200"), ("fw", "iptables -S"): (0, "--dport 443")}
+        r = self.run_lab("A5", table)
         self.assertTrue(r["ok"], self.failed(r))
-        self.assertTrue(any(a["name"].startswith("branches match") for a in r["assertions"]))
+        self.assertFalse(any(a["name"].startswith("branches match") for a in r["assertions"]))
         self.assertTrue(any(a["name"].startswith("[M]") for a in r["assertions"]))
 
     def test_branches_differ(self):
-        table = {("pc", "for p in"): (0, "open 80\n"), ("pc", "curl"): (0, "200"), ("fw", "iptables -S"): (0, "--dport 443"),
+        table = {("pc", "for p in"): (0, "open 80\nopen 443\n"), ("pc", "curl"): (0, "200"), ("pc", "ping"): (1, ""),
+                 ("fw", "iptables -S"): (0, "--dport 443"), ("web", "sshd -T"): (0, "maxauthtries 3\nlogingracetime 20\nx11forwarding no"),
+                 ("web", "test -f"): (0, ""), ("web", "cat /etc"): (0, "server {}"),
                  ("fw", "iptables-save"): lambda b: (0, "-A LAB -j " + ("ACCEPT" if b == "a" else "DROP"))}
-        r = self.run_lab("2", table)
+        r = self.run_lab("A9", table)
         self.assertEqual(self.failed(r), ["branches match: fw rules (iptables-save)"])
         self.assertIn("only in M", r["assertions"][-2]["detail"])
 
@@ -137,29 +139,37 @@ class Labs(unittest.TestCase):
         self.assertEqual(checker.norm("# x\n:INPUT ACCEPT [1:2]\n-A a\n"), checker.norm("-A a"))
 
     def test_lab3(self):
-        r = self.run_lab("3", {("pc", "curl"): (0, "000"), ("web", "test -f"): (1, "")}, NETLAB_MANUAL_BRANCH="0")
+        r = self.run_lab("A6", {("pc", "curl"): (0, "000"), ("web", "test -f"): (1, "")}, NETLAB_MANUAL_BRANCH="0")
         self.assertEqual(len(self.failed(r)), 2)
 
     def test_lab4(self):
         good = "maxauthtries 3\nlogingracetime 20\nx11forwarding no\n"
-        self.assertTrue(self.run_lab("4", {("web", "sshd -T"): (0, good)}, NETLAB_MANUAL_BRANCH="0")["ok"])
-        r = self.run_lab("4", {("web", "sshd -T"): (0, good.replace("3", "6"))}, NETLAB_MANUAL_BRANCH="0")
+        self.assertTrue(self.run_lab("A7", {("web", "sshd -T"): (0, good)}, NETLAB_MANUAL_BRANCH="0")["ok"])
+        r = self.run_lab("A7", {("web", "sshd -T"): (0, good.replace("3", "6"))}, NETLAB_MANUAL_BRANCH="0")
         self.assertIn("maxauthtries is 6", r["assertions"][0]["detail"])
 
     def test_lab5(self):
-        self.assertTrue(self.run_lab("5", {("pc", "curl"): (0, "401")}, NETLAB_MANUAL_BRANCH="0")["ok"])
-        self.assertFalse(self.run_lab("5", {("pc", "curl"): (0, "200")}, NETLAB_MANUAL_BRANCH="0")["ok"])
+        good = {("fw", "stat -c"): (0, "600\nfw-secret-123\n"), ("sw", "stat -c"): (0, "600\nsw-secret-123\n")}
+        self.assertTrue(self.run_lab("A10", good, NETLAB_MANUAL_BRANCH="0")["ok"])
+        r = self.run_lab("A10", {("fw", "stat -c"): (0, "644\nchange-me\n"), ("sw", "stat -c"): (1, "")},
+                         NETLAB_MANUAL_BRANCH="0")
+        self.assertEqual(len(self.failed(r)), 2)
+        self.assertIn("mode is 644", r["assertions"][0]["detail"])
+        self.assertNotIn("change-me", json.dumps(r))
+        # no switch, no sw assertion
+        one = self.run_lab("A10", {("fw", "stat -c"): (0, "600\nfw-secret-123\n")}, NETLAB_MANUAL_BRANCH="0", NETLAB_SWITCH="0")
+        self.assertEqual(len(one["assertions"]), 1)
 
     def test_lab6(self):
         scan = (0, "open 80\nopen 443\n")
-        ok = self.run_lab("6", {("pc", "for p in"): scan, ("pc", "ping"): (1, "")}, NETLAB_MANUAL_BRANCH="0")
+        ok = self.run_lab("A8", {("pc", "for p in"): scan, ("pc", "ping"): (1, "")}, NETLAB_MANUAL_BRANCH="0")
         self.assertTrue(ok["ok"], ok)
-        bad = self.run_lab("6", {("pc", "for p in"): (0, "open 80\nopen 8080\n"), ("pc", "ping"): (0, "")},
+        bad = self.run_lab("A8", {("pc", "for p in"): (0, "open 80\nopen 8080\n"), ("pc", "ping"): (0, "")},
                            NETLAB_MANUAL_BRANCH="0")
-        self.assertEqual(len(self.failed(bad)), 3)
+        self.assertEqual(len(self.failed(bad)), 4)  # 8080 open, ping works, and the attacker view
 
     def test_lab7(self):
-        r = self.run_lab("7", {})
+        r = self.run_lab("A11", {})
         self.assertTrue(r["ok"])
         self.assertEqual(r["assertions"][0]["detail"], "check by running compare.yml")
 
@@ -168,31 +178,32 @@ class Labs(unittest.TestCase):
                  ("pc", "ping"): (1, ""), ("fw", "iptables -S"): (0, "--dport 443"),
                  ("fw", "iptables-save"): (0, "x"), ("web", "sshd -T"): (0, "maxauthtries 3\nlogingracetime 20\nx11forwarding no"),
                  ("web", "test -f"): (0, ""), ("web", "cat /etc"): (0, "server {}")}
-        r = self.run_lab("8", table)
+        r = self.run_lab("A9", table)
         self.assertTrue(r["ok"], self.failed(r))
         self.assertFalse(any(a["name"].startswith("[M]") for a in r["assertions"]))
         self.assertEqual(sum(a["name"].startswith("branches") for a in r["assertions"]), 2)
 
     def test_switch_labs(self):
         table = {("sw", "bridge"): (0, VLAN_OK), ("pc", "ping"): (0, ""), ("pc", "for p in"): (0, "open 80\nopen 443\n")}
-        for lab in ("S1", "S2"):
+        for lab in ("A2", "A3"):
             self.assertTrue(self.run_lab(lab, table, NETLAB_MANUAL_BRANCH="0")["ok"], lab)
         bad = json.dumps([{"ifname": "to-pc", "vlans": [{"vlan": 10, "flags": ["PVID"]}]}])
-        self.assertFalse(self.run_lab("S1", {("sw", "bridge"): (0, bad)}, NETLAB_MANUAL_BRANCH="0")["ok"])
-        self.assertFalse(self.run_lab("S2", {("sw", "bridge"): (0, bad)}, NETLAB_MANUAL_BRANCH="0")["ok"])
+        self.assertFalse(self.run_lab("A2", {("sw", "bridge"): (0, bad)}, NETLAB_MANUAL_BRANCH="0")["ok"])
+        self.assertFalse(self.run_lab("A3", {("sw", "bridge"): (0, bad)}, NETLAB_MANUAL_BRANCH="0")["ok"])
 
-    def test_s3_attacker_view(self):
-        t = {("pc", "for p in"): (0, "open 80\nopen 443\nopen 3306\n"), ("fw", "iptables -S"): (0, "--dport 443")}
-        r = self.run_lab("S3", t, NETLAB_MANUAL_BRANCH="0")
+    def test_a8_attacker_view(self):
+        t = {("pc", "for p in"): (0, "open 80\nopen 443\nopen 3306\n"), ("pc", "ping"): (1, "")}
+        r = self.run_lab("A8", t, NETLAB_MANUAL_BRANCH="0")
         self.assertIn("attacker view", self.failed(r)[-1])
         self.assertIn("3306", r["assertions"][-1]["detail"])
 
     def test_s_needs_switch(self):
-        self.assertIsNone(self.run_lab("S1", {}, NETLAB_SWITCH="0"))
+        self.assertIsNone(self.run_lab("A2", {}, NETLAB_SWITCH="0"))
 
     def test_output_is_cleaned(self):
-        r = self.run_lab("5", {("pc", "curl"): (0, "4\x1b[31m\nxx" + "A" * 500)}, NETLAB_MANUAL_BRANCH="0")
-        d = r["assertions"][0]["detail"]
+        r = self.run_lab("A5", {("pc", "for p in"): (0, "open 80\n"), ("pc", "curl"): (0, "4\x1b[31m\nxx" + "A" * 500)},
+                         NETLAB_MANUAL_BRANCH="0")
+        d = r["assertions"][-1]["detail"]
         self.assertNotIn("\x1b", d)
         self.assertLess(len(d), 40)
 
@@ -216,11 +227,11 @@ class Labs(unittest.TestCase):
 
     def test_remember_keeps_latest_verdict_per_pod_and_lab(self):
         store = {}
-        res = {"lab": "2", "ok": False, "assertions": [{"ok": True}, {"ok": False}]}
+        res = {"lab": "A5", "ok": False, "assertions": [{"ok": True}, {"ok": False}]}
         checker.remember(3, res, store, now=lambda: 100)
-        self.assertEqual(store[3]["2"], {"ok": False, "passed": 1, "total": 2, "time": 100})
-        checker.remember(3, {"lab": "2", "ok": True, "assertions": [{"ok": True}]}, store, now=lambda: 200)
-        self.assertEqual(store[3]["2"]["time"], 200)
+        self.assertEqual(store[3]["A5"], {"ok": False, "passed": 1, "total": 2, "time": 100})
+        checker.remember(3, {"lab": "A5", "ok": True, "assertions": [{"ok": True}]}, store, now=lambda: 200)
+        self.assertEqual(store[3]["A5"]["time"], 200)
         self.assertNotIn(4, store)
 
     def test_view_token_differs_from_check_keys(self):
@@ -238,23 +249,23 @@ class Proof(unittest.TestCase):
 
     def test_passes_only_when_every_lab_last_passed(self):
         c = cfg()
-        st = self.seen(**{"0": True, "1": True, "2": False, "S1": True})
-        self.assertEqual(checker.proof(c, {"user": "student01", "labs": ["0", "1"]}, st), (200, {"passed": True, "missing": []}))
-        self.assertEqual(checker.proof(c, {"user": "student01", "labs": ["0", "2", "3"]}, st),
-                         (200, {"passed": False, "missing": ["2", "3"]}))
-        self.assertTrue(checker.proof(c, {"user": "student01", "labs": ["s1"]}, st)[1]["passed"])
+        st = self.seen(**{"A1": True, "A4": True, "A5": False, "A2": True})
+        self.assertEqual(checker.proof(c, {"user": "student01", "labs": ["A1", "A4"]}, st), (200, {"passed": True, "missing": []}))
+        self.assertEqual(checker.proof(c, {"user": "student01", "labs": ["A1", "A5", "A6"]}, st),
+                         (200, {"passed": False, "missing": ["A5", "A6"]}))
+        self.assertTrue(checker.proof(c, {"user": "student01", "labs": ["a2"]}, st)[1]["passed"])
 
     def test_is_per_pod_and_never_for_the_facilitator(self):
         c = cfg()
-        st = self.seen(**{"0": True})
-        self.assertFalse(checker.proof(c, {"user": "student02", "labs": ["0"]}, st)[1]["passed"])
-        self.assertEqual(checker.proof(c, {"user": "root", "labs": ["0"]}, st)[0], 403)
-        self.assertEqual(checker.proof(c, {"user": "nobody", "labs": ["0"]}, st)[0], 403)
+        st = self.seen(**{"A1": True})
+        self.assertFalse(checker.proof(c, {"user": "student02", "labs": ["A1"]}, st)[1]["passed"])
+        self.assertEqual(checker.proof(c, {"user": "root", "labs": ["A1"]}, st)[0], 403)
+        self.assertEqual(checker.proof(c, {"user": "nobody", "labs": ["A1"]}, st)[0], 403)
 
     def test_bad_bodies(self):
         c = cfg()
         for body in (None, [], {"user": "student01"}, {"user": "student01", "labs": []},
-                     {"user": "student01", "labs": ["99"]}, {"user": "student01", "labs": "0"},
+                     {"user": "student01", "labs": ["99"]}, {"user": "student01", "labs": "A1"},
                      {"user": "student01", "labs": [0]}):
             self.assertIn(checker.proof(c, body, {})[0], (400, 403), body)
 
@@ -274,10 +285,10 @@ class Proof(unittest.TestCase):
             return e.code, json.load(e)
 
     def test_http_needs_the_token(self):
-        checker.LAST[1] = {"0": {"ok": True}}
+        checker.LAST[1] = {"A1": {"ok": True}}
         self.addCleanup(checker.LAST.clear)
         port = self.serve(NETLAB_PROOF_TOKEN=TOKEN)
-        body = {"user": "student01", "labs": ["0"]}
+        body = {"user": "student01", "labs": ["A1"]}
         self.assertEqual(self.post(port, body, TOKEN), (200, {"passed": True, "missing": []}))
         self.assertEqual(self.post(port, body)[0], 403)
         self.assertEqual(self.post(port, body, "x" * 40)[0], 403)
@@ -287,9 +298,9 @@ class Proof(unittest.TestCase):
 
     def test_http_unset_or_short_token_refuses_everything(self):
         port = self.serve()
-        self.assertEqual(self.post(port, {"user": "student01", "labs": ["0"]}, "")[0], 403)
+        self.assertEqual(self.post(port, {"user": "student01", "labs": ["A1"]}, "")[0], 403)
         port = self.serve(NETLAB_PROOF_TOKEN="short")
-        self.assertEqual(self.post(port, {"user": "student01", "labs": ["0"]}, "short")[0], 403)
+        self.assertEqual(self.post(port, {"user": "student01", "labs": ["A1"]}, "short")[0], 403)
 
 
 if __name__ == "__main__":

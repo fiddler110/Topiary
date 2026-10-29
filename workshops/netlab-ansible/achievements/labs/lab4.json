@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "n4-validated",
-      "title": "Look Before You Reload",
-      "joke": "Validate first, so sshd never meets your typo.",
+      "id": "n1-first-play",
+      "title": "Hello, Playbook",
+      "joke": "Your name, on two web servers, from one file.",
       "core": true,
-      "when": "shell: `dojo netlab check 4` (exit 0), meaning every assertion for lab 4 passed",
+      "when": "shell: `dojo netlab check A4` (exit 0), meaning every assertion for lab A4 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+4\\b",
+        "regex": "(?i)\\bcheck\\s+A4\\b",
         "exit": 0,
         "exit_strict": true
       }

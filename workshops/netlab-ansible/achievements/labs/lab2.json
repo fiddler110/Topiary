@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "n2-open-ports",
-      "title": "Loop de Loop",
-      "joke": "Two ports, one variable list, zero copy-paste.",
+      "id": "ns1-vlans",
+      "title": "Tagged and Proud",
+      "joke": "No module? You wrote the template yourself.",
       "core": true,
-      "when": "shell: `dojo netlab check 2` (exit 0), meaning every assertion for lab 2 passed",
+      "when": "shell: `dojo netlab check A2` (exit 0), meaning every assertion for lab A2 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+2\\b",
+        "regex": "(?i)\\bcheck\\s+A2\\b",
         "exit": 0,
         "exit_strict": true
       }

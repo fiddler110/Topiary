@@ -27,7 +27,7 @@ style: |
     .snip code { font-size: 15px; }
     .small { font-size: 0.85em; }
     .lede { color: var(--muted); font-size: 0.9em; }
-footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; Ansible on a Small Network | Engineering & IT Operations'
+footer: "[&larr; Hub](index.md) &nbsp;|&nbsp; Ansible on a Small Network | Engineering & IT Operations"
 ---
 
 <!-- _class: lead -->
@@ -122,13 +122,13 @@ The commands ran. Nothing recorded them.
 
 ## Where by-hand breaks down
 
-| Problem | What it looks like |
-| ------- | ------------------ |
-| **Drift** | Server 2 differs from server 1, and nobody knows why |
-| **No record** | "Who opened port 8080?" has no answer |
-| **No undo** | Going back means remembering what you changed |
-| **Doesn't scale** | 2 servers is an afternoon, 50 is a month |
-| **Risky** | One typo in `sshd_config` locks you out of the box |
+| Problem           | What it looks like                                   |
+| ----------------- | ---------------------------------------------------- |
+| **Drift**         | Server 2 differs from server 1, and nobody knows why |
+| **No record**     | "Who opened port 8080?" has no answer                |
+| **No undo**       | Going back means remembering what you changed        |
+| **Doesn't scale** | 2 servers is an afternoon, 50 is a month             |
+| **Risky**         | One typo in `sshd_config` locks you out of the box   |
 
 > The server remembers what you did. Nobody else does.
 
@@ -159,13 +159,13 @@ What if the steps were a file, not your memory?
 - name: Open the web ports
   hosts: fw
   tasks:
-    - name: Allow HTTP and HTTPS
-      ansible.builtin.iptables:
-        chain: LAB
-        protocol: tcp
-        destination_port: "{{ item }}"
-        jump: ACCEPT
-      loop: ["80", "443"]
+      - name: Allow HTTP and HTTPS
+        ansible.builtin.iptables:
+            chain: LAB
+            protocol: tcp
+            destination_port: "{{ item }}"
+            jump: ACCEPT
+        loop: ["80", "443"]
 ```
 
 Reviewable. Versioned in git. Runs the same on 1 box or 50.
@@ -214,7 +214,7 @@ Reviewable. Versioned in git. Runs the same on 1 box or 50.
 An **automation tool** that configures machines over **SSH**.
 
 - **Agentless**: nothing to install on the machines you manage
-- **Declarative**: you say *what state you want*, not *which commands to type*
+- **Declarative**: you say _what state you want_, not _which commands to type_
 - **Idempotent**: running it again changes nothing that is already right
 - **Readable**: the playbook is YAML, and is also the documentation
 
@@ -242,14 +242,28 @@ Ansible runs **where you are** and reaches out. The managed nodes only need `ssh
 
 ---
 
+## Where to run Ansible
+
+The control node must be **Linux or macOS**. Ansible does not run natively on Windows.
+
+|              | Your own machine                     | A shared control node                                         |
+| ------------ | ------------------------------------ | ------------------------------------------------------------- |
+| **What**     | Linux or macOS. On Windows, **WSL2** | One central Linux VM for many teams                           |
+| **Access**   | you, with your own SSH keys          | a named account per person, limited to their team's inventory |
+| **Best for** | learning, small teams                | many teams, one audited place to run changes                  |
+
+A shared node keeps keys and secrets off laptops. No shared logins; log who ran what.
+
+---
+
 ## Four pieces to learn
 
-| Piece | Answers | Looks like |
-| ----- | ------- | ---------- |
-| **Playbook** | *Which hosts run which tasks* (a list of plays) | `site.yml` |
-| **Inventory** | *Which machines?* | `hosts.ini` |
-| **Task** | *Call a module, with arguments* | a `- name:` entry |
-| **Module** | *Do one thing* | `ansible.builtin.copy` |
+| Piece         | Answers                                         | Looks like             |
+| ------------- | ----------------------------------------------- | ---------------------- |
+| **Playbook**  | _Which hosts run which tasks_ (a list of plays) | `site.yml`             |
+| **Inventory** | _Which machines?_                               | `hosts.ini`            |
+| **Task**      | _Call a module, with arguments_                 | a `- name:` entry      |
+| **Module**    | _Do one thing_                                  | `ansible.builtin.copy` |
 
 **How they fit:** a playbook has plays. A play picks hosts **from the inventory** and runs tasks. Each task **calls a module**.
 
@@ -260,17 +274,17 @@ Everything else (variables, templates, handlers, roles) is built from these four
 ## A playbook is plays of tasks
 
 ```yaml
-- name: Set up the web servers        # a play
-  hosts: web                          # who: the group "web"
-  tasks:                              # what: steps, run in order
-    - name: Put the home page in place    # task 1
-      ansible.builtin.copy:
-        dest: /var/www/html/index.html
-        content: "Hello\n"
-    - name: Put a health file in place    # task 2
-      ansible.builtin.copy:
-        dest: /var/www/html/health.txt
-        content: "ok\n"
+- name: Set up the web servers # a play
+  hosts: web # who: the group "web"
+  tasks: # what: steps, run in order
+      - name: Put the home page in place # task 1
+        ansible.builtin.copy:
+            dest: /var/www/html/index.html
+            content: "Hello\n"
+      - name: Put a health file in place # task 2
+        ansible.builtin.copy:
+            dest: /var/www/html/health.txt
+            content: "ok\n"
 ```
 
 - This file is a **playbook**: a list of **plays**. A play = who (`hosts:`) + what (`tasks:`)
@@ -303,12 +317,12 @@ web-a-07
 
 The same machine can sit in more than one group, so you can aim at it **by job or by branch**.
 
-| Host | `fw` | `web` | `manual` | `auto` |
-| ---- | :--: | :---: | :------: | :----: |
-| `fw-m-07` | yes | | yes | |
-| `fw-a-07` | yes | | | yes |
-| `web-m-07` | | yes | yes | |
-| `web-a-07` | | yes | | yes |
+| Host       | `fw` | `web` | `manual` | `auto` |
+| ---------- | :--: | :---: | :------: | :----: |
+| `fw-m-07`  | yes  |       |   yes    |        |
+| `fw-a-07`  | yes  |       |          |  yes   |
+| `web-m-07` |      |  yes  |   yes    |        |
+| `web-a-07` |      |  yes  |          |  yes   |
 
 - `hosts: fw` reaches both firewalls. `hosts: auto` reaches every branch-a node
 - See it yourself: `ansible-inventory --graph`. Next: combine two groups
@@ -319,12 +333,12 @@ The same machine can sit in more than one group, so you can aim at it **by job o
 
 A **pattern** says which hosts to run on. `:&` means **and also in**: the host must be in both groups.
 
-| Pattern | Selects | Skipped |
-| ------- | ------- | ------- |
-| `fw` | `fw-m-07`, `fw-a-07` (the group `fw`) | every pc, sw and web node |
-| `auto` | every branch-a node | all of branch m |
-| `fw:&auto` | `fw-a-07`: in `fw` **and** in `auto` | `fw-m-07` (not in `auto`), non-firewalls |
-| `web:&manual` | `web-m-07`: in `web` **and** in `manual` | `web-a-07` (not in `manual`), non-web |
+| Pattern       | Selects                                  | Skipped                                  |
+| ------------- | ---------------------------------------- | ---------------------------------------- |
+| `fw`          | `fw-m-07`, `fw-a-07` (the group `fw`)    | every pc, sw and web node                |
+| `auto`        | every branch-a node                      | all of branch m                          |
+| `fw:&auto`    | `fw-a-07`: in `fw` **and** in `auto`     | `fw-m-07` (not in `auto`), non-firewalls |
+| `web:&manual` | `web-m-07`: in `web` **and** in `manual` | `web-a-07` (not in `manual`), non-web    |
 
 ---
 
@@ -332,11 +346,11 @@ A **pattern** says which hosts to run on. `:&` means **and also in**: the host m
 
 The same pattern works in three places:
 
-| Where | Example | What it does |
-| ----- | ------- | ------------ |
-| A play | `hosts: fw:&auto` | The play's tasks run on those hosts |
-| An ad-hoc command | `ansible fw:&auto -m ansible.builtin.ping` | One module, once, on those hosts |
-| `--limit` | `ansible-playbook site.yml --limit web-a-07` | Run the playbook, but **only** on these hosts |
+| Where             | Example                                      | What it does                                  |
+| ----------------- | -------------------------------------------- | --------------------------------------------- |
+| A play            | `hosts: fw:&auto`                            | The play's tasks run on those hosts           |
+| An ad-hoc command | `ansible fw:&auto -m ansible.builtin.ping`   | One module, once, on those hosts              |
+| `--limit`         | `ansible-playbook site.yml --limit web-a-07` | Run the playbook, but **only** on these hosts |
 
 > The labs use `fw:&auto` so a playbook can never touch your hand-built branch m.
 
@@ -345,11 +359,11 @@ The same pattern works in three places:
 ## A task is a module call
 
 ```yaml
-- name: Put the page in place        # a label for humans
-  ansible.builtin.copy:              # the module
-    dest: /var/www/html/index.html   # arguments
-    content: "<h1>Hello</h1>\n"
-    mode: "0644"
+- name: Put the page in place # a label for humans
+  ansible.builtin.copy: # the module
+      dest: /var/www/html/index.html # arguments
+      content: "<h1>Hello</h1>\n"
+      mode: "0644"
 ```
 
 - `name` is printed when it runs, so write it as a sentence
@@ -362,13 +376,13 @@ The same pattern works in three places:
 
 A module is a ready-made tool for **one job**. You describe the result; it checks the machine and **changes only what differs**.
 
-| Module | Use it to | It does nothing if |
-| ------ | --------- | ------------------ |
-| `ansible.builtin.copy` | put a file in place | the file already matches |
-| `ansible.builtin.template` | fill in a file from variables | the result already matches |
-| `ansible.builtin.iptables` | add a firewall rule | that rule is already there |
-| `ansible.builtin.service` | start or stop a service | it is already in that state |
-| `ansible.builtin.command` | run any command | Ansible can't tell: **you** decide |
+| Module                     | Use it to                     | It does nothing if                 |
+| -------------------------- | ----------------------------- | ---------------------------------- |
+| `ansible.builtin.copy`     | put a file in place           | the file already matches           |
+| `ansible.builtin.template` | fill in a file from variables | the result already matches         |
+| `ansible.builtin.iptables` | add a firewall rule           | that rule is already there         |
+| `ansible.builtin.service`  | start or stop a service       | it is already in that state        |
+| `ansible.builtin.command`  | run any command               | Ansible can't tell: **you** decide |
 
 Options and examples: `ansible-doc ansible.builtin.template`
 
@@ -419,12 +433,12 @@ ok: [web-m-07]
 
 Each task prints **one line per host**. The first word says what happened there.
 
-| Word | What happened on that host | What you do |
-| ---- | -------------------------- | ----------- |
-| `ok` | Already correct. Nothing was touched | Nothing |
-| `changed` | Was wrong. Ansible fixed it | Expected on a first run |
-| `failed` | The task hit an error and stopped | Read the message under it |
-| `skipped` | A `when:` condition said no | Nothing |
+| Word      | What happened on that host           | What you do               |
+| --------- | ------------------------------------ | ------------------------- |
+| `ok`      | Already correct. Nothing was touched | Nothing                   |
+| `changed` | Was wrong. Ansible fixed it          | Expected on a first run   |
+| `failed`  | The task hit an error and stopped    | Read the message under it |
+| `skipped` | A `when:` condition said no          | Nothing                   |
 
 The `PLAY RECAP` at the end totals each word per host.
 
@@ -564,13 +578,13 @@ LoginGraceTime 20</code></pre>
 
 ```yaml
 - name: Harden sshd on the web servers
-  hosts: web                         # no variables listed here: see next slide
+  hosts: web # no variables listed here: see next slide
   tasks:
-    - name: Push the sshd settings
-      ansible.builtin.template:
-        src: sshd_config.j2          # the template, next to the playbook
-        dest: /etc/ssh/sshd_config   # where the file lands on each web host
-        validate: sshd -t -f %s      # test it before it is used
+      - name: Push the sshd settings
+        ansible.builtin.template:
+            src: sshd_config.j2 # the template, next to the playbook
+            dest: /etc/ssh/sshd_config # where the file lands on each web host
+            validate: sshd -t -f %s # test it before it is used
 ```
 
 - **Variables:** not named here. Ansible finds them by **file name**, next slide
@@ -621,17 +635,17 @@ Some jobs should run **only if something changed**, like reloading nginx after i
 
 ```yaml
 tasks:
-  - name: Push the nginx config
-    ansible.builtin.template:
-      src: site.conf.j2
-      dest: /etc/nginx/http.d/site.conf
-    notify: Reload nginx      # 1
+    - name: Push the nginx config
+      ansible.builtin.template:
+          src: site.conf.j2
+          dest: /etc/nginx/http.d/site.conf
+      notify: Reload nginx # 1
 
 handlers:
-  - name: Reload nginx        # 2
-    ansible.builtin.service:
-      name: nginx
-      state: reloaded
+    - name: Reload nginx # 2
+      ansible.builtin.service:
+          name: nginx
+          state: reloaded
 ```
 
 </div>
@@ -655,10 +669,10 @@ flowchart LR
   t -- "ok: file already matched" --> x["handler skipped"]
 </div>
 
-| Run | Task result | Handler |
-|---|---|---|
-| 1st: config edited | `changed` | **runs**, once, after all tasks finish |
-| 2nd: nothing to do | `ok` | does not run |
+| Run                | Task result | Handler                                |
+| ------------------ | ----------- | -------------------------------------- |
+| 1st: config edited | `changed`   | **runs**, once, after all tasks finish |
+| 2nd: nothing to do | `ok`        | does not run                           |
 
 - Five tasks all notify "Reload nginx"? It still runs **once**, at the end.
 - Without a handler you would reload on every run, or forget to reload at all.
@@ -690,7 +704,7 @@ By hand you never get a preview. With Ansible you do, every time.
 <div class="split split-top">
 <div>
 
-**`validate:` tests a file before it goes live**
+**`validate:` tests a file before it goes live on the device**
 
 <pre class="snip"><code>- ansible.builtin.template:
     src: sshd_config.j2
@@ -721,16 +735,16 @@ It fails early, before anything changes.
 <div class="split split-top">
 <div>
 
-**`block / rescue / always`: try, undo, report**
+**`block / rescue / always`:<br> try it / undo it / report it**
 
 ```yaml
 - block:
-    - ansible.builtin.template: {src: a.j2, dest: /etc/a}
-    - ansible.builtin.command: check-a
+      - ansible.builtin.template: { src: a.j2, dest: /etc/a }
+      - ansible.builtin.command: check-a
   rescue:
-    - ansible.builtin.copy: {src: a.bak, dest: /etc/a}
+      - ansible.builtin.copy: { src: a.bak, dest: /etc/a }
   always:
-    - ansible.builtin.debug: {msg: "finished"}
+      - ansible.builtin.debug: { msg: "finished" }
 ```
 
 Tasks in `block` run in order. If one **fails**, `rescue` runs (restore the backup). `always` runs either way.
@@ -738,13 +752,13 @@ Tasks in `block` run in order. If one **fails**, `rescue` runs (restore the back
 </div>
 <div>
 
-**`serial: 1` changes one host at a time**
+**`serial: 1` sequentially changes one host at a time**
 
 ```yaml
 - hosts: web
   serial: 1
   tasks:
-    - ansible.builtin.template: ...
+      - ansible.builtin.template: ...
 ```
 
 Normally Ansible hits every host at once. With `serial: 1`, a failure on the first host **stops the play** before the other hosts are touched, so one mistake does not become fifty.
@@ -777,7 +791,7 @@ admin_password: "change-me"</code></pre>
 <div>
 
 1. `ansible-vault create secrets.yml` opens an editor and saves the file **encrypted**.
-2. The **vault password** is the key. Keep it in `.vault_pass`, which is **not** in git.
+2. The **vault password** is the key. Keep it in `.vault_pass`, **never** in git.
 3. Anyone with the repo but not the key sees only the scrambled text.
 
 </div>
@@ -793,18 +807,18 @@ admin_password: "change-me"</code></pre>
 ```yaml
 - hosts: web
   vars_files:
-    - secrets.yml          # 1
+      - secrets.yml # 1
   tasks:
-    - name: htpasswd file
-      ansible.builtin.copy:
-        content: "admin:{{ hash }}"
-        dest: /etc/nginx/.htpasswd
-      no_log: true         # 2
+      - name: htpasswd file
+        ansible.builtin.copy:
+            content: "admin:{{ hash }}"
+            dest: /etc/nginx/.htpasswd
+        no_log: true # 2
 ```
 
 ```sh
 ansible-playbook site.yml \
-  --vault-password-file .vault_pass   # 3
+  --vault-password-file ./vault-pass.sh   # 3
 ```
 
 </div>
@@ -812,8 +826,92 @@ ansible-playbook site.yml \
 
 1. `vars_files` loads the encrypted file. Its variables (`admin_password`) work like any other.
 2. `no_log: true` hides this task's output. Otherwise the password would show in the terminal or logs.
-3. The password file lets Ansible decrypt `secrets.yml` in memory at run time. Nothing plain is written to disk.
+3. Ansible decrypts `secrets.yml` in memory at run time. The password comes from a file or script (next slide).
 
+</div>
+</div>
+
+---
+
+## Secrets: no plain-text password on your laptop
+
+An **executable** password file is run by Ansible, which reads the password from its output.
+
+<div class="split split-top">
+<div>
+
+```sh
+#!/bin/sh
+# vault-pass.sh: no secret here, safe to commit
+gopass show -o ansible/vault
+```
+
+```sh
+chmod +x vault-pass.sh
+ansible-playbook site.yml \
+  --vault-password-file ./vault-pass.sh
+```
+
+</div>
+<div>
+
+1. `gopass` (or `pass`) keeps the password in a GPG-encrypted store.
+2. You type your GPG passphrase once; `gpg-agent` caches it. No plain-text file on disk.
+3. On Windows, do this inside **WSL2** with `pass` or `gopass`.
+
+</div>
+</div>
+
+---
+
+## Secrets: a shared control node
+
+Many teams, one VM: use **Azure Key Vault**, signed in as **you**.
+
+<div class="split split-top">
+<div>
+
+```sh
+#!/bin/sh
+# vault-pass.sh: no secret here, safe to commit
+az keyvault secret show \
+  --vault-name team-a-kv \
+  --name ansible-vault \
+  --query value -o tsv
+```
+
+<label for="kv-help" class="pop-trigger">How it works with several teams</label>
+
+</div>
+<div>
+
+1. `az login` as yourself, not as the VM: every user on it could borrow the VM's identity.
+2. **One vault per team**. Only that team's group can read it, and every read is logged.
+3. Each team's repo names its own vault. Another team's vault says "denied".
+
+</div>
+</div>
+
+<div class="pop">
+<input type="checkbox" id="kv-help" class="pop-toggle">
+<div class="pop-overlay">
+<label for="kv-help" class="pop-close">close &#10005;</label>
+<h3>Several teams, one control node, one vault each</h3>
+<p class="pop-sub">An admin sets it up once. After that, every run is checked against <b>who you are</b>. Follow the numbers.</p>
+<pre class="pop-code"><code>az keyvault create -n team-a-kv -g rg --enable-rbac-authorization true   # 1
+az keyvault secret set --vault-name team-a-kv -n ansible-vault --value "$PW"
+az role assignment create --assignee-object-id $TEAM_A_GROUP_ID \
+  --role "Key Vault Secrets User" --scope $TEAM_A_KV_ID                  # 1
+az login                                                                 # 3</code></pre>
+<div class="leak-grid cols-3">
+<div class="leak"><i># 1 &middot; once per team</i><b>A vault and a group each</b><code>team-a-kv</code> holds the vault password. Only Team A's Entra group can read it</div>
+<div class="leak"><i># 2 &middot; once per team</i><b>The repo names its vault</b>A Linux group owns the team's repo. Its <code>vault-pass.sh</code> names that team's vault. Nothing secret is in it</div>
+<div class="leak"><i># 3 &middot; each session</i><b>Sign in as you</b><code>az login</code> proves who you are to Azure. The VM's own identity is not used<em>Everyone on the VM could borrow it</em></div>
+<div class="leak"><i># 4 &middot; each run</i><b>Run it from the repo</b>The script asks Key Vault for the password. Azure checks your group, then returns it. It stays in memory</div>
+<div class="leak"><i># 5 &middot; in two teams?</i><b>The repo picks the vault</b>You can read both vaults, but each repo's script names only its own. Run from Team A's repo, you unlock Team A's secrets</div>
+<div class="leak"><i># 6 &middot; wrong team</i><b>Denied, and logged</b>Team B running team A's script gets <code>Forbidden</code>. Key Vault logs every read and every refusal</div>
+</div>
+</div>
 </div>
 </div>
 
@@ -821,20 +919,21 @@ ansible-playbook site.yml \
 
 ## Secrets: how a team does it
 
-| | Small team / lab | Pipeline runs it | Secrets manager |
-|---|---|---|---|
-| **Secrets live** | encrypted `secrets.yml` in git | encrypted `secrets.yml` in git | outside git; fetched at run time |
-| **Vault password** | each person's git-ignored `.vault_pass` | one masked CI secret | none needed |
-| **Best for** | simple setups | most teams | strict rules, rotation, audit |
+The encrypted `secrets.yml` is in git in all three. Only the **vault password** differs.
 
-- **Pipeline:** CI runs `--check --diff` on the pull request and the real run on merge. No one holds the key.
-- **Manager:** OpenBao, HashiCorp Vault or a cloud key store.
+|                    | One person                        | Team on a shared VM                      | Pipeline runs it                              |
+| ------------------ | --------------------------------- | ---------------------------------------- | --------------------------------------------- |
+| **Vault password** | `pass`/`gopass`, read by a script | **Key Vault**, one per team, read as you | **Key Vault**, read by the runner's identity  |
+| **Who holds it**   | you                               | no one: your team group is checked       | no one: the pipeline fetches it               |
+| **Best for**       | learning, small setups            | many teams, one audited node             | `--check --diff` on the PR, real run on merge |
 
 ---
 
 ## Secrets: rules for every team
 
-1. **Never commit** `.vault_pass`. Add it to `.gitignore`.
+1. **Never commit** the password or leave it in a plain file.
+    - Read it with a script: `pass`/`gopass` on a laptop
+    - Key Vault on a shared server or pipeline.
 2. **`no_log: true`** on every task that touches a secret.
 3. **One vault password per environment**, so a leaked dev key cannot open production (vault IDs).
 4. **Rotate** the key when someone leaves: `ansible-vault rekey secrets.yml`.
@@ -852,7 +951,7 @@ ansible-playbook site.yml \
 
 ## One pod per student
 
-<div class="mermaid">
+<div class="mermaid short">
 flowchart TB
   sw["sw<br/>switch"]
   subgraph v10["VLAN 10"]
@@ -863,11 +962,12 @@ flowchart TB
   end
   sw --- pc
   sw --- web
-  sw -- "trunk" --- fw["fw<br/>firewall"]
+  sw -- "trunk: VLANs 10 + 20 tagged" --- fw["fw<br/>firewall"]
 </div>
 
-- **pc** asks for pages. **web** serves them. **fw** decides what may pass
-- The switch keeps the VLANs apart, so `pc` cannot reach `web` without `fw`
+- **pc** is a student's computer, **web** is a web server, **fw** is the firewall between them
+- `pc` and `web` are on separate networks (VLANs), so they cannot talk directly
+- Everything between them goes through `fw`, which checks its rules first
 
 <label for="vlan-help" class="pop-trigger">New to VLANs? What the trunk is</label>
 
@@ -878,17 +978,23 @@ flowchart TB
 <h3>VLANs and the trunk</h3>
 <p class="pop-sub">Why the pc cannot talk straight to the web server. Skip this if you know networking.</p>
 <div class="leak-grid cols-4">
-<div class="leak"><i>VLAN</i><b>a virtual LAN</b>One physical switch acts as several separate networks. VLAN 10 and VLAN 20 cannot see each other</div><div class="leak"><i>access port</i><b>one VLAN</b>The switch port a <code>pc</code> or <code>web</code> plugs into. Traffic belongs to that port's VLAN</div><div class="leak"><i>trunk</i><b>many VLANs, one cable</b>The <code>sw</code> to <code>fw</code> link. Each frame carries a VLAN tag (802.1Q) so the firewall knows which side it came from</div><div class="leak"><i>router</i><b>crossing VLANs</b>Different VLANs are different subnets: <code>10.10.10.0/24</code> and <code>10.10.20.0/24</code>. Only a router, here <code>fw</code>, passes traffic between them</div>
+<div class="leak"><i>1 VLAN</i><b>one switch, two networks</b>A label on switch ports. Same label: same network. Different label: walled off, as if on separate switches</div><div class="leak"><i>2 access port</i><b>plain frames, one VLAN</b>Where <code>pc</code> and <code>web</code> plug in. They know nothing about VLANs; the switch adds the port's VLAN on entry and removes it on exit</div><div class="leak"><i>3 trunk</i><b>both VLANs, one cable</b>The <code>sw</code> to <code>fw</code> link. Each frame carries a tag (802.1Q) with its VLAN number, so the far end can tell them apart</div><div class="leak"><i>4 router</i><b>the only way across</b>VLAN 10 is <code>10.10.10.0/24</code>, VLAN 20 is <code>10.10.20.0/24</code>. Only a router, here <code>fw</code>, moves traffic between subnets</div>
 </div>
-<div class="leak-grid cols-3">
-<div class="leak"><i>why</i><b>One choke point</b>Every pc to web request crosses <code>fw</code>, so the firewall rules decide what is allowed</div><div class="leak"><i>names</i><b>Router on a stick</b>One cable carries both VLANs to the router. Labs S1 to S3 build this part yourself</div><div class="leak"><i>look</i><b>On the nodes</b><code>bridge vlan show</code> on <code>sw</code>; <code>ip addr</code> on <code>fw</code></div>
+<div class="mermaid short">
+flowchart LR
+  pc["pc<br/>VLAN 10"] -- "access: plain" --- sw["sw"]
+  web["web<br/>VLAN 20"] -- "access: plain" --- sw
+  sw == "trunk: tag 10 and tag 20" === fw["fw<br/>router"]
 </div>
+<p class="pop-src">A frame from <code>pc</code> to <code>web</code> goes up the trunk tagged 10, <code>fw</code> checks its rules, and it comes back tagged 20. See it with <code>bridge vlan show</code> on <code>sw</code> and <code>ip addr</code> on <code>fw</code>. Labs M2, M3, A2 and A3 build this.</p>
 </div>
 </div>
 
 ---
 
 ## Follow one request
+
+Say `pc` wants the web page that `web` serves. Follow that request:
 
 <div class="mermaid">
 flowchart LR
@@ -900,10 +1006,10 @@ flowchart LR
   subgraph v20["VLAN 20"]
     web["web"]
   end
-  pc -- "1. request" --> sw
-  sw -- "2. trunk: VLAN 10" --> fw
-  fw -- "3. allowed? VLAN 20" --> sw
-  sw -- "4. delivered" --> web
+  pc -- "1. pc asks web for its page" --> sw
+  sw -- "2. trunk, tagged VLAN 10" --> fw
+  fw -- "3. rules ok? back tagged VLAN 20" --> sw
+  sw -- "4. page request delivered to web" --> web
 </div>
 
 The switch is used **twice**. The firewall is the only place the request can cross, so it is where the rules live.
@@ -927,13 +1033,13 @@ The firewall is only the thing being configured. **The lesson is Ansible.**
 <div class="mermaid">
 flowchart LR
   subgraph m["Branch m: by hand"]
-    mpc["pc"] --- mfw["fw"] --- mweb["web"]
+    mpc["pc"] --- msw["sw"] --- mfw["fw"] --- mweb["web"]
   end
   subgraph a["Branch a: by playbook"]
-    apc["pc"] --- afw["fw"] --- aweb["web"]
+    apc["pc"] --- asw["sw"] --- afw["fw"] --- aweb["web"]
   end
-  you["You"] -- "ssh + shell" --> m
-  you -- "ansible-playbook" --> a
+  you["You"] -- "ssh + shell" --> mpc
+  you -- "ansible-playbook" --> apc
 </div>
 
 Eight nodes per student. Both branches **start identical** and are isolated from each other.
@@ -955,16 +1061,16 @@ ssh root@fw-m-07                 # by hand (pod 07)
 
 ---
 
-## Branch m is the answer key
+## Branch m is the by-hand run, branch a is the playbook
 
-| | Branch m | Branch a |
-| --- | --- | --- |
-| You use | `ssh` and a shell | `ansible-playbook` |
-| Starts | closed: ping only | closed: ping only |
-| Prove traffic | `probe.yml` | `probe.yml` |
-| Finish | `compare.yml` shows no difference | `dojo netlab check N` passes |
+|               | Branch m (Part 1)                 | Branch a (Part 2)            |
+| ------------- | --------------------------------- | ---------------------------- |
+| You use       | `ssh` and a shell                 | `ansible-playbook`           |
+| Starts        | closed: ping only                 | closed: ping only            |
+| Prove traffic | `probe.yml`                       | `probe.yml`                  |
+| Finish        | you stop when it works            | `dojo netlab check A<n>` passes |
 
-A correct playbook ends in the **same state** your hands produced.
+You build the result by hand first. Then you write the playbook that says the same thing, and branch a must end in the **same state** as branch m.
 
 > If `compare.yml` says DIFFERENT, one of the two branches is wrong. Find out which.
 
@@ -975,14 +1081,14 @@ A correct playbook ends in the **same state** your hands produced.
 ```sh
 ansible-playbook probe.yml -e branch=a -e expect=allowed
 ansible-playbook compare.yml
-dojo netlab check 2
+dojo netlab check A5
 ```
 
-| Tool | Question it answers |
-| ---- | ------------------- |
-| `probe.yml` | Does traffic get through? **PASS** if it matches `expect` |
-| `compare.yml` | Do the firewall rules and nginx config on m and a match? |
-| `dojo netlab check N` | Does the whole lab pass, from outside your pod? |
+| Tool                  | Question it answers                                       |
+| --------------------- | --------------------------------------------------------- |
+| `probe.yml`           | Does traffic get through? **PASS** if it matches `expect` |
+| `compare.yml`         | Do the firewall rules and nginx config on m and a match?  |
+| `dojo netlab check A<n>` | Does the whole lab pass, from outside your pod?           |
 
 ---
 
@@ -994,144 +1100,31 @@ dojo netlab check 2
 
 ---
 
-## Every lab has the same four parts
+## Every lab comes in two passes
 
 <div class="mermaid">
 flowchart LR
-  h["1. By hand<br/>on branch m"] --> p["2. By playbook<br/>on branch a"]
-  p --> v["3. Prove it<br/>probe, compare, check"]
-  v --> t["4. The twist<br/>rerun, undo, change one value"]
+  h["Part 1: M lab<br/>by hand on branch m"] --> p["Part 2: A lab<br/>playbook on branch a"]
+  p --> v["Prove it<br/>probe, compare, check"]
+  v --> t["The twist<br/>rerun, undo, change one value"]
 </div>
 
-The README states the **goal**, not the commands. You work out the commands by hand first, then say them as tasks.
+Each lab page states the **goal** and the steps. You do the job by hand first, then say it as a playbook and compare the results.
 
 ---
 
 ## The path
 
-| Core path | Stretch |
-| --------- | ------- |
-| 0 Orientation | 5 Secrets with Vault |
-| 1 A first playbook | 7 Roles |
-| 2 Variables and loops | S1 VLANs, build it yourself |
-| 3 Idempotency | S2 Trunk |
-| 4 Templates and validate | S3 Segmentation |
-| 6 Errors and rollback | |
-| 8 Capstone | |
-
-Core first. Stretch labs only after lab 8.
-
----
-
-## Lab 0: orientation
-
-**By hand:** `ssh` to the firewall, read its addresses, rules and forwarding flag. One question, one box.
-
-**With Ansible:**
-
-```sh
-ansible-inventory --graph
-ansible all -m ansible.builtin.ping
-ansible fw -m ansible.builtin.command -a "iptables -S"
-```
-
-**Twist:** get the nginx version from **both** web servers in one command.
-
-*Learn: inventory, host patterns, ad-hoc modules.*
-
----
-
-## Lab 1: a first playbook
-
-**By hand:** write `index.html` on the web server. It works locally; from the pc it still times out (the firewall).
-
-**With Ansible:** `copy`, then `template`, then a **handler** to reload nginx.
-
-**Twist:** change `page_title` in one place, rerun. Only the template task says `changed`, and nginx reloads once.
-
-*Learn: play, task, template, handler, `changed=0`.*
-
----
-
-## Lab 2: variables and loops
-
-**Goal:** the pc reaches the web server on TCP 80 and 443. Nothing else new.
-
-```yaml
-loop: "{{ allowed_ports }}"      # group_vars/fw.yml
-```
-
-**Twist:** add 8080 to the list and rerun. Exactly one item reports `changed`. Now remove it. Nothing is removed: the module only **adds**.
-
-*Learn: variables, loops, `when`, and a module's limits.*
-
----
-
-## Lab 3: idempotency and check mode
-
-**Goal:** HTTPS with a self-signed certificate.
-
-- `creates:` stops a `command` from running again once the file exists
-- `changed_when` tells Ansible what "changed" means for a command
-- `--check --diff` previews the change
-
-**Twist:** edit the template, run with `--check --diff`: a diff and no change. Then run it for real.
-
-*Learn: making commands idempotent, previewing.*
-
----
-
-## Lab 4: templates and validate
-
-**Goal:** harden `sshd` (`MaxAuthTries 3`, `LoginGraceTime 20`, no X11) and still be able to log in.
-
-```yaml
-validate: sshd -t -f %s
-```
-
-**Twist:** put `sshd_max_auth_tries: three` in `group_vars/web.yml`. `validate` fails the task, the live file is untouched, `sshd` keeps running. The same typo by hand costs you the node.
-
-*Learn: templates, handlers, `validate`.*
-
----
-
-## Lab 6: errors and rollback
-
-**Goal:** only 80 and 443 pass. Everything else, including ping, is dropped.
-
-<div class="mermaid">
-flowchart LR
-  b["block: apply rules"] --> t["test from the pc"]
-  t -- "pass" --> al["always: print rules"]
-  t -- "fail" --> r["rescue: flush LAB<br/>and fail loudly"]
-  r --> al
-</div>
-
-**Twist:** stop nginx, rerun. The test fails, the rescue undoes the lockdown.
-
----
-
-## Lab 8: the capstone
-
-**Goal:** rebuild branch a from the baseline in **one command**, then run it again for `changed=0`.
-
-```sh
-ansible-playbook reset_fw.yml -e branch=a
-ansible-playbook labs/8-capstone/site.yml
-ansible-playbook labs/8-capstone/site.yml    # changed=0
-```
-
-**Twist:** time it against the hours branch m took, then rebuild once more with `--check --diff` first.
-
----
-
-## Stretch: when there is no module
-
-- **5 Vault**: a password in git, encrypted, never in the output
-- **7 Roles**: the same behaviour, in a better structure
-- **S1 to S3 The switch**: no module and no starter file. You design the data model, the template and the idempotency guard.
-
-Different problem, same skills.
+| Part 1: by hand (branch m) | Part 2: as playbooks (branch a) |
+| -------------------------- | ------------------------------- |
+| M1 Look around the pod     | A1 Orientation                  |
+| M2 to M3 VLANs and trunk   | A2 to A3 The switch             |
+| M4 Serve a web page        | A4 A first playbook             |
+| M5 Open HTTP and HTTPS     | A5 Variables and loops          |
+| M6 HTTPS certificate       | A6 Idempotency                  |
+| M7 Harden SSH              | A7 Templates and validate       |
+| M8 Lock the server down    | A8 Errors and rollback          |
+| M9 Rebuild from clean      | A9 Capstone (A10, A11 optional) |
 
 ---
 
@@ -1150,7 +1143,7 @@ Different problem, same skills.
 
 - `ansible-playbook verify_topology.yml`: is the pod healthy?
 - `ansible-playbook reset_fw.yml -e branch=a`: back to the baseline
-- `dojo netlab check N`: what is still wrong, line by line
+- `dojo netlab check A<n>`: what is still wrong, line by line
 - Read the error: Ansible says which task, which host, and why
 - Put your hand up: the facilitator has a pod of their own
 
@@ -1158,9 +1151,9 @@ Different problem, same skills.
 
 ## Let's go
 
-1. Open `lab-index.md` and the Lab 0 page
+1. Open `lab-index.md` and the Lab M1 page
 2. Work in `~/netlab` in your terminal
-3. Core path first. Stretch labs only after lab 8
+3. Part 1 by hand first, then Part 2 as playbooks
 
 <!-- Suggested timing is in FACILITATOR.md. -->
 

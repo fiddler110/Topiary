@@ -73,6 +73,7 @@
               - ping.rc != 0
               - p8080.rc != 0
             success_msg: "Lockdown holds: ping and 8080 are blocked"
+          when: not ansible_check_mode   # ping and curl are skipped in a preview, so there is nothing to assert
       rescue:
         - name: Roll back, flush LAB
           ansible.builtin.command: iptables -F LAB

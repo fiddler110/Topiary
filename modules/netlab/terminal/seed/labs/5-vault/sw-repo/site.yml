@@ -1,0 +1,12 @@
+# Lab 5: the sw repo. Put this team's secret on its own node, mode 0600.
+- name: Switch secret
+  hosts: sw:&auto
+  gather_facts: false
+  vars_files:
+    - secrets.yml          # TODO 1: create it with `ansible-vault create`; it defines sw_mgmt_password
+  tasks:
+    # TODO 2: ansible.builtin.copy, content "admin_password={{ sw_mgmt_password }}\n", dest /etc/sw-mgmt.conf,
+    #         owner root, group root, mode "0600", and no_log: true.
+    - name: TODO
+      ansible.builtin.debug:
+        msg: Replace this task.

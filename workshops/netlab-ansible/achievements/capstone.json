@@ -2,29 +2,31 @@
   "id": "capstone",
   "title": "Rebuild From Clean",
   "space": "the student's own pod, `{user}`'s branch a, reached only with the account's own pod password",
-  "goal": "Finish the whole core path on your own pod: labs 0 to 4, 6 and 8 each passing `dojo netlab check`, with lab 8 as the rebuild from clean (reset branch a, one `site.yml`, a second run that changes nothing) and your manual and automated branches agreeing. Then run `dojo check capstone`.",
+  "goal": "Finish the whole core path on your own pod: labs A1 to A8 each passing `dojo netlab check`, with A9 as the rebuild from clean (reset branch a, one `site.yml`, a second run that changes nothing) and your manual and automated branches agreeing. Then run `dojo check capstone`.",
   "seed": "No seed: the pod is the seed.",
-  "verify_text": "The service asks the netlab checker, from outside your terminal, whether it last saw labs 0, 1, 2, 3, 4, 6 and 8 pass on your own pod (lab 8 includes the manual-versus-automated branch comparison). Run `dojo netlab check N` for any lab it names, then `dojo check capstone` again.",
+  "verify_text": "The service asks the netlab checker, from outside your terminal, whether it last saw labs A1 to A9 pass on your own pod (A9 includes the manual-versus-automated branch comparison). Run `dojo netlab check A<n>` for any lab it names, then `dojo check capstone` again.",
   "badge_tier": "capstone",
   "hints": [
     "`dojo check capstone` names the labs the checker has not seen pass yet.",
-    "It reads the checker's latest result for each lab, so re-run `dojo netlab check N` for the one it names."
+    "It reads the checker's latest result for each lab, so re-run `dojo netlab check A<n>` for the one it names."
   ],
   "verify": [
     {
       "verb": "netlab_labs_passed",
       "user": "{user}",
       "labs": [
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "6",
-        "8"
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9"
       ]
     }
   ],
-  "answer": "Run `dojo netlab check 0`, `1`, `2`, `3`, `4`, `6` and `8` until each passes (lab 8 after `ansible-playbook reset_fw.yml -e branch=a`, then your `site.yml` twice, the second run reporting changed=0), then `dojo check capstone`.",
+  "answer": "Run `dojo netlab check A1` to `A9` until each passes (A9 after `ansible-playbook reset_fw.yml -e branch=a`, then your `site.yml` twice, the second run reporting changed=0), then `dojo check capstone`.",
   "isolation": "Each student's pod is theirs alone, and the proof is the checker's record for that pod; the verb takes the pod from the checking student's name, never from an argument."
 }

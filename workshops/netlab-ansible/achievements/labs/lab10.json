@@ -1,15 +1,15 @@
 {
   "milestones": [
     {
-      "id": "ns2-trunk",
-      "title": "Router on a Stick",
-      "joke": "One VLAN list drove the switch and the firewall.",
+      "id": "n5-vaulted",
+      "title": "Locked in the Vault",
+      "joke": "The password is in git. You cannot read it. Good.",
       "core": false,
-      "when": "shell: `dojo netlab check S2` (exit 0), meaning every assertion for lab S2 passed",
+      "when": "shell: `dojo netlab check A10` (exit 0), meaning every assertion for lab A10 passed",
       "match": {
         "source": "shell",
         "cmd": "dojo netlab check",
-        "regex": "(?i)\\bcheck\\s+S2\\b",
+        "regex": "(?i)\\bcheck\\s+A10\\b",
         "exit": 0,
         "exit_strict": true
       }

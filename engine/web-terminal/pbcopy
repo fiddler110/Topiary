@@ -1,0 +1,17 @@
+#!/bin/sh
+# pbcopy: put stdin on the browser's clipboard, like macOS. `cat file | pbcopy`.
+# Sends an OSC 52 escape to the terminal (ttyd, VS Code and Zellij all pass it to the
+# browser), and also loads the tmux paste buffer when inside tmux. Terminal-only: there
+# is no X11 here, so no xclip.
+set -e
+tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
+cat > "$tmp"
+[ -s "$tmp" ] || exit 0
+if [ "$(wc -c < "$tmp")" -gt 100000 ]; then
+  echo "pbcopy: input over 100 KB; most browsers refuse a clipboard write that large" >&2
+  exit 1
+fi
+[ -n "$TMUX" ] && tmux load-buffer "$tmp" 2>/dev/null || true
+# Write to the terminal itself so it still works when stdout is a pipe or redirected.
+{ printf '\033]52;c;'; base64 -w0 < "$tmp"; printf '\a'; } > /dev/tty 2>/dev/null \
+  || echo "pbcopy: no terminal to send the clipboard to" >&2
