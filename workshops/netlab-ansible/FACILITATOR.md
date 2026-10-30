@@ -10,7 +10,7 @@ run with a room, and the 15-student class has not been started at full size. The
 
 | Block | Minutes | What |
 | ----- | ------- | ---- |
-| Talk | ~20 | Why not by hand, what Ansible is (inventory, module, playbook), the pod and the two branches |
+| Talk | ~25 | Why not by hand, what Ansible is (inventory, module, playbook), the pod and the two branches |
 | Part 1, by hand (M1-M9) | ~105 | 10 each for M1-M7, then 15 (lockdown) and 20 (rebuild from clean, timed) |
 | Part 2, playbooks (A1-A9) | ~150 | 10, 20, 20, 15, 15, 15, 15, 20, 20 (A9 is the capstone) |
 | Stretch (A10 secrets, A11 roles) | rest of the time | Vault with OpenBao, then roles |

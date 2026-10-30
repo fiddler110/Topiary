@@ -16,7 +16,7 @@ style: |
 
 # Git Fundamentals
 
-<p class="tag">Version control for Engineering &amp; IT Operations — what, why, and how.</p>
+<p class="tag">Version control for Engineering &amp; IT Operations: what, why and how.</p>
 
 <div class="links">
 <a class="enter" href="presentation.md">&rarr; Presentation</a>

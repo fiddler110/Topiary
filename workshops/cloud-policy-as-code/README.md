@@ -10,7 +10,7 @@ For anyone who has done [OpenTofu Basics](../tofu-basics/) and [Git Fundamentals
 ```
 
 **Running it as the facilitator? Read [`FACILITATOR.md`](FACILITATOR.md).** Depth over length: the session is
-about 4 to 5 hours of content (about 4.8 with the capstone) (below). Split it over two sittings (labs 0-6, then 7-12) if you can.
+about 5½ hours with the talk (about 4 hours of labs, 4.8 with the capstone). Split it over two sittings (labs 0-6, then 7-12) if you can.
 
 ## Running it
 

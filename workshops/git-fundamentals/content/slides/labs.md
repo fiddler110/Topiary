@@ -33,8 +33,8 @@ git config --global user.name
 git config --global user.email
 ```
 
-Your Git identity is pre-configured to match your student account —
-nothing to set up yourself.
+Your Git identity is pre-configured to match your student account.
+Nothing to set up yourself.
 
 > Full detail lives in `~/lab/README.md` once you're in the terminal.
 
@@ -46,7 +46,7 @@ nothing to set up yourself.
 | --- | ----- | ---- |
 | **1** | Core workflow: clone → branch → edit → commit → push → PR, and the wrong-branch rescue | ~20 min |
 | 2 | Reviewing changes and undoing mistakes before you commit | ~10 min |
-| 3 | Stashing — switching gears without committing | ~8 min |
+| 3 | Stashing: switching gears without committing | ~8 min |
 | 4 | Investigating history: log, blame, show, finding a leaked secret | ~15 min |
 | 5 | Merge conflicts and safely undoing a shared change | ~12 min |
 
@@ -78,24 +78,24 @@ everyone makes once: committing on `main` and moving it to a branch.
 
 ---
 
-## Labs 2-5 — in order
+## Labs 2-5: in order
 
 <div class="cards">
 <div>
-<h3>Lab 2 — Review &amp; Undo</h3>
+<h3>Lab 2: Review &amp; Undo</h3>
 <p>Catch and undo a mistake before it's ever committed.</p>
 </div>
 <div>
-<h3>Lab 3 — Stashing</h3>
+<h3>Lab 3: Stashing</h3>
 <p>Switch branches mid-change without committing half-done work.</p>
 </div>
 <div>
-<h3>Lab 4 — History</h3>
-<p><code>log</code>, <code>blame</code>, <code>show</code>, <code>gitleaks</code> — investigate a real-looking history, branches and a leaked secret included.</p>
+<h3>Lab 4: History</h3>
+<p><code>log</code>, <code>blame</code>, <code>show</code>, <code>gitleaks</code>, investigate a real-looking history, branches and a leaked secret included.</p>
 </div>
 <div>
-<h3>Lab 5 — Merge Conflicts</h3>
-<p>Two branches collide — resolve it, then safely undo a shared change.</p>
+<h3>Lab 5: Merge Conflicts</h3>
+<p>Two branches collide. Resolve it, then safely undo a shared change.</p>
 </div>
 </div>
 
@@ -103,9 +103,9 @@ everyone makes once: committing on `main` and moving it to a branch.
 
 ## Getting unstuck
 
-- `git status` is your best friend — it always tells you where you are
+- `git status` is your best friend: it always tells you where you are
   and what to do next.
-- Nothing here can break the shared `main` branch — you're always on your
+- Nothing here can break the shared `main` branch: you're always on your
   own branch, and merges go through a reviewed pull request.
 - Stuck more than a minute or two? Ask the facilitator.
 

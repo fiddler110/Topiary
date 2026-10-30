@@ -383,11 +383,11 @@ resource "azurerm_resource_group_policy_assignment" "images_strict" {
 ## Compliance: reading the verdict
 
 - Evaluated on every write, and on demand ("Evaluate now" in the portal)
-- States: **Compliant**, **NonCompliant**, **Exempt**, **NotStarted**
+- Three states: **Compliant**, **NonCompliant**, **Exempt**
 - The Policy blade lists assignments, resources and the reason for each verdict
-- Compliance is the answer to "are we okay?". A `deny` rule leaves nothing non-compliant, because nothing bad got in. An `audit` rule is where the list is long
+- Compliance is the answer to "are we okay?". A `deny` rule rarely adds to the list, because bad writes get refused. An `audit` rule is where the list is long
 
-<!-- About 1 minute. Open the Policy blade and click into one NonCompliant row to show the reason text. Students tend to expect a deny assignment to show non-compliant resources; it only will for things created before the rule existed, or while enforcement is off. -->
+<!-- About 1 minute. Open the Policy blade and click into one NonCompliant row to show the reason text. Students tend to expect a deny assignment to show non-compliant resources. It only does for things that existed before the rule, or while the assignment is set to DoNotEnforce (the rule is still evaluated, it just can't refuse the write). Compliance is recomputed after every write, not on a read. -->
 
 ---
 

@@ -17,7 +17,7 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; Certificate Autorenewal | Cheat Sh
 
 ## Every command from Labs 1-5, in one place
 
-Keep this open in a split pane or another tab while you work — you don't
+Keep this open in a split pane or another tab while you work. You don't
 need to memorize any of it. `me="$(whoami)"` and
 `host="${me}.certs.dojo.test"` are assumed set, same as in the labs.
 
@@ -43,7 +43,7 @@ certbot and acme.sh each need telling about this root **separately**:
 
 ---
 
-## Issue — certbot, http-01 (Lab 2)
+## Issue: certbot, http-01 (Lab 2)
 
 ```sh
 mkdir -p ~/certbot/{config,work,logs}
@@ -59,7 +59,7 @@ certbot certonly \
 
 ---
 
-## Issue — acme.sh, http-01 (Lab 3)
+## Issue: acme.sh, http-01 (Lab 3)
 
 ```sh
 acme.sh --issue \
@@ -71,7 +71,7 @@ acme.sh --issue \
   --accountemail "${me}@example.com"
 ```
 
-## Issue — certbot, dns-01 (Lab 5)
+## Issue: certbot, dns-01 (Lab 5)
 
 ```sh
 certbot certonly --manual --preferred-challenges dns-01 \
@@ -99,7 +99,7 @@ curl --resolve "${host}:443:${demo_ip}" --cacert /opt/step-ca-root/root_ca.crt "
 ```
 
 `SSL certificate verify ok` in the verbose output means curl validated the
-full chain up to `step-ca`'s root — the same check any real client does.
+full chain up to `step-ca`'s root, the same check any real client does.
 
 ---
 
@@ -116,7 +116,7 @@ curl -s -H "X-API-Key: $DNS_API_KEY" -H "Content-Type: application/json" \
 ```
 
 <p class="small">TXT record <code>content</code> needs the value wrapped in
-literal, escaped double quotes (<code>\"...\"</code>) — DNS's own TXT
+literal, escaped double quotes (<code>\"...\"</code>), DNS's own TXT
 syntax, not a PowerDNS quirk.</p>
 
 ---
@@ -129,12 +129,12 @@ crontab -e
 ```
 
 - `certbot renew` only renews within its renewal window (30 days before
-  expiry by default) — shorter than this lab's whole cert lifetime, so
+  expiry by default), shorter than this lab's whole cert lifetime, so
   every run renews here. In production, only near-expiry certs would.
 - `--no-random-sleep-on-renew` turns off certbot's default random delay
-  before an unattended renewal runs — real thundering-herd protection at
+  before an unattended renewal runs, real thundering-herd protection at
   Let's Encrypt's scale, but longer than this lab's entire cert lifetime.
-- cron runs with almost no environment — set `REQUESTS_CA_BUNDLE` in the
+- cron runs with almost no environment: set `REQUESTS_CA_BUNDLE` in the
   crontab line itself or inside the script, not just your shell.
 
 ---
@@ -143,14 +143,14 @@ crontab -e
 
 <div class="two-column small">
 
-- **ACME:** The protocol (RFC 8555) all three clients speak to `step-ca` —
+- **ACME:** The protocol (RFC 8555) all three clients speak to `step-ca`:
   account, order, challenge, finalize.
 - **http-01:** Prove domain control by serving a file at a well-known HTTP
   path.
 - **dns-01:** Prove domain control by publishing a specific DNS TXT record.
 - **Provisioner:** step-ca's term for a configured way of authenticating
-  requests — ours is an ACME provisioner named `acme`.
-- **Claims:** Per-provisioner limits/defaults — here, the 5-10 minute cert
+  requests; ours is an ACME provisioner named `acme`.
+- **Claims:** Per-provisioner limits/defaults: here, the 5-10 minute cert
   lifetime that makes Lab 4 observable.
 - **Webroot:** The directory nginx already serves, where an http-01 client
   drops its challenge file.
@@ -166,11 +166,11 @@ crontab -e
 # Getting unstuck
 
 - `openssl x509 -in <cert> -noout -dates` always tells you exactly when a
-  certificate is valid from/until — your fastest sanity check.
-- Nothing here can break another student's site — your vhost, docroot, and
+  certificate is valid from/until, your fastest sanity check.
+- Nothing here can break another student's site: your vhost, docroot, and
   certificate all live only in your own subdirectory of the shared volume.
 - Client can't reach `step-ca`'s ACME directory? Double-check you're using
-  `https://step-ca:9443/...` — it has no plain-HTTP listener.
+  `https://step-ca:9443/...`, it has no plain-HTTP listener.
 - Stuck for more than a minute or two? Ask the facilitator.
 
 <p class="nav"><a href="index.md">&larr; Back to hub</a> &middot; <a href="labs.md">&larr; Lab overview</a> &middot; <a href="presentation.md">&larr; Deck</a></p>

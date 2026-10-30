@@ -9,7 +9,7 @@ to do when something breaks.
 OpenBao. Run end to end with the demo bots (`--test` walks labs 0-11) and the student-reset live pass, not
 yet with a room. The timings below are estimates. Do the rehearsal, and budget a longer first build.
 
-## The session at a glance (about 3½ hours of labs)
+## The session at a glance (about 4½ hours: a ~50 minute talk and about 3½ hours of labs)
 
 Fourteen labs, 0-13. There is far more here than one lunch slot; it is built to be split or to run as a
 half-day. A rough shape:

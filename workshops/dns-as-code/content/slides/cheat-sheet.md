@@ -17,7 +17,7 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; DNS as Code | Cheat Sheet'
 
 ## Every command from Labs 1-5, in one place
 
-Keep this open in a split pane or another tab while you work — you don't
+Keep this open in a split pane or another tab while you work. You don't
 need to memorize any of it.
 
 <p class="nav">Full detail: <code>~/lab/cheat-sheet.md</code> in your terminal.</p>
@@ -32,7 +32,7 @@ edit dnsconfig.js → preview → branch/commit/push → PR → CI comment → m
 
 | Step | Command | What it means |
 | ---- | ------- | -------------- |
-| Preview | <span class="command">dnscontrol preview</span> | Dry-run diff. Changes nothing — run before every commit. |
+| Preview | <span class="command">dnscontrol preview</span> | Dry-run diff. Changes nothing: run before every commit. |
 | Branch/commit/push | <span class="command">git checkout -b</span> / `add` / `commit` / `push` | Same mechanics as Git Fundamentals. |
 | Pull request | *(Forgejo)* | CI posts the `preview` diff as a comment. |
 | Merge | *(Forgejo)* | CI runs `dnscontrol push` for real. |
@@ -49,7 +49,7 @@ MX("@", 10, "mail.dojo.test."),   // mail routing — priority, then target
 TXT("name", "some text value"),   // SPF/DKIM/DMARC/verification
 ```
 
-- `203.0.113.0/24` is documentation-only space (RFC 5737) — safe to use here.
+- `203.0.113.0/24` is documentation-only space (RFC 5737): safe to use here.
 - **CNAME can't coexist** with any other record on the same name.
 - Missing trailing dot on `CNAME`/`MX` targets is the #1 mistake.
 
@@ -57,9 +57,9 @@ TXT("name", "some text value"),   // SPF/DKIM/DMARC/verification
 
 ## Reading a `preview` diff
 
-- **CREATE** — in `dnsconfig.js`, not yet in PowerDNS.
-- **DELETE** — in PowerDNS, no longer in `dnsconfig.js`.
-- **Editing a record** shows as a **paired DELETE + CREATE** — dnscontrol
+- **CREATE**: in `dnsconfig.js`, not yet in PowerDNS.
+- **DELETE**: in PowerDNS, no longer in `dnsconfig.js`.
+- **Editing a record** shows as a **paired DELETE + CREATE**: dnscontrol
   diffs by exact match, not in-place update. Expected, not a bug.
 
 > Always read the whole diff before committing or merging.
@@ -80,7 +80,7 @@ dig @dns-server <name> TXT +short      # TXT record(s)
 
 ---
 
-## `dnsctl.py` — local commands
+## `dnsctl.py`: local commands
 
 <div class="two-column small">
 
@@ -104,7 +104,7 @@ dig @dns-server <name> TXT +short      # TXT record(s)
 
 ---
 
-## `dnsctl.py` — PR lifecycle
+## `dnsctl.py`: PR lifecycle
 
 | Command | Does |
 | --- | --- |
@@ -125,13 +125,13 @@ dig @dns-server <name> TXT +short      # TXT record(s)
 Add the trailing dot: `dojo.test` → `dojo.test.`
 
 **"preview shows a DELETE + CREATE I didn't expect"**
-Normal for an edit — confirm both halves are the record you meant.
+Normal for an edit: confirm both halves are the record you meant.
 
 **"push rejected... remote contains work"**
 `git pull`, resolve any conflict, push again.
 
 **"I want to undo a merged change"**
-`dnsctl.py rollback <PR#>` — never hand-edit it back.
+`dnsctl.py rollback <PR#>`: never hand-edit it back.
 
 ---
 
@@ -152,7 +152,7 @@ git add dnsconfig.js
 git commit
 ```
 
-**Always re-run `dnscontrol preview` after resolving** — git only checks
+**Always re-run `dnscontrol preview` after resolving**: git only checks
 for leftover markers, not whether the file is still valid.
 
 ---
@@ -161,7 +161,7 @@ for leftover markers, not whether the file is still valid.
 
 <div class="two-column small">
 
-- **Zone:** DNS records for one domain — `dojo.test`.
+- **Zone:** DNS records for one domain: `dojo.test`.
 - **Record:** one entry (A, CNAME, MX, TXT...).
 - **`dnsconfig.js`:** the source of truth.
 - **`preview`:** dry-run diff. Changes nothing.
@@ -182,8 +182,8 @@ for leftover markers, not whether the file is still valid.
 # When to ask for help
 
 - Before merging a PR whose diff you don't fully understand.
-- During a merge conflict — normal, not a mistake.
+- During a merge conflict: normal, not a mistake.
 - If `preview` errors and the message isn't obvious.
-- If you think a merged change is wrong — ask about `rollback`, don't hand-edit it back.
+- If you think a merged change is wrong: ask about `rollback`, don't hand-edit it back.
 
 <p class="nav"><a href="index.md">&larr; Back to hub</a> &middot; <a href="labs.md">&larr; Lab overview</a> &middot; <a href="presentation.md">&larr; Deck</a></p>

@@ -15,7 +15,7 @@ footer: '[&larr; Hub](index.md)'
 
 # Labs
 
-<p class="nav">Everything for this workshop's labs, in one place — pick a lab below, or start with the overview.</p>
+<p class="nav">Everything for this workshop's labs, in one place. Pick a lab below, or start with the overview.</p>
 
 <div class="cards">
 <div>

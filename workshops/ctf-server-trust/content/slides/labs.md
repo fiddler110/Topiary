@@ -18,7 +18,7 @@ footer: '[&larr; Labs](lab-index.md) &nbsp;|&nbsp; CTF-2: Server-side Trust and 
 ## Four independent targets, pick any order
 
 Each lab is a self-contained target you start from the **Attack Range** card. They don't build on each
-other -- do them in any order, and start fresh for each one when you're ready.
+other. Do them in any order, and start fresh for each one when you're ready.
 
 <p class="nav">Keep <a href="cheat-sheet.md">the cheat sheet</a> open in another tab while you work.</p>
 
@@ -40,7 +40,7 @@ Budget ~150 minutes for all four, including scanning and setup.
 ## How to work each one
 
 1. Start the target from the **Attack Range** card and note your slot's IP.
-2. `nmap` it -- every target publishes more than one port, some real, some decoys.
+2. `nmap` it: every target publishes more than one port, some real, some decoys.
 3. Investigate using the lab's guiding questions, not the exploit guide.
 4. Stuck after a real attempt? Each lab's last line points at that target's exploit guide.
 5. `dojo flag '<flag>'`.

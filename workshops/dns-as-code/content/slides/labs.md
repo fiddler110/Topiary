@@ -34,7 +34,7 @@ git --version
 ```
 
 Preinstalled in your terminal: `dnscontrol`, `dig` (from `dnsutils`),
-`git`, `python3` — nothing to install.
+`git`, `python3`, nothing to install.
 
 > Full detail lives in `~/lab/README.md` once you're in the terminal.
 
@@ -47,7 +47,7 @@ Preinstalled in your terminal: `dnscontrol`, `dig` (from `dnsutils`),
 | 1: your zone | **1** | Preview, push, verify; add, edit, remove; catch mistakes | ~20 min |
 | 1: your zone | 2 | Drift, and undoing your own changes | ~10 min |
 | 2: shared zone | **3** | Branch → PR → CI preview → review → merge → CI applies | ~30 min |
-| 2: shared zone | 4 | `dnsctl.py` — the same process, one command per step | ~20 min |
+| 2: shared zone | 4 | `dnsctl.py`: the same process, one command per step | ~20 min |
 | 2: shared zone | 5 | History and rolling back a merged change | ~10 min |
 | 2: shared zone | 6 | Merge conflicts in `dnsconfig.js` | ~12 min |
 
@@ -101,20 +101,20 @@ only CI applies it. A push from your terminal is refused.
 
 <div class="cards">
 <div>
-<h3>Lab 2 — Drift &amp; Undo</h3>
+<h3>Lab 2: Drift &amp; Undo</h3>
 <p>A dashboard edit meets the next push; undo a pushed change with <code>git revert</code>.</p>
 </div>
 <div>
-<h3>Lab 4 — dnsctl.py</h3>
+<h3>Lab 4: dnsctl.py</h3>
 <p>Lab 3's process, wrapped into one command per step.</p>
 </div>
 <div>
-<h3>Lab 5 — History &amp; Rollback</h3>
+<h3>Lab 5: History &amp; Rollback</h3>
 <p>Investigate what changed, when, and undo a merged change through a PR.</p>
 </div>
 <div>
-<h3>Lab 6 — Merge Conflicts</h3>
-<p>Two changes collide in <code>dnsconfig.js</code> — resolve it by hand.</p>
+<h3>Lab 6: Merge Conflicts</h3>
+<p>Two changes collide in <code>dnsconfig.js</code>. Resolve it by hand.</p>
 </div>
 </div>
 
@@ -122,7 +122,7 @@ only CI applies it. A push from your terminal is refused.
 
 ## Getting unstuck
 
-- `dnscontrol preview` is your best friend here — same role `git status`
+- `dnscontrol preview` is your best friend here: same role `git status`
   played last session. Safe to run any time, changes nothing.
 - You can't break anyone else's work: Part 1 is your own zone, and every
   change to the shared zone goes through a reviewed PR (Lab 5: rollback).

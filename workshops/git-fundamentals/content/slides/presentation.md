@@ -25,7 +25,7 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; Git Fundamentals | Engineering & I
 
 Version control for Engineering & IT Operations
 
-**Talk ~30 min · Labs ~65 min (five labs) · about 95 min total**
+**Talk ~30 min · Labs ~65 min (five labs) · wrap-up ~5 min · about 100 min total**
 
 <!--
 Welcome everyone and cover logistics. The lab runs entirely in the browser, so nobody needs Git or an editor installed.

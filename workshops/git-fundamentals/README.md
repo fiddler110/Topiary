@@ -1,6 +1,6 @@
 # Git Fundamentals — Session 1
 
-A 60-minute lunch-and-learn: version control fundamentals + a hands-on lab,
+A lunch-and-learn of about 100 minutes (a 30-minute talk, about 65 minutes of labs and a short wrap-up): version control fundamentals + a hands-on lab,
 for engineering and IT operations staff with mixed git experience.
 
 ## Two delivery modes
@@ -47,7 +47,7 @@ manually created Azure Repos project — nothing in `engine/` applies to it.
 
 | # | Session | Format | Status |
 | - | ------- | ------ | ------ |
-| 1 | Git Fundamentals: What/Why/How + Hands-on Lab | 60 min | This workshop |
+| 1 | Git Fundamentals: What/Why/How + Hands-on Lab | ~100 min | This workshop |
 | 2 | Branching Workflows & Pull Requests in Practice | 45-60 min | Future |
 | 3 | Team Git Conventions + DNS-as-Code Repo Walkthrough | 45-60 min | [`workshops/dns-as-code/`](../dns-as-code/) |
 | 4 | Handling Conflicts, Rebasing, and "Oh No" Recovery | 45-60 min | Future |

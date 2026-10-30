@@ -18,7 +18,7 @@ footer: '[&larr; Labs](lab-index.md) &nbsp;|&nbsp; CTF-4: Trusting the Wrong Thi
 ## Two independent targets, pick any order
 
 Each lab is a self-contained target you start from the **Attack Range** card. They don't build on each
-other -- do them in any order, and start fresh for each one when you're ready.
+other. Do them in any order, and start fresh for each one when you're ready.
 
 <p class="nav">Keep <a href="cheat-sheet.md">the cheat sheet</a> open in another tab while you work.</p>
 
@@ -28,7 +28,7 @@ other -- do them in any order, and start fresh for each one when you're ready.
 
 | Lab | Target | Topic | Time |
 | --- | ------ | ----- | ---- |
-| **1** | Internal DNS-backed agent | A real CVE in a pinned-old resolver's transaction IDs -- two flags | ~45 min
+| **1** | Internal DNS-backed agent | A real CVE in a pinned-old resolver's transaction IDs: two flags | ~45 min
 | **2** | Cloud resource policy | A rule with no bug, just the wrong logic | ~40 min
 | **3** | CI pipeline | A PR's own workflow file runs on a shared runner | ~40 min |
 
@@ -39,11 +39,11 @@ Budget ~125 minutes for all three, on top of the session's `nmap`/Linux primer.
 ## How to work each one
 
 1. Start the target from the **Attack Range** card and note your slot's IP (Lab 3 uses your own
-   `ci-pipeline` Forgejo repo instead -- no Attack Range target to start for it).
-2. `nmap` it -- every target publishes more than one port, some real, some decoys.
+   `ci-pipeline` Forgejo repo instead; no Attack Range target to start for it).
+2. `nmap` it: every target publishes more than one port, some real, some decoys.
 3. Investigate using the lab's guiding questions, not the exploit guide.
 4. Stuck after a real attempt? Each lab's last line points at that target's exploit guide.
-5. `dojo flag '<flag>'` -- Lab 1 needs this **twice**, once per flag.
+5. `dojo flag '<flag>'`, Lab 1 needs this **twice**: once per flag.
 
 ---
 

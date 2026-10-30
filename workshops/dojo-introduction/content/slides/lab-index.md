@@ -22,7 +22,7 @@ footer: '[&larr; Hub](index.md)'
 </div>
 <div>
 <h3><a href="workshops.md">Workshop library &rarr;</a></h3>
-<p>The full slides and labs behind each capability.</p>
+<p>The full slides and labs behind each workshop.</p>
 </div>
 </div>
 

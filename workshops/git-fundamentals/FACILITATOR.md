@@ -8,11 +8,11 @@ what to do when something breaks.
 with the demo bots and the student-reset live pass; the per-lab times below are the labs' own estimates
 (`content/lab/README.md`), not measured against a room. Do the rehearsal.
 
-## The session at a glance (about 65 minutes)
+## The session at a glance (about 100 minutes)
 
 | Block | Minutes | What |
 | ----- | ------- | ---- |
-| Talk | ~10 | Why version control, the everyday workflow, pull requests. *A guess until a dry run.* |
+| Talk | ~30 | Why version control, the everyday workflow, pull requests. *A guess until a dry run.* |
 | Lab 1 | ~20 | The core workflow: clone → branch → edit → commit → push → PR. Adds themselves to `roster/team.yaml`. Step 9 is a short drill: commit on `main` by mistake, move the commit to a branch, reset `main` |
 | Labs 2-5 | ~45 | 10 + 8 + 15 + 12. Reviewing/undoing, stashing, history (log/blame/show/-S on the `lab-history` practice repo), merge conflicts |
 | Recap | ~5 | What surprised them (usual: rebase vs merge, what a PR really is) |

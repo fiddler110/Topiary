@@ -26,7 +26,7 @@ footer: '[&larr; Hub](index.md)'
 </div>
 </div>
 
-<p class="setup-label">No repo to clone for this session -- start the <b>Attack Range</b> card from the
+<p class="setup-label">No repo to clone for this session: start the <b>Attack Range</b> card from the
 landing page and each lab goes from there.</p>
 
 <ul class="lab-links">

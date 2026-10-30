@@ -23,7 +23,7 @@ style: |
 
 # Certificate Autorenewal
 
-<p class="tag">The protocol behind automated TLS — issue, install, and renew a real certificate on a schedule, using open-source tooling with no ties to any corporate CA service.</p>
+<p class="tag">The protocol behind automated TLS. Issue, install and renew a real certificate on a schedule, using open-source tooling with no ties to any corporate CA service.</p>
 
 <div class="links">
 <a class="enter" href="presentation.md">&rarr; Presentation</a>

@@ -59,6 +59,20 @@ services:
       - ../workshops/assets:/home/marp/app/w/tofu-basics/assets:ro
       - ../workshops/vault-fundamentals/content/slides:/home/marp/app/w/vault-fundamentals:ro
       - ../workshops/assets:/home/marp/app/w/vault-fundamentals/assets:ro
+      - ../workshops/cloud-policy-as-code/content/slides:/home/marp/app/w/cloud-policy-as-code:ro
+      - ../workshops/assets:/home/marp/app/w/cloud-policy-as-code/assets:ro
+      - ../workshops/netlab-ansible/content/slides:/home/marp/app/w/netlab-ansible:ro
+      - ../workshops/assets:/home/marp/app/w/netlab-ansible/assets:ro
+      - ../workshops/ctf-access/content/slides:/home/marp/app/w/ctf-access:ro
+      - ../workshops/assets:/home/marp/app/w/ctf-access/assets:ro
+      - ../workshops/ctf-server-trust/content/slides:/home/marp/app/w/ctf-server-trust:ro
+      - ../workshops/assets:/home/marp/app/w/ctf-server-trust/assets:ro
+      - ../workshops/ctf-secrets-config/content/slides:/home/marp/app/w/ctf-secrets-config:ro
+      - ../workshops/assets:/home/marp/app/w/ctf-secrets-config/assets:ro
+      - ../workshops/ctf-trust-chain/content/slides:/home/marp/app/w/ctf-trust-chain:ro
+      - ../workshops/assets:/home/marp/app/w/ctf-trust-chain/assets:ro
+      - ../workshops/ctf-defend/content/slides:/home/marp/app/w/ctf-defend:ro
+      - ../workshops/assets:/home/marp/app/w/ctf-defend/assets:ro
 
   # Image: compose/terminal/, built and selected by dojo.
   web-terminal:

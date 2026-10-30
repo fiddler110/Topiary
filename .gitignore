@@ -28,3 +28,6 @@ workshops/*/content/slides/lab/
 engine/.env.*
 # Build-time copies of modules/_shared/ files (SHARED= in module.env; engine/dojo/build.py).
 modules/*/**/_shared/
+
+# Personal writing style guide (local only)
+assets/Scott-Ai-WritingStyleGuide.md

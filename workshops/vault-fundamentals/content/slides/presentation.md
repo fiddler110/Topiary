@@ -1707,6 +1707,22 @@ Don't read the list. Ask each person to pick one thing they'll do this week. Sca
 This slide is here so nobody copies the lab setup into production. The question people ask most is the unseal key, and the answer is on the slide: at work, auto-unseal from a cloud KMS or an HSM, or key shares split between several people. About a minute.
 -->
 
+---
+
+<!-- _class: lead -->
+<!-- _paginate: false -->
+<!-- _footer: "[&larr; Hub](index.md)" -->
+
+# That's the session
+
+## Any lab is still there if you want to redo it
+
+Pick one from [labs.md](labs.md). The commands are in [cheat-sheet.md](cheat-sheet.md). Ask if something didn't land.
+
+<!--
+Last slide, so this is where questions go. labs.md has the list and times for anyone who wants to redo a lab.
+-->
+
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
   mermaid.initialize({
