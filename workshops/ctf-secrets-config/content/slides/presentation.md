@@ -21,10 +21,10 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; CTF-3: Secrets and Misconfiguratio
 
 <!--
 Speaker notes: this deck is the briefing, not the walkthrough. It sets the
-scenario, the rules and the tools -- it never names a specific bug or a
-payload. That's deliberate: the labs guide toward the technique, and a
+scenario, the rules and the tools. It never names a specific bug or a
+payload, and that's deliberate: the labs guide toward the technique, and a
 separate exploit guide exists for anyone who's genuinely stuck after trying.
-Don't improvise extra hints from the stage; if someone's stuck, point them
+Don't improvise extra hints from the stage. If someone's stuck, point them
 at the lab's own hints first.
 -->
 
@@ -39,18 +39,26 @@ at the lab's own hints first.
 5. Flags, scoring, and what to do when you're stuck
 6. Hands-on lab
 
+<!--
+Speaker notes: Read the six items out loud and move on. This is a briefing, so keep it short and get people into the terminal. If you're pressed for time, the rules and "if you get stuck" slides are the two to protect.
+-->
+
 ---
 
 ## The engagement
 
 **Glasswing Systems** wants two more systems assessed: an internal ops dashboard used by the platform
 team, and a deploy-trigger service that's meant to be reachable only by their own CI. Neither one has an
-obvious front door that's broken -- the problem, if there is one, is what got left lying around.
+obvious front door that's broken: the problem, if there is one, is what got left lying around.
 
 You are not told which one is broken, or how. That's the job.
 
-Each of you gets your **own private copy** of both systems -- nothing you do touches anyone else's, and
+Each of you gets your **own private copy** of both systems. Nothing you do touches anyone else's, and
 nothing anyone else does touches yours.
+
+<!--
+Speaker notes: Set the scene as a consultant would. They've been hired, they have a scope, and nobody has told them what's wrong. Say that last part plainly: finding it is the job. Mention that every student has a private copy, so nobody can spoil it or break it for a neighbour. Don't describe what's wrong with any of the systems, even when someone asks for a nudge.
+-->
 
 ---
 
@@ -59,23 +67,31 @@ nothing anyone else does touches yours.
 Same rules as any real engagement, scaled down to this room:
 
 - **Scope is your own slot, full stop.** The firewall only lets your attack box reach your own target
-  (and, for Lab 2, your own repo) -- scanning for anyone else's is pointless and against the rules even
+  (and, for Lab 2, your own repo). Scanning for anyone else's is pointless and against the rules even
   where it isn't blocked.
-- **The box in front of you is the whole scope.** Don't look for a way out of it -- there isn't one, and
+- **The box in front of you is the whole scope.** Don't look for a way out of it: there isn't one, and
   that's intentional (the range has no route to the internet or anything else in this lab).
 - **In the real world, this requires written authorization.** Everything you learn today is only legal to
   use against systems you own or are explicitly authorized to test.
+
+<!--
+Speaker notes: Take your time on this one. It's the only slide in the deck I'd call mandatory. Say the legal point in your own words: the same techniques against a system you don't own or aren't authorized to test are a crime, and "it was a training exercise" is not a defence. Also say that the range is sealed on purpose, so nobody wastes time hunting for a way out.
+-->
 
 ---
 
 ## Your attack box
 
 Your terminal already has the tools this session needs: `nmap`, `curl`, `git`, `jq`, and more. The **Lab
-Info** card is a reference for every one of them -- mechanics, not answers -- and it's worth a look before
+Info** card is a reference for every one of them (mechanics, not answers) and it's worth a look before
 you start.
 
-<p class="nav">Lab 2 uses git and your own Forgejo account -- the only lab in this series so far where the
+<p class="nav">Lab 2 uses git and your own Forgejo account, the only lab in this series so far where the
 foothold lives in a repo, not on the network.</p>
+
+<!--
+Speaker notes: Don't read the tool list. Point at the Lab Info card and tell them to open it now, because it explains how each tool works without giving answers. Flag the note at the bottom: one of the two labs uses git and Forgejo, so those students will need their own account. Say which lab it is only as the slide does.
+-->
 
 ---
 
@@ -85,15 +101,19 @@ One target is **live** in your slot at a time, picked from the card on the landi
 
 - **Start** boots the target you picked; **Stop** tears it down; **Reset** returns it to its untouched
   state (your progress on *solved* flags is kept either way).
-- The card shows your slot's **IP only** -- never the ports. Finding those is your first step, every time.
+- The card shows your slot's **IP only**, never the ports. Finding those is your first step, every time.
 - Starting a different target stops the current one. Only one is ever live, so plan your time.
+
+<!--
+Speaker notes: If you can, show the card on screen while you talk. The things people trip on are that only one target runs at a time, that the card shows an IP and never ports, and that Reset keeps solved flags. Say it once, clearly, and tell them to plan their order. I haven't timed how long a target takes to boot, so don't promise a number.
+-->
 
 ---
 
 ## Scan before you guess
 
 Every target publishes more than one port. Some are real; some are decoys that exist purely so scanning
-tells you something, the way a real box would. **Don't skip this step** -- it's not filler, it's the first
+tells you something, the way a real box would. **Don't skip this step.** It's not filler, it's the first
 real skill this session teaches.
 
 ```sh
@@ -102,11 +122,15 @@ nmap -sV -p- <your-slot-ip>
 
 Read what comes back before you touch anything else.
 
+<!--
+Speaker notes: Run the scan live if you have a minute. The point is the habit: look at what's listening before you poke at anything. Warn them that some ports are decoys and that a full port scan takes a little while, so they should start it and read the lab while it runs. Don't say which ports matter.
+-->
+
 ---
 
 ## Flags and scoring
 
-Each solved target hands you a flag, `flag{...}`, unique to you -- a classmate's flag will never work for
+Each solved target hands you a flag, `flag{...}`, unique to you. A classmate's flag will never work for
 you and vice versa.
 
 ```sh
@@ -114,7 +138,11 @@ dojo flag '<flag>'
 ```
 
 Solving earns points on the room's leaderboard (the achievements module you may already know from other
-sessions). A wrong flag just tells you to keep looking -- it never costs you anything.
+sessions). A wrong flag just tells you to keep looking. It never costs you anything.
+
+<!--
+Speaker notes: Show the flag submit command and say that a wrong flag costs nothing. Flags are per student, so sharing one is pointless. If the room is competitive, mention the leaderboard. If it isn't, don't push it.
+-->
 
 ---
 
@@ -125,7 +153,11 @@ sessions). A wrong flag just tells you to keep looking -- it never costs you any
 | **Internal ops dashboard** | Logs, status, and a backup folder nobody meant to publish |
 | **Deploy trigger** | A service that only accepts requests carrying its own deploy token |
 
-No further hints here -- what's wrong with each one, if anything in the code at all, is for you to find.
+No further hints here. What's wrong with each one, if anything in the code at all, is for you to find.
+
+<!--
+Speaker notes: Read the table, then stop. The hint-free wording is on purpose: there is nothing more to say from the stage. Any order works. With only two targets, tell people not to rush the first one, since the second is the same size of problem.
+-->
 
 ---
 
@@ -138,6 +170,10 @@ No further hints here -- what's wrong with each one, if anything in the code at 
 4. Only once you've genuinely tried: each lab's last line points at an **exploit guide** with the full
    walkthrough. Using it isn't a failure, but using it *first* skips the part that actually teaches you
    something.
+
+<!--
+Speaker notes: This is the slide that keeps you from becoming a hint machine. Walk the order: lab hints, Lab Info, then ask you. When someone asks, point at where to look instead of what to find. Be straight about the exploit guide: it's there, using it is fine, but using it first skips the learning. Check in with anyone quiet around the halfway mark.
+-->
 
 ---
 

@@ -19,24 +19,25 @@ footer: "[&larr; Hub](index.md) &nbsp;|&nbsp; OpenTofu Basics | Engineering & IT
 
 Builds on Git Fundamentals: same files-in-git habit, applied to servers and clouds
 
-**Talk + hands-on lab · about 2¼ hours**
+**Talk ~35 min · Track A ~37 min · Track B ~66 min · about 2¼ hours total**
 
 <!--
-TIMING (whole session, ~140 min; the lab times are the estimates in
-~/lab/README.md, the talk times are a guess until the dry run, T9.4):
+Timing for the whole session, about 140 minutes. Lab times are the estimates in ~/lab/README.md. Talk times are my
+estimate from the slide count and haven't been timed with a live room.
+
   Talk, parts 1-3 ............ ~25 min   (slides up to "Track A")
-  Track A labs 0-3 ........... ~37 min   (5 + 12 + 12 + 8)
-  Dojo Cloud tour ............ ~10 min   (part 4, before Track B)
-  Track B labs 4-10 .......... ~66 min   (8 + 10 + 12 + 8 + 12 + 8 + 8)
+  Track A, labs 0-3 .......... ~37 min   (5 + 12 + 12 + 8)
+  Dojo Cloud tour (part 4) ... ~10 min   (before Track B)
+  Track B, labs 4-10 ......... ~66 min   (8 + 10 + 12 + 8 + 12 + 8 + 8)
   Recap and questions ........ ~5 min
 
-To fit a 2-hour slot, trim Track B (see the Track B slide notes). If the
-talk runs long, the "Variables and outputs" slide can be skipped: Lab 0
-and Lab 2 cover the same ground.
+The "~35 min" talk on the slide is the 25 minutes of parts 1-3 plus the 10 minute Dojo Cloud tour.
 
-Assumes the room did Git Fundamentals (or knows clone/commit/push). The
-new idea today is not a new tool for its own sake: it is that the
-infrastructure itself becomes a file you review, the same way code is.
+For a 2 hour slot, trim Track B (see the Track B slide notes). If the talk runs long, skip the "Variables and
+outputs" slide: Lab 0 and Lab 2 cover the same ground.
+
+This assumes the room did Git Fundamentals, or at least knows clone, commit and push. The new idea today isn't the
+tool. It's that the infrastructure itself becomes a file you review, the same way code is.
 -->
 
 ---

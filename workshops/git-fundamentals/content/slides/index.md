@@ -26,4 +26,4 @@ style: |
 <a class="enter secondary" href="cheat-sheet.md">&rarr; Cheat sheet</a>
 </div>
 
-<p class="meta">30-minute talk · Hands-on lab</p>
+<p class="meta">Talk ~30 min · Labs ~65 min</p>

@@ -50,7 +50,7 @@ DNS label — `studentNN.certs.dojo.test` — for the rest of this lab.
 | Lab | Topic | Time |
 | --- | ----- | ---- |
 | **1** | Trusting the CA: bootstrap, inspect the root cert | ~10 min |
-| **2** | Issue and install a certificate with certbot | ~20 min |
+| **2** | Issue and install a certificate with certbot | ~25 min |
 | 3 | The same task with acme.sh — comparing ACME clients | ~15 min |
 | **4** | Automating renewal, and watching it actually happen | ~15 min |
 | 5 | The dns-01 challenge, against real DNS records | ~15 min |

@@ -24,18 +24,24 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; Certificate Autorenewal | Engineer
 
 # Certificate Autorenewal
 
-## The protocol behind automated TLS — issue, install, and renew a real certificate, on a schedule, without touching it again
+## Issue, install and renew a real certificate on a schedule, without touching it again
 
-The open-source pattern a tool like Venafi automates for you at work
+Builds lightly on DNS as Code: Lab 5 drives the same PowerDNS API that `dnscontrol` wraps
 
-**Talk + hands-on lab**
+**Talk ~20 min · Labs ~80 min (Labs 1-5) · about 1¾ h**
 
 <!--
-No ties to any corporate CA service in this lab — step-ca, certbot, and
-acme.sh are all open-source, self-hosted, and run entirely inside this
-workshop's own containers. The point isn't "here's Venafi" — it's "here's
-what issuance/renewal automation actually does under the hood," so the
-Venafi case at work reads as an instance of a pattern, not a black box.
+This is the open-source pattern a tool like Venafi automates for you at
+work. Nothing in the lab ties to a corporate CA: step-ca, certbot and
+acme.sh are all open source and run inside this workshop's own containers.
+The point isn't "here's Venafi". It's what issuance and renewal automation
+does under the hood, so the Venafi case at work reads as an instance of a
+pattern, not a black box.
+
+Timing: talk about 20 min (an estimate, not measured). Labs: 1 is ~10 min,
+2 ~25, 3 ~15, 4 ~15, 5 ~15, so about 80 min. Add about 5 min for a recap.
+Every lab is part of the workshop. In a shorter slot, Labs 1-2 are the
+core and Lab 5 is the one to drop first.
 -->
 
 ---
@@ -43,14 +49,19 @@ Venafi case at work reads as an instance of a pattern, not a black box.
 ## Today
 
 1. Why certificate renewal deserves the same automation as everything else
-2. What ACME actually does — the protocol, not a specific tool
+2. What ACME does: the protocol, not a specific tool
 3. What's running in this lab
-4. Issuing your first certificate — two clients, one protocol
-5. Automating renewal — the actual point of this workshop
+4. Issuing your first certificate: two clients, one protocol
+5. Automating renewal, the actual point of this workshop
 6. Hands-on practice
 
 > Same shape as any automation story: a manual, easy-to-forget task becomes
 > a scheduled job that just runs.
+
+<!--
+One minute. If someone asks whether they need to know ACME already, they
+don't. Part 2 covers it.
+-->
 
 ---
 
@@ -68,14 +79,14 @@ Venafi case at work reads as an instance of a pattern, not a black box.
 
 - Expired certificates break HTTPS hard: browsers and API clients refuse the connection
 - "Who owns renewing this cert?" is a question a lot of outages start with
-- The usual fix is a calendar reminder, a ticket, or a central tool like Venafi; all the same idea: **something has to notice the expiry and act, before a human has to**
+- The usual fix is a calendar reminder, a ticket, or a central tool like Venafi. It's all the same idea: **something has to notice the expiry and act, before a human has to**
 
 The whole workshop in one sentence: replace "someone remembers" with "something runs."
 
 <!--
-Worth pausing here — this is the motivating problem everything else in the
-deck answers. Everyone in the room has probably seen an expired-cert outage
-at some point; let that land before moving to the mechanism.
+Pause here. This is the problem everything else answers. Most people in
+the room have seen an expired-cert outage, so ask for a show of hands and
+let a story or two come out before moving on. About 3 min.
 -->
 
 ---
@@ -86,7 +97,8 @@ at some point; let that land before moving to the mechanism.
 
 - A cert is issued once, by hand, during a project's setup
 - It works. Nobody touches it again
-- <label for="cert-outages" class="pop-trigger">Months later, it expires</label> — often on a weekend, often on the one service
+- <label for="cert-outages" class="pop-trigger">Months later, it expires</label>, often on a weekend, often on the one service
+  nobody's looked at recently
   nobody's looked at recently
 - The person who issued it has moved teams, or forgotten how
 - Renewal becomes an emergency instead of a non-event
@@ -117,29 +129,34 @@ at some point; let that land before moving to the mechanism.
 </div>
 
 <!--
-Click "Months later, it expires" for the wall of real expired-certificate
-outages; "close" at the top right hides it.
+Click "Months later, it expires" to open the wall of real expired-certificate
+outages; "close" at the top right hides it. Every one of them had a known
+expiry date and nothing acted on it. Pick a couple the room will know
+(Teams and Epic usually do) rather than reading the list. If you're short
+on time, skip the popup. About 2 min.
 -->
 
 ---
 
 ## What changes with automation
 
+## What changes with automation
+
 - A client (certbot, acme.sh, or anything else that speaks ACME) can
   request, prove control of, and install a certificate **without a human
   clicking anything**
-- A scheduler (cron, in this lab — a systemd timer or a controller's
+- A scheduler (cron in this lab; a systemd timer or a controller's
   reconcile loop in production) re-runs that request before expiry
 - The "prove control" step is the actual security guarantee: **anyone**
-  can ask a CA for a cert for `example.com` — only whoever controls
+  can ask a CA for a cert for `example.com`, but only whoever controls
   `example.com` can complete the challenge
-- Once this loop is running, renewal isn't a task anyone does — it's a
+- Once this loop is running, renewal isn't a task anyone does. It's a
   property the system has
 
 <!--
-This is the pivot into Part 2: the "prove control" step above is exactly
-what ACME's challenge/response exchange formalizes. Everything in Part 2
-is mechanism for the claim just made here.
+This is the pivot into Part 2. The "prove control" bullet is what ACME's
+challenge and response exchange formalizes, so everything in Part 2 is
+mechanism for the claim made here. About 2 min.
 -->
 
 ---
@@ -155,13 +172,19 @@ is mechanism for the claim just made here.
 ## ACME, in one sentence
 
 > A protocol (RFC 8555) a client uses to prove it controls a domain, then
-> request, and later renew, an X.509 certificate for it — automatically,
-> with no human in the loop once it's set up.
+> request, and later renew, an X.509 certificate for it. Automatically, with
+> no human in the loop once it's set up.
 
 **A**utomatic **C**ertificate **M**anagement **E**nvironment. Let's Encrypt
-made it famous; it's an open standard any CA can implement — including the
-one running in this lab (`step-ca`), entirely disconnected from any public
-CA or corporate service.
+made it famous, but it's an open standard any CA can implement, including
+the one running in this lab (`step-ca`), entirely disconnected from any
+public CA or corporate service.
+
+<!--
+Don't recite the RFC. The thing to say is that ACME is a conversation
+between a client and a CA, and the client has to earn the certificate.
+About 1 min.
+-->
 
 ---
 
@@ -177,10 +200,16 @@ CA or corporate service.
 <span><b>4</b><br>finalize<br><small>CSR → issued cert</small></span>
 </div>
 
-Every ACME client — certbot, acme.sh, the `step` CLI, anything else — does
+Every ACME client (certbot, acme.sh, the `step` CLI, anything else) does
 exactly these four things. The tools differ in how much of this they show
 you; the protocol underneath never changes. You'll watch this exact
-exchange happen twice in Lab 2 and Lab 3, once per client.
+exchange happen twice, in Lab 2 and Lab 3, once per client.
+
+<!--
+Walk the four boxes slowly. Step 3 is the one that matters, and the next
+slide is about it. Ask people to remember this order: in Lab 3 acme.sh
+shows more of the raw exchange and they can match it up. About 2 min.
+-->
 
 ---
 
@@ -191,11 +220,16 @@ exchange happen twice in Lab 2 and Lab 3, once per client.
 | **http-01** | Serving a specific file at a well-known HTTP path on the domain | A reachable web server on port 80 |
 | **dns-01** | Publishing a specific TXT record under the domain | Write access to the domain's DNS zone |
 
-http-01 is what Labs 1-4 use — simplest to reason about, and what most
-real-world issuance looks like. dns-01 (Lab 5) is what
-you reach for when there's **no web server to answer at all** — an
-internal service, a mail server, or a wildcard certificate, none of which
-http-01 can validate.
+http-01 is what Labs 1-4 use. It's the simplest to reason about, and it's
+what most real-world issuance looks like. dns-01 (Lab 5) is what you reach
+for when there's **no web server to answer at all**: an internal service,
+a mail server, or a wildcard certificate, none of which http-01 can
+validate.
+
+<!--
+Mention dns-01 now so Lab 5 isn't a surprise, but don't go deep. The
+wildcard point is the one people remember. About 2 min.
+-->
 
 ---
 
@@ -211,13 +245,20 @@ http-01 can validate.
 
 | Service | Role |
 | ------- | ---- |
-| `step-ca` | The shared ACME certificate authority (Smallstep, open source). Issues **short-lived certs — 5-10 minutes** on purpose, so renewal is something you watch happen today, not a fact you're told about |
-| `demo-app` | A shared nginx container. Your own vhost, docroot, and certificate live in your own subdirectory — structurally isolated from every other student, even though the container is shared |
+| `step-ca` | The shared ACME certificate authority (Smallstep, open source). Issues **short-lived certs, 5-10 minutes**, on purpose, so renewal is something you watch happen today, not a fact you're told about |
+| `demo-app` | A shared nginx container. Your own vhost, docroot, and certificate live in your own subdirectory, structurally isolated from every other student even though the container is shared |
 | `dns-server` | A bundled PowerDNS instance, pre-seeded with a DNS name for every student. Labs 1-4 never touch it directly; Lab 5's dns-01 capstone does |
 
-Nothing here is Venafi, or talks to Venafi. It's the same shape — a CA, a
-client, a scheduler — with every piece open source and self-contained in
+Nothing here is Venafi, or talks to Venafi. It's the same shape (a CA, a
+client, a scheduler) with every piece open source and self-contained in
 this lab's own containers.
+
+<!--
+Point at the three services and say which ones they'll touch. The
+5-10 minute lifetime is the thing to underline: it's what lets them watch
+a renewal happen in the session. If anyone asks about the shared demo-app,
+the isolation is by directory, not by container. About 2 min.
+-->
 
 ---
 
@@ -239,6 +280,11 @@ Step 1 happens once (Lab 1). Steps 2-4 happen by hand first (Labs 2-3), so
 you see exactly what's being automated before you automate it. Step 5
 (Lab 4) is the point of the whole workshop.
 
+<!--
+This is the map for the labs. If someone gets lost mid-lab, this is the
+slide to bring back up. About 1 min.
+-->
+
 ---
 
 <!-- _class: section-title -->
@@ -256,18 +302,25 @@ you see exactly what's being automated before you automate it. Step 5
 | What it is | Full Python application, plugin-based | A single POSIX shell script |
 | Industry position | The most widely deployed ACME client | Popular where a shell-only footprint matters |
 | What you see | A summarized log of each ACME step | More of the raw HTTP exchange, less summarized |
-| State | `~/certbot/config/` (this lab keeps it out of the system-wide default) | `~/.acme.sh` or wherever `--cert-home` points — plain per-user files |
+| State | `~/certbot/config/` (this lab keeps it out of the system-wide default) | `~/.acme.sh` or wherever `--cert-home` points: plain per-user files |
 
 Lab 2 uses certbot. Lab 3 redoes the *same* issuance with
-acme.sh, so you can compare the two side by side — same CA, same result,
+acme.sh, so you can compare the two side by side: same CA, same result,
 different level of transparency into how it got there.
+
+<!--
+Don't pick a winner. certbot is what most people will meet at work, and
+acme.sh is a good example of a client that fits where Python can't. The
+useful part of Lab 3 is seeing the same four ACME steps with fewer
+summaries. About 1 min.
+-->
 
 ---
 
 ## Trust has to be established twice
 
 - `step ca bootstrap` (Lab 1) teaches the **`step` CLI** to trust this
-  lab's CA — it does not teach certbot or acme.sh anything
+  lab's CA. It does not teach certbot or acme.sh anything
 - certbot and acme.sh each speak HTTPS to `step-ca` independently, and each
   needs **its own** way to trust that connection:
 
@@ -277,8 +330,15 @@ different level of transparency into how it got there.
 | acme.sh | `--ca-bundle /opt/step-ca-root/root_ca.crt` (flag) |
 
 One root certificate, three tools, three separate ways of being told about
-it — a small, hands-on version of exactly the rollout problem an internal
-CA has to solve at much larger scale.
+it. It's a small, hands-on version of the rollout problem an internal CA
+has to solve at much larger scale.
+
+<!--
+This is the thing most likely to cost someone ten minutes in Lab 2: they
+bootstrapped the CA in Lab 1 and expect certbot to just work. If certbot
+fails on its HTTPS connection to step-ca, this slide is the answer. About
+2 min.
+-->
 
 ---
 
@@ -298,6 +358,11 @@ CA has to solve at much larger scale.
 
 Everything about *how* renewal works (the client, the scheduler, the reload) is identical whether the cert lives for 8 minutes or 90 days. Only the waiting changes.
 
+<!--
+Short slide, but it explains something that otherwise looks like a bug
+when a student's cert expires mid-lab. About 1 min.
+-->
+
 ---
 
 ## The automation loop
@@ -313,30 +378,42 @@ Everything about *how* renewal works (the client, the scheduler, the reload) is 
 </div>
 
 Your renewal script does the middle two steps. `demo-app` already watches
-your subdirectory for changes — the moment a new cert/key lands, it
-reloads nginx itself. You never issue a reload command directly; **writing
+your subdirectory for changes, and the moment a new cert/key lands it
+reloads nginx itself. You never issue a reload command directly: **writing
 the file is the deploy**.
+
+<!--
+This is the idea Lab 4 depends on. If students ask "where's the reload
+step?", the answer is that there isn't one. Their script just has to
+write the files in the right place. About 2 min.
+-->
 
 ---
 
 ## One flag that matters in production too
 
 certbot's `renew` subcommand defaults to a **random delay before an
-unattended renewal actually runs** — real protection against every server
-on the internet renewing at the top of the hour and hammering the CA at
-once.
+unattended renewal actually runs**. It's real protection against every
+server on the internet renewing at the top of the hour and hammering the CA
+at once.
 
 - At Let's Encrypt's scale, that default is correct and should stay on
 - In *this* lab, with a 5-10 minute cert lifetime, that same default could
-  stall a renewal past the certificate's entire life — so Lab 4's script
+  stall a renewal past the certificate's entire life, so Lab 4's script
   disables it (`--no-random-sleep-on-renew`) for exactly this session
 
-Same flag, opposite call, once you know why the default exists — worth
+Same flag, opposite call, once you know why the default exists. Worth
 knowing before you turn it off anywhere else.
+
+<!--
+Good slide for the room that runs certbot at work. The risk is someone
+copying the flag into a real cron job. Say it plainly: don't, unless
+you've thought about your own scale. About 2 min.
+-->
 
 ---
 
-## dns-01 — the last lab
+## dns-01: the last lab
 
 Every certificate up to this point proves control over HTTP. Lab 5 proves
 the same thing a different way: publishing a TXT record under
@@ -346,10 +423,16 @@ Reach for dns-01 instead of http-01 when:
 
 - There's no web server to answer at all (an internal service, a mail
   server)
-- You need a **wildcard** certificate (`*.example.com`) — http-01 cannot
+- You need a **wildcard** certificate (`*.example.com`). http-01 cannot
   prove control of a wildcard; dns-01 is the only option
-- The DNS zone is already automated (sound familiar? — same PowerDNS API
-  `dns-as-code` wraps in `dnscontrol`, driven here by hand)
+- The DNS zone is already automated (sound familiar? It's the same
+  PowerDNS API `dns-as-code` wraps in `dnscontrol`, driven here by hand)
+
+<!--
+Lab 5 is the one to drop first if the session runs short. If you do drop
+it, say the wildcard point out loud so they still leave with it. About
+2 min.
+-->
 
 ---
 
@@ -380,6 +463,14 @@ A certificate protects nobody while the site still answers on plain HTTP.
 </div>
 </div>
 
+<!--
+Two ideas side by side on purpose: the redirect fixes the next visit, and
+HSTS fixes the first request after that. The http-01 exception is the part
+people miss, since the challenge path has to stay reachable on port 80.
+Site Inspector (in /admin and on the landing page) visits any
+student's site like a browser and shows the redirect, which is a good live demo. About 3 min.
+-->
+
 ---
 
 ## Bonus: the security-header wall
@@ -397,6 +488,12 @@ Beyond HSTS: one line of server config each, only worth having over HTTPS.
 
 <p class="small">See any site's: <code>curl -sI https://example.com</code> (this dojo's pages send a strict CSP and <code>nosniff</code>)</p>
 
+<!--
+Bonus, so skip it if you're behind. If you have time, don't read the six
+boxes. Run the curl command on a site the room knows and let them see
+which headers it sends. About 2 min, or 0.
+-->
+
 ---
 
 <!-- _class: section-title -->
@@ -412,13 +509,21 @@ Beyond HSTS: one line of server config each, only worth having over HTTPS.
 | Lab | Topic | Time |
 | --- | ----- | ---- |
 | 1 | Trust the CA: bootstrap, inspect the root cert | ~10 min |
-| 2 | Issue and install a certificate with certbot | ~20 min |
-| 3 | The same task with acme.sh — comparing clients | ~15 min |
+| 2 | Issue and install a certificate with certbot | ~25 min |
+| 3 | The same task with acme.sh: comparing clients | ~15 min |
 | 4 | Automating renewal, and watching it actually happen | ~15 min |
 | 5 | The dns-01 challenge, against real DNS | ~15 min |
 
-**Full steps are in `~/lab/README.md`** inside your terminal — it's the
+**Full steps are in `~/lab/README.md`** inside your terminal. It's the
 menu for all five labs plus a command cheat-sheet.
+
+<!-- _footer: "[&larr; Hub](index.md)" -->
+
+<!--
+That's about 80 minutes in total. Lab 4 includes a wait for renewals to
+fire, so tell people to start it with time to spare. Walk the room; stuck
+for more than a minute or two means ask.
+-->
 
 <!-- _footer: "[&larr; Hub](index.md)" -->
 
@@ -433,4 +538,4 @@ menu for all five labs plus a command cheat-sheet.
 ## Next: [labs.md](labs.md) for what each lab covers, then your terminal
 
 Keep [cheat-sheet.md](cheat-sheet.md) open in another tab. Ask for help
-any time — this is a lab, not a test.
+any time. This is a lab, not a test.

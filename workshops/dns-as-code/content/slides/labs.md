@@ -46,8 +46,8 @@ Preinstalled in your terminal: `dnscontrol`, `dig` (from `dnsutils`),
 | --- | --- | ----- | ---- |
 | 1: your zone | **1** | Preview, push, verify; add, edit, remove; catch mistakes | ~20 min |
 | 1: your zone | 2 | Drift, and undoing your own changes | ~10 min |
-| 2: shared zone | **3** | Branch → PR → CI preview → review → merge → CI applies | ~25 min |
-| 2: shared zone | 4 | `dnsctl.py` — the same process, one command per step | ~15 min |
+| 2: shared zone | **3** | Branch → PR → CI preview → review → merge → CI applies | ~30 min |
+| 2: shared zone | 4 | `dnsctl.py` — the same process, one command per step | ~20 min |
 | 2: shared zone | 5 | History and rolling back a merged change | ~10 min |
 | 2: shared zone | 6 | Merge conflicts in `dnsconfig.js` | ~12 min |
 

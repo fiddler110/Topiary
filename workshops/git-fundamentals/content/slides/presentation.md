@@ -25,27 +25,36 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; Git Fundamentals | Engineering & I
 
 Version control for Engineering & IT Operations
 
-**30-minute talk + hands-on lab**
+**Talk ~30 min · Labs ~65 min (five labs) · about 95 min total**
 
 <!--
-Welcome everyone. Cover session logistics. The lab runs entirely in the browser,
-so attendees do not need Git or an editor installed locally.
+Welcome everyone and cover logistics. The lab runs entirely in the browser, so nobody needs Git or an editor installed.
+Timing: the talk is about 30 minutes (an estimate). The labs add up to about 65 minutes: Lab 1 ~20, Lab 2 ~10, Lab 3 ~8, Lab 4 ~15, Lab 5 ~12. Lab 1 is the core. If the room is short on time, do Lab 1 and pick from the rest. Labs 2 to 5 are independent of each other, and "dojo prep N" catches anyone up.
 -->
 
 ---
 
 ## Today
 
-1. Why version control matters
-2. What Git actually is
-3. The vocabulary teams use
-4. The everyday workflow
-5. Branches, review, and collaboration
-6. Hands-on practice
+1. **Part 1:** Why version control matters
+2. **Part 2:** What Git is, and the words teams use for it
+3. **Part 3:** The everyday workflow
+4. **Part 4:** Hands-on practice
+5. Appendix: stash, undo, history, `.gitignore` (reference, if time allows)
 
 > The goal: understand what Git is doing, then do it yourself.
 
-<!-- Ask for a quick show of hands: who has used Git before? -->
+<!-- Ask for a show of hands: who has used Git before? It tells you how fast to go through Part 2. The appendix is reference only. Skip it in the talk and point people at it afterwards. -->
+
+---
+
+<!-- _class: section-title -->
+
+# Part 1
+
+## Why version control matters
+
+<!-- About 5 minutes for this whole part. -->
 
 ---
 
@@ -62,7 +71,7 @@ USE-THIS-ONE.txt
 
 **Which is current? Who changed it? Why? Can we safely go back?**
 
-<!-- Let the room react. This is the problem Git formalizes and solves. -->
+<!-- Let the room react. Someone will admit to a file named "final-v2-fixed". Keep it quick: this is the problem Git solves, and the next slide says why it matters in ops. -->
 
 ---
 
@@ -72,9 +81,11 @@ USE-THIS-ONE.txt
 - Shared drives allow accidental overwrites
 - Backup dates are not a useful change history
 - A bad configuration needs a fast, known rollback
-- “Who changed this DNS record?” becomes incident detective work
+- "Who changed this DNS record?" turns into incident detective work
 
 > Scripts, runbooks, infrastructure, and DNS configuration all deserve history.
+
+<!-- Ask the room for a real example: a change nobody could trace, or a rollback that took too long. Their stories land better than ours. This is also why the later workshops put DNS and certificates in Git. -->
 
 ---
 
@@ -88,13 +99,17 @@ USE-THIS-ONE.txt
 | **Review**        | Discuss and approve a change before merge |
 | **Rollback**      | Return to a known state when needed       |
 
+<!-- Don't read the table out. Pick two rows that fit the room. Review and rollback are the ones ops people care about most. Everything here comes back in the lab. -->
+
 ---
 
 <!-- _class: section-title -->
 
-# What is Git, really?
+# Part 2
 
-The tool is not the hosting service.
+## What Git is, and the words teams use
+
+<!-- About 10 minutes. Vocabulary is the main thing people take away from this part, so go slowly on the mental model. -->
 
 ---
 
@@ -108,6 +123,8 @@ The tool is not the hosting service.
 | Works offline                | Connects collaborators                         |
 
 **Today:** Forgejo keeps the lab contained. The same Git commands work with Azure Repos, GitHub, or GitLab.
+
+<!-- People mix these up all the time: "Git" gets used to mean the website. Git is the tool on your machine. Forgejo is where the team's shared copy lives. If your audience uses Azure DevOps, say so here: same Git, different host. -->
 
 ---
 
@@ -125,6 +142,8 @@ The tool is not the hosting service.
 - **Local:** full history, branches, and commits
 - **Remote:** the shared collaboration point, usually named `origin`
 
+<!-- Stress that local has the full history, so nothing here needs the network until you push or pull. That surprises people who've only used shared drives. -->
+
 ---
 
 ## The mental model
@@ -139,7 +158,7 @@ The tool is not the hosting service.
 	<span><strong>Remote repository</strong><br><small>Shared commits</small></span>
 </div>
 
-<!-- This is the anchor diagram. Refer back to these four zones. -->
+<!-- This is the anchor diagram. Trace a change left to right with your finger and name each arrow (add, commit, push). The staging area is where most beginners get stuck, so ask who has seen it before. Refer back to these four zones in Lab 1 and Lab 2. -->
 
 ---
 
@@ -156,6 +175,8 @@ A named snapshot of selected changes, with author and time.
 ```
 
 **A useful message says what changed and gives future-you context.**
+
+<!-- Keep it short here. Commit messages get a proper slide in Part 3. -->
 
 ---
 
@@ -202,6 +223,8 @@ gitGraph
 </div>
 </div>
 
+<!-- Walk the graph: two branches off main, each merged back on its own. The point is isolation. Nobody's half-finished work touches main. If the mermaid graph hasn't drawn, reload the slide. -->
+
 ---
 
 ## Moving between local and remote
@@ -219,6 +242,8 @@ git pull
 git push
 ```
 
+<!-- Clone once, then pull and push from then on. Don't demo it. Students do it in Lab 1 in about two minutes. -->
+
 ---
 
 ## Pull Request & Merge
@@ -230,15 +255,16 @@ A conversation and review **before** one branch is merged into another.
 branch → push → pull request → review → merge → main
 ```
 
-**\*\*A pull request is a Forgejo/Azure DevOps feature, not a Git command.**
+**A pull request is a Forgejo/Azure DevOps feature, not a Git command.**
 
 ### Merge
 Combine the histories of two branches.
 
 ```text
-Like two rivers merging — separate currents become one flow, carrying both histories downstream
+Like two rivers merging: separate currents become one flow, carrying both histories downstream
 ```
 
+<!-- Say it plainly: Git has no "pull request" command. It's the hosting service's review step. People look for it in the CLI otherwise. Merge is the Git part. -->
 
 ---
 
@@ -262,22 +288,25 @@ ttl: 300
 
 1. Open the file and decide: keep `600`, keep `300`, pick a new value, or combine them
 2. Delete the `<<<<<<<`, `=======`, and `>>>>>>>` marker lines
-3. `git add dns-config.txt` — tell Git this file is resolved
-4. `git commit` — completes the merge with your resolution
+3. `git add dns-config.txt`: tell Git this file is resolved
+4. `git commit`: completes the merge with your resolution
 
 </div>
 </div>
 
 **Conflicts are normal. Git stops instead of guessing.**
 
+<!-- Conflicts scare people, so show the markers calmly: the top half is yours, the bottom half is theirs, and you decide. Lab 5 has everyone resolve one. If time is short, make the point and move on. -->
 
 ---
 
 <!-- _class: section-title -->
 
-# The everyday Git workflow
+# Part 3
 
-Most of Git is one repeatable loop.
+## The everyday workflow
+
+<!-- About 10 minutes. Five steps, one loop. Tell people the labs repeat these exact commands, so they don't need to memorize them now. -->
 
 ---
 
@@ -294,6 +323,8 @@ You now have:
 - The complete Git history
 - A remote named `origin`
 - A checked-out default branch, usually `main`
+
+<!-- Quick. Everyone does this in Lab 1. -->
 
 ---
 
@@ -337,6 +368,8 @@ git status
 
 **Use `git status` constantly.**
 
+<!-- If you have a terminal handy, run status, diff and add once on a real file so people see the output change. Status is the command that gets people unstuck, so say so out loud. Staging lets you commit part of your work, but don't go deep on that today. -->
+
 ---
 
 ## 4. Commit a useful snapshot
@@ -352,6 +385,8 @@ git commit -m "Add Morgan to the team roster"
 | `stuff`   | `Document DNS rollback procedure`       |
 
 **Describe the outcome, not the act of editing.**
+
+<!-- Ask the room which column they'd rather find in a log at 2 a.m. during an incident. Keep the first line short and say what changed. -->
 
 ---
 
@@ -370,6 +405,8 @@ Then in the Git service:
 5. Delete the completed branch
 
 `-u` connects the local branch to its remote counterpart.
+
+<!-- The push is Git. The pull request is Forgejo. Lab 1 ends with students opening one into main. Branch deletion after merge is housekeeping, not a safety step. -->
 
 ---
 
@@ -393,11 +430,23 @@ git status   # Where am I and what changed?
 git log -1   # What did I most recently commit?
 ```
 
+<!-- This is the recap. Trace the loop once, including the arrow back to pull. -->
+
+---
+
+<!-- _class: section-title -->
+
+# Part 4
+
+## Hands-on practice
+
+<!-- Short pacing note: hand over to the labs here. -->
+
 ---
 
 ## Ready to practice?
 
-In the browser you will:
+In the browser you'll:
 <div class="small">
 
 1. Open your terminal
@@ -414,6 +463,8 @@ Help: [cheat-sheet.md](cheat-sheet.md) is available here as well as within the l
 
 > Questions before we put hands on keyboards?
 
+<!-- Lab 1 is about 20 minutes and covers everything on this slide. Labs 2 to 5 are shorter and independent, about 45 minutes together. Tell people where to find the facilitator, and that stuck for more than a couple of minutes means ask. -->
+
 ---
 
 <!-- _class: lead -->
@@ -425,6 +476,8 @@ Help: [cheat-sheet.md](cheat-sheet.md) is available here as well as within the l
 ## When something happens
 
 Optional demonstrations and reference slides
+
+<!-- Reference only. Skip it in the talk. Stash, undo and history each have a lab (3, 2 and 4), so use these slides to answer questions. -->
 
 ---
 
@@ -445,6 +498,8 @@ git stash list     # See saved stashes
 
 **A stash is temporary local storage, not a backup or shared commit.**
 
+<!-- Matches Lab 3. People forget stashes exist, so mention "git stash list". -->
+
 ---
 
 ## Undo at the right level
@@ -457,6 +512,8 @@ git stash list     # See saved stashes
 | Undo an already shared commit | `git revert <commit>`         |
 
 > Once history is pushed and shared, prefer `revert`: it records the undo without rewriting history.
+
+<!-- Matches Labs 2 and 5. Read the table by situation, not by command. The rule of thumb: rewrite only what hasn't left your machine. -->
 
 ---
 
@@ -478,6 +535,8 @@ Use history to answer:
 - Who has useful context?
 - Did a secret ever get committed?
 
+<!-- Lab 4 has students find a leaked secret in a practice repo. The point worth making: history keeps everything, so deleting the line later doesn't remove it. -->
+
 ---
 
 ## Keep local files local
@@ -497,6 +556,8 @@ dist/
 
 **If a secret is committed, rotate it immediately.** Find it: `git log -S`, `gitleaks`.
 
+<!-- Rotate first, clean up history second. Rewriting history doesn't help if someone already cloned it. -->
+
 ---
 
 ## Quick reference
@@ -513,15 +574,19 @@ git restore <file>            # Discard an uncommitted edit
 git revert <commit>           # Safely undo shared history
 ```
 
+<!-- Same list as the cheat sheet. Leave it up while people ask questions. -->
+
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
 <!-- _footer: "[&larr; Hub](index.md)" -->
 
-# Clone. Branch. Change. Review.
+# Let's go
 
-The commands are small. The reliable workflow is the real skill.
+## Next: [labs.md](labs.md) for what each lab covers, then your terminal
+
+Keep [cheat-sheet.md](cheat-sheet.md) open in another tab. Ask for help any time. This is a lab, not a test.
 
 <script type="module">
 	import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"

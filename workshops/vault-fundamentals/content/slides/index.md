@@ -23,7 +23,7 @@ style: |
 <br>
 <a class="enter secondary" href="lab-index.md">&rarr; Labs</a>
 <br>
-<a class="enter secondary" href="assets/lab-reader.html?file=cheat-sheet.md.txt">&rarr; Cheat sheet</a>
+<a class="enter secondary" href="cheat-sheet.md">&rarr; Cheat sheet</a>
 </div>
 
 <p class="meta">Talk + hands-on lab · Engineering &amp; IT Operations</p>
