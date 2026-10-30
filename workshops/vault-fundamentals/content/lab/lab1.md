@@ -1,4 +1,4 @@
-# Lab 1 — Leak it
+# Lab 1: Leak it
 
 **Goal:** commit a secret, "delete" it, and watch git keep it anyway. Then scan for secrets, and put a guard in front of the next commit.
 

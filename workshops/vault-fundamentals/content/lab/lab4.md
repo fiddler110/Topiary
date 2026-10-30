@@ -1,4 +1,4 @@
-# Lab 4 — You are the admin
+# Lab 4: You are the admin
 
 **Goal:** run your own vault. In your own namespace you enable a secrets engine, write a least-privilege policy (in the UI, then as code), hand out a token with it, and prove what it can and can't do.
 

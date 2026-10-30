@@ -1,4 +1,4 @@
-# Lab 9 — Scale it: `for_each` and quotas
+# Lab 9: Scale it: `for_each` and quotas
 
 **Goal:** create several similar resources from one block with `for_each`, then run into a **quota**, and learn why the plan couldn't warn you.
 

@@ -1,4 +1,4 @@
-# Lab 10 — Deploy with a delivered secret ID
+# Lab 10: Deploy with a delivered secret ID
 
 **Goal:** automate what you did by hand in Lab 6. There, *you* handed the app its AppRole secret ID. Here the **deploy pipeline** is the trusted deliverer: at every deploy it logs in with its own job identity (Lab 9), asks the vault for a **new, wrapped, single-use** secret ID for the app, and ships the wrapper with the app. The Agent next to the app opens it, logs in once, and deletes it. The pipeline never sees the secret ID and can't read the app's secrets.
 

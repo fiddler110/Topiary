@@ -1,4 +1,4 @@
-# Lab 5 — Deploy hello
+# Lab 5: Deploy hello
 
 **Goal:** create a resource group and a running container with `apply`, open the site it serves, and watch it appear in the portal.
 

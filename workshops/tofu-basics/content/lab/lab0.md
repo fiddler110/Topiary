@@ -1,4 +1,4 @@
-# Lab 0 — Get the repo and take the tour
+# Lab 0: Get the repo and take the tour
 
 **Goal:** get your own copy of the starter repository and learn what each file is for. Nothing you run here changes any infrastructure.
 
@@ -70,14 +70,14 @@ Track A lives in `sandbox/`. (The files at the top level of the repo, `main.tf`,
 | ---- | ---------- | ---------- |
 | `versions.tf` | Which OpenTofu version and which **providers** (plugins) are required, and their allowed versions. | Yes |
 | `variables.tf` | The **inputs**: names, types, defaults, validation rules. | Yes |
-| `main.tf` | The **resources** — what should exist. The heart of the config. | Yes |
-| `outputs.tf` | The **outputs** — values printed after `apply`. | Yes |
+| `main.tf` | The **resources**: what should exist. The heart of the config. | Yes |
+| `outputs.tf` | The **outputs**: values printed after `apply`. | Yes |
 | `terraform.tfvars` | The values you're setting for the variables. Edited most often. | Yes (no secrets!) |
 | `.terraform.lock.hcl` | Exact provider versions + checksums, so everyone gets the same ones. | **Yes** |
 | `.terraform/` *(appears after `init`)* | Downloaded providers. | **No** |
-| `terraform.tfstate` *(appears after `apply`)* | OpenTofu's record of what it created. | **No** — can hold secrets |
+| `terraform.tfstate` *(appears after `apply`)* | OpenTofu's record of what it created. | **No**: can hold secrets |
 
-OpenTofu reads **every `.tf` file in the folder** as one configuration. Splitting into `main.tf`, `variables.tf`, etc. is only a convention to make repos easy to read — you could put everything in one file and it would behave identically.
+OpenTofu reads **every `.tf` file in the folder** as one configuration. Splitting into `main.tf`, `variables.tf`, etc. is only a convention to make repos easy to read. You could put everything in one file and it would behave identically.
 
 **Your turn:** look inside the folder and read the config; it is short. Before you open `main.tf`, predict: which resource has to be created first, and how would OpenTofu know?
 

@@ -1,4 +1,4 @@
-# tofu-basics — OpenTofu Basics Lab
+# tofu-basics: OpenTofu Basics Lab
 
 A ~2¼ hour session on the Terraform-style workflow (`init` → `plan` → `apply` → `destroy`) and how an
 IaC repo is laid out, using **OpenTofu**. Students can type `terraform` and get `tofu`: the commands
@@ -8,9 +8,9 @@ and HCL are identical. For anyone who has done (or knows) [Git Fundamentals](../
 ./dojo tofu-basics
 ```
 
-- **Track A — Sandbox** (offline, no cloud, ~37 min): `random_pet`, `local_file`, `terraform_data`.
+- **Track A: Sandbox** (offline, no cloud, ~37 min): `random_pet`, `local_file`, `terraform_data`.
   Labs 0-3. Can be delivered on its own.
-- **Track B — Dojo Cloud** (~66 min): deploy a real container through the real `azurerm` provider into
+- **Track B: Dojo Cloud** (~66 min): deploy a real container through the real `azurerm` provider into
   an Azure-*inspired* practice cloud with a portal, policy and quotas. Labs 4-10.
 
 **Running it as the facilitator? Read [`FACILITATOR.md`](FACILITATOR.md)**: pre-flight checklist,

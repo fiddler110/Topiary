@@ -1,4 +1,4 @@
-# Vault Fundamentals — cheat sheet
+# Vault Fundamentals: cheat sheet
 
 `bao` is OpenBao's CLI; every command is the same as `vault`'s.
 

@@ -1,4 +1,4 @@
-# CTF-5: Defend — facilitator guide
+# CTF-5: Defend (facilitator guide)
 
 For the person running the session. The technical reference is [`README.md`](README.md); the deck's
 speaker notes carry the talking points. This guide is the practical part: before, during, after, and
@@ -28,13 +28,13 @@ target starts on a stagger (`CTF_TARGET_STAGGER`), so breaches pile up. Class si
 **The loop is the lesson**: detect, triage, contain, fix, verify. `dojo check` runs the attack against a live slot
 and one legitimate request, so a student sees `exploitable`, `contained`, `broke-normal-use` or `unreachable`
 per target. The PR gate runs the same checks; it's advisory, so a failing check doesn't block the merge
-(decided 2026-10-15: no `INCIDENT.md` requirement — the presence-only check added nothing a reviewer couldn't
+(decided 2026-10-15: no `INCIDENT.md` requirement: the presence-only check added nothing a reviewer couldn't
 tell from the diff, and it hard-failed a job meant to be advisory).
 
 **The clock is a facilitator action, not automatic.** The attacker-bot swarm (SOC' green → yellow
 → red countdown) sits idle until you press **Start Attack Swarm** on the SOC `/admin` tab. Nothing
 attacks anyone's slot before that. Default timings are ~8 minutes of recon (green) then ~10 minutes
-ramping to a real exploit attempt (red) — `CTF_SOC_DWELL_SECONDS`/`CTF_SOC_RAMP_SECONDS` in
+ramping to a real exploit attempt (red); `CTF_SOC_DWELL_SECONDS`/`CTF_SOC_RAMP_SECONDS` in
 `modules/ctf-range/module.env` if you want more runway for a first-time room. (`./dojo ctf-defend --test`
 runs the whole timeline at a tenth: 48s of recon, 60s of ramp; `CTF_TIME_SCALE=1` keeps the real clock.)
 
@@ -55,15 +55,15 @@ target, in order; never at a line number.
 **A day ahead**
 
 1. `./dojo setup` if there is no `.env`. Set `PUBLIC_BASE_URL`, `GATEWAY_TOKEN`, `STUDENT_COUNT`,
-   `FORGEJO_ADMIN_USER`/`FORGEJO_ADMIN_PASSWORD` (required — `90-ctf-defend.sh` provisions each
+   `FORGEJO_ADMIN_USER`/`FORGEJO_ADMIN_PASSWORD` (required: `90-ctf-defend.sh` provisions each
    student's repo through Forgejo's admin API and skips a student silently if these are missing).
 2. `CTF_BUILD_TOKEN`/`CTF_CONTROL_TOKEN` are derived from `GATEWAY_TOKEN` in
-   `modules/ctf-range/module.env` — nothing to generate by hand. Student repos never get them: each
+   `modules/ctf-range/module.env`, so there is nothing to generate by hand. Student repos never get them: each
    repo's Actions secrets of the same names hold that student's own token (HMAC of the class token and
    the account name), which only builds, gates and redeploys that student's own slot.
 3. `./dojo ctf-defend`. Open `/admin` and wait for **Forgejo**, **Terminals**, **Slides** and
-   **SOC** to go green. Confirm the `attacker-bot` container is up (idle) — `podman ps`.
-4. **Size the machine:** `./dojo capacity ctf-defend --students 30` if you expect a full room — the
+   **SOC** to go green. Confirm the `attacker-bot` container is up (idle) with `podman ps`.
+4. **Size the machine:** `./dojo capacity ctf-defend --students 30` if you expect a full room: the
    range's `ctf-host`/`ctf-controller` plus the `attacker-bot` swarm sit alongside the terminals.
 5. **Rehearse as a student** in a private window: clone all three repos, run `dojo check` (all
    `exploitable`), fix each, PR it, watch the gate fail against a bad fix and pass a good one, merge, confirm
@@ -78,23 +78,23 @@ target, in order; never at a line number.
 
 - Start the stack; confirm `/` (landing cards, including **SIEM**), `/slides` and `/admin` all
   green.
-- Keep `/admin`'s **SOC** tab on a second screen — it's where you press **Start Attack Swarm**
+- Keep `/admin`'s **SOC** tab on a second screen, since it's where you press **Start Attack Swarm**
   and where you watch the whole room's status at a glance.
 
 ## During the session
 
 **What you can see.** `/admin` tabs: Roster, VS Code, Terminal, Forgejo, Slides, **SOC**, **Wall of Shame** (when on).
 
-- **Press Start Attack Swarm once the room has cloned their repos and read the briefing** — not before.
+- **Press Start Attack Swarm once the room has cloned their repos and read the briefing**, not before.
   Starting it too early just burns the green/recon window while people are still reading the deck.
 - **`dojo check` is the fastest way to confirm a theory** (lightly rate limited). It says whether, never how.
 - **Triage is visible.** On the SOC tab, watch who works the high-severity target first and who is
   still on the quiet one while a breach sits unattended.
 - **The PR gate is the real judge.** If a "fix" merges without the Actions check passing, something's
-  wrong with the pipeline, not the lesson — report it, don't wave it through.
-- **Lagging student:** there's no `dojo prep` to fast-forward with — one lab, no sequence. If someone's
+  wrong with the pipeline, not the lesson. Report it, don't wave it through.
+- **Lagging student:** there's no `dojo prep` to fast-forward with (one lab, no sequence). If someone's
   stuck well past the second hint for a target, that's the point to intervene directly.
-- **Early finisher:** point them at the capstone achievement (`achievements/capstone.json`) — the same
+- **Early finisher:** point them at the capstone achievement (`achievements/capstone.json`). The same
   bug lives in `customer-portal`'s `/login` too, and the gate only re-tests `/search`.
 
 **Updating content mid-session.** Slides and labs are bind-mounted; edits to `content/slides/` show
@@ -136,13 +136,13 @@ rotation is operational. `customer-portal`: a fixed query does not undo what was
 | Symptom | Likely cause and fix |
 | ------- | -------------------- |
 | A student is missing one of the three repos in Forgejo | `90-ctf-defend.sh` skips silently if `FORGEJO_ADMIN_USER`/`PASSWORD` weren't set before start, or if Forgejo wasn't up yet when the terminal booted; check the terminal container's start-up log for `[ctf-defend]` lines |
-| PR gate never runs / stays pending | Confirm the repo's Actions secrets (`CTF_BUILD_TOKEN`, `CTF_CONTROL_TOKEN`) exist — the same provisioning hook sets them; a student who force-pushed over the initial seed may have lost them |
+| PR gate never runs / stays pending | Confirm the repo's Actions secrets (`CTF_BUILD_TOKEN`, `CTF_CONTROL_TOKEN`) exist (the same provisioning hook sets them); a student who force-pushed over the initial seed may have lost them |
 | Merge doesn't redeploy the slot | `defend-main.yml` calls `ctf-controller`'s `/redeploy`; check `/admin`'s SOC tab and `ctf-controller` logs for a rejected control token |
-| SOC shows nothing after pressing Start | Confirm `attacker-bot` is actually running (`podman ps`) — it's idle-but-present before the press, not absent |
+| SOC shows nothing after pressing Start | Confirm `attacker-bot` is actually running (`podman ps`). It's idle-but-present before the press, not absent |
 | `dojo check` says `unreachable` | The checker could not reach that slot: check `ctf-checker` and `ctf-controller` are up and the slot exists (`/slots`) |
 | One student's terminal wedged | Roster → **Release**; their Forgejo repo and running slot are untouched by a terminal release |
 
 ## After the session
 
-- `./dojo stop` wipes everything — containers, volumes, every student's slot and repo, every account.
+- `./dojo stop` wipes everything: containers, volumes, every student's slot and repo, every account.
 - Note anything that confused the room or a wrong timing in `ROADMAP.md` and fix the lab.

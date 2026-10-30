@@ -1,8 +1,8 @@
 # DNS as Code Lab
 
-Welcome! This is your personal workspace for the **DNS as Code** session. Everything here runs against a real, local Forgejo server and a real PowerDNS container, so the branches, commits, pull requests, and DNS records you create are real — not a simulation.
+Welcome! This is your personal workspace for the **DNS as Code** session. Everything here runs against a real, local Forgejo server and a real PowerDNS container, so the branches, commits, pull requests, and DNS records you create are real: not a simulation.
 
-This lab builds directly on [Git Fundamentals](../../../git-fundamentals/) — same clone/branch/commit/push/PR flow you already know, applied to a `dnsconfig.js` file instead of a roster. If any of that git vocabulary is unfamiliar, that workshop's [cheat-sheet.md](../../../git-fundamentals/content/lab/cheat-sheet.md) is still a good reference.
+This lab builds directly on [Git Fundamentals](../../../git-fundamentals/): same clone/branch/commit/push/PR flow you already know, applied to a `dnsconfig.js` file instead of a roster. If any of that git vocabulary is unfamiliar, that workshop's [cheat-sheet.md](../../../git-fundamentals/content/lab/cheat-sheet.md) is still a good reference.
 
 You are working in your own student account. Keep all lab work under this `~/lab` folder.
 
@@ -29,9 +29,9 @@ The **DNS Zones** page (a card on the workshop landing page) shows every zone an
 
 **Starting partway through?** Run `dojo prep <N>` in the terminal to set up what lab N needs from the earlier labs (for example `dojo prep 4`). It's safe to run more than once and never undoes your own work.
 
-Keep [cheat-sheet.md](cheat-sheet.md) open in a split pane or another tab while you work — it's a condensed reference to every command used across all five labs, with a short explanation of how each one works.
+Keep [cheat-sheet.md](cheat-sheet.md) open in a split pane or another tab while you work: it's a condensed reference to every command used across all five labs, with a short explanation of how each one works.
 
-Your terminal runs inside `tmux`, which is what lets you open that split pane in the first place (`Ctrl+b %`) — see [tmux-guide.md](tmux-guide.md) for that and a few other handy shortcuts. None of it is required for the labs.
+Your terminal runs inside `tmux`, which is what lets you open that split pane in the first place (`Ctrl+b %`): see [tmux-guide.md](tmux-guide.md) for that and a few other handy shortcuts. None of it is required for the labs.
 
 Open any lab file (or the cheat sheet) with:
 
@@ -66,9 +66,9 @@ dig -v
 git --version
 ```
 
-Your username should look like `student01`, `student02`, and so on. `dnscontrol`, `dig` (from `dnsutils`), `git`, and `python3` are all preinstalled — nothing to download for this lab.
+Your username should look like `student01`, `student02`, and so on. `dnscontrol`, `dig` (from `dnsutils`), `git`, and `python3` are all preinstalled: nothing to download for this lab.
 
-You're working from either **VS Code** (a browser-based editor with an integrated terminal) or a plain **Terminal** — whichever you opened from the workshop landing page. Every command in these labs works identically in either one.
+You're working from either **VS Code** (a browser-based editor with an integrated terminal) or a plain **Terminal**: whichever you opened from the workshop landing page. Every command in these labs works identically in either one.
 
 The shell is `zsh`, with these helpers installed:
 
@@ -108,10 +108,10 @@ Part 2:  edit → preview → branch/commit/push → pull request → CI preview
 
 ## Getting unstuck
 
-- `dnscontrol preview` is your best friend here, the same way `git status` was in Git Fundamentals — it always tells you exactly what would change before anything actually does.
+- `dnscontrol preview` is your best friend here, the same way `git status` was in Git Fundamentals: it always tells you exactly what would change before anything actually does.
 - You can't break anyone else's work. Part 1 only touches your own zone, and in Part 2 every change to the shared zone is previewed, reviewed and applied by CI, and any merged change can be rolled back (Lab 5).
-- If `dnscontrol preview` errors instead of showing a diff, read the message carefully — it's usually specific (e.g. a missing trailing dot on a `CNAME`/`MX` target).
-- Stuck for more than a minute or two? Ask the facilitator — that's what they're walking the room for.
+- If `dnscontrol preview` errors instead of showing a diff, read the message carefully: it's usually specific (e.g. a missing trailing dot on a `CNAME`/`MX` target).
+- Stuck for more than a minute or two? Ask the facilitator: that's what they're walking the room for.
 
 ## Quick reference
 

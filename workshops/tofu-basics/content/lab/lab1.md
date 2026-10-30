@@ -1,4 +1,4 @@
-# Lab 1 — First run: `init`, `plan`, `apply`
+# Lab 1: First run: `init`, `plan`, `apply`
 
 **Goal:** run the core loop once and see what each step does. All commands run in `~/lab/tofu-basics/sandbox`.
 
@@ -10,7 +10,7 @@ cd ~/lab/tofu-basics/sandbox
 
 ---
 
-## 1. `init` — prepare the folder
+## 1. `init`: prepare the folder
 
 Before OpenTofu can do anything, it needs the plugins (**providers**) your config uses. `init` reads `versions.tf`, finds the providers it needs, and installs them into `.terraform/`. It also honours `.terraform.lock.hcl`, which pins exact versions. Normally it downloads from a public registry; this lab has no internet, so a local copy is used, and the commands and output are the same. Run `init` once per new folder, and again after changing providers.
 
@@ -42,7 +42,7 @@ OpenTofu has been successfully initialized!
 
 <!-- /dojo-reveal -->
 
-## 2. `validate` — check the syntax
+## 2. `validate`: check the syntax
 
 `validate` checks that the files are well-formed and that references between them make sense. It does not touch anything real, so it is safe to run as often as you like.
 
@@ -62,7 +62,7 @@ terraform validate
 
 <!-- /dojo-reveal -->
 
-## 3. `plan` — preview, change nothing
+## 3. `plan`: preview, change nothing
 
 `plan` is the preview. It works out what OpenTofu would do and prints it, changing nothing. It compares three things: your **config** (what you want), the **state** (what OpenTofu remembers), and the **real world**.
 
@@ -106,7 +106,7 @@ Plan: 3 to add, 0 to change, 0 to destroy.
 
 <!-- /dojo-reveal -->
 
-## 4. `apply` — make it real
+## 4. `apply`: make it real
 
 `apply` is `plan` plus your approval plus doing it. OpenTofu shows the same plan and asks you to type `yes`; that prompt is your last chance to review, because `apply` changes real things. It builds a **dependency graph** from the references in your config, so it creates the random name **first**, then the file whose `content` uses it. You never wrote an order.
 

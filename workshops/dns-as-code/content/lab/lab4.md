@@ -1,6 +1,6 @@
-# Lab 4 — `dnsctl.py`, the CLI Wrapper
+# Lab 4: `dnsctl.py`, the CLI Wrapper
 
-**Part 2.** Lab 3 did every step by hand: edit the file, run `dnscontrol preview` yourself, `git add`/`commit`/`push` yourself, open the PR in the browser yourself. `scripts/dnsctl.py` is a wrapper script that automates that whole loop into one command per step — same file, same gates, same PR review and CI in between. See `docs/dnsctl-cli.md` in the repo for the full command reference.
+**Part 2.** Lab 3 did every step by hand: edit the file, run `dnscontrol preview` yourself, `git add`/`commit`/`push` yourself, open the PR in the browser yourself. `scripts/dnsctl.py` is a wrapper script that automates that whole loop into one command per step: same file, same gates, same PR review and CI in between. See `docs/dnsctl-cli.md` in the repo for the full command reference.
 
 Work in your clone of the shared repo, starting from `main` with a clean working tree:
 
@@ -413,7 +413,7 @@ dig @dns-server $USER-api.dojo.test A +short   # 203.0.113.40
 
 ## Recap
 
-You just did everything Lab 3 did by hand, in a handful of named commands instead of a dozen raw ones — same file, same PR review, same CI in between:
+You just did everything Lab 3 did by hand, in a handful of named commands instead of a dozen raw ones: same file, same PR review, same CI in between:
 
 | Manual step | `dnsctl.py` equivalent |
 | --- | --- |
@@ -425,4 +425,4 @@ You just did everything Lab 3 did by hand, in a handful of named commands instea
 | Merge in Forgejo | `merge <PR#>` |
 | Confirm it's live | `validate <PR#>` |
 
-**Next:** [lab5.md](lab5.md) — using `dnsctl.py history` and `rollback` to investigate and safely undo a merged change (your Lab 3 PR is a good target).
+**Next:** [lab5.md](lab5.md): using `dnsctl.py history` and `rollback` to investigate and safely undo a merged change (your Lab 3 PR is a good target).

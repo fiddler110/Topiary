@@ -1,4 +1,4 @@
-# Lab 9 — CI logs in to OpenBao
+# Lab 9: CI logs in to OpenBao
 
 **Goal:** let a pipeline read a secret from the vault. First the common way, **AppRole** with its login secret stored in the CI system, which works but leaves a long-lived secret behind. Then with the **job's own identity**: an OIDC token Forgejo issues for this one run, which the vault checks is from *your repo* on *`main`*. Nothing is stored at all.
 

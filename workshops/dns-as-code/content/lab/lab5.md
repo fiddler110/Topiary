@@ -1,6 +1,6 @@
-# Lab 5 — Investigating & Rolling Back History
+# Lab 5: Investigating & Rolling Back History
 
-**Part 2.** "Who changed this, when, and how do I undo it safely?" — the tools for answering that without hand-editing `dnsconfig.js` back to what it used to be. This lab uses `dnsctl.py`, so run [lab4.md](lab4.md)'s setup steps first if you haven't (`python3 scripts/dnsctl.py doctor` should be clean). You'll also need a merged PR to work with — Lab 3's is exactly right; grab its PR number if you wrote it down.
+**Part 2.** "Who changed this, when, and how do I undo it safely?" These are the tools for answering that without hand-editing `dnsconfig.js` back to what it used to be. This lab uses `dnsctl.py`, so run [lab4.md](lab4.md)'s setup steps first if you haven't (`python3 scripts/dnsctl.py doctor` should be clean). You'll also need a merged PR to work with. Lab 3's is exactly right; grab its PR number if you wrote it down.
 
 ```sh
 cd ~/lab/dns-as-code
@@ -130,10 +130,10 @@ python3 scripts/dnsctl.py submit "Re-add $USER-app"
 ## Recap
 
 - `dnsctl.py history` (or `git log -- dnsconfig.js`) shows what's changed and when.
-- `dnsctl.py rollback <PR#>` undoes a merged change via a **new** PR with an inverse diff — never a rewrite of `main`. It's the DNS-flavored version of `git revert`.
-- `dnsctl.py validate` is how you confirm a change — forward or backward — actually reached live PowerDNS, instead of trusting CI's word for it.
+- `dnsctl.py rollback <PR#>` undoes a merged change via a **new** PR with an inverse diff: never a rewrite of `main`. It's the DNS-flavored version of `git revert`.
+- `dnsctl.py validate` is how you confirm a change (forward or backward) actually reached live PowerDNS, instead of trusting CI's word for it.
 
-**Next:** [lab6.md](lab6.md) — resolving a merge conflict in `dnsconfig.js`.
+**Next:** [lab6.md](lab6.md): resolving a merge conflict in `dnsconfig.js`.
 
 ---
 

@@ -1,24 +1,24 @@
 # Git Training Lab
 
-Welcome! This is your personal workspace for the **Git Fundamentals** session. Everything here runs against a real, local Forgejo server, so the branches, commits, and pull requests you create are real — not a simulation.
+Welcome! This is your personal workspace for the **Git Fundamentals** session. Everything here runs against a real, local Forgejo server, so the branches, commits, and pull requests you create are real, not a simulation.
 
 You are working in your own student account. Keep all lab work under this `~/lab` folder.
 
 ## What you'll do
 
-The session slides cover the *why*. This lab is the *how* — five short, self-contained labs. **Every lab is part of the workshop.** Lab 1 covers the everyday workflow end to end; Labs 2-5 each go deeper on one topic, so work through them in order.
+The session slides cover the *why*. This lab is the *how*: five short, self-contained labs. **Every lab is part of the workshop.** Lab 1 covers the everyday workflow end to end; Labs 2-5 each go deeper on one topic, so work through them in order.
 
 | Lab | Topic | Time |
 | --- | ----- | ---- |
 | [lab1.md](lab1.md) | The core workflow: clone → branch → edit → commit → push → pull request, and rescuing commits made on the wrong branch | ~20 min |
 | [lab2.md](lab2.md) | Reviewing changes and undoing mistakes before you commit | ~10 min |
-| [lab3.md](lab3.md) | Stashing — switching gears without committing | ~8 min |
+| [lab3.md](lab3.md) | Stashing: switching gears without committing | ~8 min |
 | [lab4.md](lab4.md) | Investigating history: log, show, blame, finding a leaked secret (practice repo from `lab-history`) | ~15 min |
 | [lab5.md](lab5.md) | Merge conflicts and safely undoing a shared change | ~12 min |
 
 **Starting partway through?** Run `dojo prep <N>` in the terminal to set up what lab N needs from the earlier labs (for example `dojo prep 4`). It's safe to run more than once and never undoes your own work.
 
-Keep [cheat-sheet.md](cheat-sheet.md) open in a split pane or another tab while you work — it's a condensed reference to every command used across all five labs, with a short explanation of how each one works.
+Keep [cheat-sheet.md](cheat-sheet.md) open in a split pane or another tab while you work. It's a condensed reference to every command used across all five labs, with a short explanation of how each one works.
 
 Your terminal can show several panes at once, which is how you can keep the cheat sheet beside your work. In the VS Code setup that is `tmux` (`Ctrl+b %`; see [tmux-guide.md](tmux-guide.md)); in the terminal workspace it is Zellij, whose key hints stay on screen along the bottom (see [zellij-guide.md](zellij-guide.md)). None of it is required for the labs. In the terminal workspace, `guide quick-start` lists the commands you will use most.
 
@@ -57,9 +57,9 @@ git config --global user.name
 git config --global user.email
 ```
 
-Your username should look like `student01`, `student02`, and so on. Your Git identity is pre-configured to match it — you don't need to set `user.name`/`user.email` yourself.
+Your username should look like `student01`, `student02`, and so on. Your Git identity is pre-configured to match it, so you don't need to set `user.name`/`user.email` yourself.
 
-You're working in a terminal: either the **terminal workspace** (a list of your files, an editor and a shell in one window), or **VS Code** (a browser-based editor with an integrated terminal), or a plain **Terminal** — whichever you opened from the workshop landing page. Every command in these labs works identically in any of them; use whichever terminal is in front of you.
+You're working in a terminal: either the **terminal workspace** (a list of your files, an editor and a shell in one window), or **VS Code** (a browser-based editor with an integrated terminal), or a plain **Terminal**, whichever you opened from the workshop landing page. Every command in these labs works identically in any of them; use whichever terminal is in front of you.
 
 The shell is `zsh`, with these helpers installed:
 
@@ -112,16 +112,16 @@ clone → branch → edit → status/diff → add → commit → push → pull r
 | Pull request | *(in Forgejo)* | Ask a teammate (here, the facilitator) to review before merging. |
 | Clean up | `git fetch --prune`, `git branch -d <name>` | Once merged, drop the stale remote-tracking branch and your local branch. |
 
-Lab 1 walks through every step of this loop once, in order. Once it clicks, the rest of the labs are about the "escape hatches" — what to do when you need to switch context, made a mistake, or need to understand history.
+Lab 1 walks through every step of this loop once, in order. Once it clicks, the rest of the labs are about the "escape hatches", meaning what to do when you need to switch context, made a mistake, or need to understand history.
 
 ---
 
 ## Getting unstuck
 
-- `git status` is your best friend — it always tells you where you are and what to do next.
-- Nothing in these labs can break the shared `main` branch — you're always working on your own branch, and merges into `main` go through a pull request the facilitator reviews.
-- If a command errors and you're not sure why, read the error message out loud — git's error messages usually say exactly what to do next (e.g. "use `git pull` before pushing again").
-- Stuck for more than a minute or two? Ask the facilitator — that's what they're walking the room for.
+- `git status` is your best friend: it always tells you where you are and what to do next.
+- Nothing in these labs can break the shared `main` branch. You're always working on your own branch, and merges into `main` go through a pull request the facilitator reviews.
+- If a command errors and you're not sure why, read the error message out loud. Git's error messages usually say exactly what to do next (e.g. "use `git pull` before pushing again").
+- Stuck for more than a minute or two? Ask the facilitator. That's what they're walking the room for.
 
 ## Quick reference
 

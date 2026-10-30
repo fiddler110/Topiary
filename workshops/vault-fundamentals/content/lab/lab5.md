@@ -1,4 +1,4 @@
-# Lab 5 — The app reads a secret
+# Lab 5: The app reads a secret
 
 **Goal:** take one small app through the three places its secret can live: in the code, in a git-ignored `.env` file, and in the vault. Then two habits every app that reads secrets needs: keep them out of the logs, and keep the token alive.
 

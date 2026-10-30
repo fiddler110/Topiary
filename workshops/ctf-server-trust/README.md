@@ -1,7 +1,7 @@
 # CTF-2: Server-side Trust and APIs
 
 The second session in the CTF series (`docs/CTF-WORKSHOP-PLAN.md`): four medium/hard-tier, self-contained
-attack targets from the `ctf-range` module's ladder, grouped by how the exploit works -- the server
+attack targets from the `ctf-range` module's ladder, grouped by how the exploit works: the server
 trusting input or the caller a little too much. See the plan's section 8 for how this session fits with
 CTF-1 and CTF-3 through CTF-5.
 
@@ -23,7 +23,7 @@ CTF-1 and CTF-3 through CTF-5.
 | `api-bfla` | 4 | An admin route that checks the token is valid, never that it's a facilitator (API5 BFLA) |
 
 Target source, images and reference solve scripts: `modules/ctf-range/targets/<id>/`. This pack only
-*wires* them (which four, and which image tag each builds into `ctf-host`) -- never rebuilds the images
+*wires* them (which four, and which image tag each builds into `ctf-host`) and never rebuilds the images
 themselves (students attack, never patch them; CTF-5's `customer-portal` is the only target that rebuilds
 on a merge).
 
@@ -31,7 +31,7 @@ on a merge).
 
 `ctf-range` is the reusable module (targets, firewall, the flag service, terminal tools, `ctf-host`/
 `ctf-controller`); every CTF session lists it in `MODULES=`. Per CTF-D26, `ctf-range`'s own
-`module.env` defaults build the **full** 14-target catalog into `ctf-host` -- fine for
+`module.env` defaults build the **full** 14-target catalog into `ctf-host`, which is fine for
 the module default's full catalog, wasteful for a real single-session pack that
 only exposes 4. This pack overrides two vars to scope the image to just its own four targets:
 
@@ -56,37 +56,37 @@ stage, for the mechanics.
   engagement **without naming any target's specific bug**, the labs index/overview, and a session-mechanics
   cheat sheet (tool mechanics live in the module's **Lab Info** card instead).
 - [`content/lab/`](content/lab/): `lab1.md`-`lab4.md`, one per target, each guiding toward the technique
-  with two rounds of hints before pointing at that target's own `exploit-guide/<id>.md` -- the full
+  with two rounds of hints before pointing at that target's own `exploit-guide/<id>.md`, the full
   spoiler walkthrough, reachable both from a terminal `cat`/`glow` and, one click from the lab text,
   through the browser lab reader (`dojo`'s `sync_lab_docs` mirrors `content/lab/**/*.md` recursively,
   `exploit-guide/` included).
 - [`content/sample-repo/`](content/sample-repo/): seeded into Forgejo as `training/ctf-server-trust`, but
-  **not used by any lab** -- CTF-2 has no git exercise. It just mirrors the engagement brief for anyone who
+  **not used by any lab**. CTF-2 has no git exercise. It just mirrors the engagement brief for anyone who
   wants it in git form.
 - [`achievements/`](achievements/): a minimal catalog, engine-level (gated by `ACHIEVEMENTS_ENABLED` plus
-  this folder existing -- not a `MODULES=` entry). Two process milestones (`recon-versions`, matched on
+  this folder existing, not a `MODULES=` entry). Two process milestones (`recon-versions`, matched on
   `nmap -sV`; `recon-full-sweep`, matched on `nmap -p-`) reward scanning properly before attacking, and one
   core milestone per target (`l1-flag`..`l4-flag`), each matched on the `ctf`/`flag_solved` adapter event
-  `ctf-flags` already posts with `challenge=<target-id>` -- no new plumbing needed, the achievements module
+  `ctf-flags` already posts with `challenge=<target-id>`, so no new plumbing is needed: the achievements module
   already supports this exact event shape. This is what gives students a leaderboard/points confirmation
   beyond `dojo flag`'s own CLI response.
 
 ## Facilitator view
 
 The `/admin` workspace's **Attack Range** tab shows every student's slot state and lets you stop/reset
-one; it does not itself show solved state (see below) -- that's the achievements leaderboard's job. There
-is no attacker-bot swarm or SOC feed in CTF-1/CTF-2 -- that's CTF-5 only.
+one; it does not itself show solved state (see below). That\'s the achievements leaderboard's job. There
+is no attacker-bot swarm or SOC feed in CTF-1/CTF-2. That\'s CTF-5 only.
 
 ## Status
 
-Content and wiring only -- not yet live-verified as its own pack. The four targets themselves
+Content and wiring only, not yet live-verified as its own pack. The four targets themselves
 (`ping-tool`, `ssrf-fetcher`, `api-mass-assignment`, `api-bfla`) were already built and have reference
 solve scripts under `modules/ctf-range/targets/<id>/exploit/solve.py`, proven against the shared
 range's shared full-catalog image (plan checkpoint). This pack's own `CTF_HOST_BUILD_TARGET=
-ctf-host-ctf2` scoping and its content are new and unproven as a pack -- rehearse before a room (see
+ctf-host-ctf2` scoping and its content are new and unproven as a pack, so rehearse before a room (see
 `FACILITATOR.md`).
 
 **Known gap, same as CTF-1:** the achievements catalog below gives each flag its own milestone but hasn't
-been live-verified end to end on this pack (the recon milestones' shell match in particular -- confirm a
+been live-verified end to end on this pack (the recon milestones' shell match in particular: confirm a
 plain `nmap -sV -p- <ip>` actually fires `recon-versions`/`recon-full-sweep` on a real run before trusting
 this for a class).

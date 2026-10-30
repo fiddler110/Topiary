@@ -1,6 +1,6 @@
-# Lab 4 — Investigating History
+# Lab 4: Investigating History
 
-"Who changed this? When? Why?" — these are the tools for answering that without asking around. They matter most once a repo has more than a handful of commits and more than one contributor, so this lab gives you a repo with a real past to investigate.
+"Who changed this? When? Why?" These are the tools for answering that without asking around. They matter most once a repo has more than a handful of commits and more than one contributor, so this lab gives you a repo with a real past to investigate.
 
 > **Starting here?** Run `dojo prep 4`. It builds the practice repo below, and it's safe to run even if you did the earlier labs.
 
@@ -46,7 +46,7 @@ So history isn't a list of files that changed. It's a chain you walk backwards f
 
 Three views of the same history, from most detail to most overview:
 
-- `git log` gives full detail — author, date, full message — one commit per screen. Press `q` to exit the pager.
+- `git log` gives full detail (author, date, full message), one commit per screen. Press `q` to exit the pager.
 - `git log --oneline` gives one line per commit: short hash + message. This is the one you'll use most day to day.
 - `git log --oneline --graph --all` is the same with a text graph of branches and merges. `--all` includes every branch, not just the one you're on.
 
@@ -88,7 +88,7 @@ git log --stat --oneline
 
 ## 3. See exactly what one commit changed
 
-`git show <commit>` prints a commit's message and the diff it introduced — exactly what changed in that commit and no other.
+`git show <commit>` prints a commit's message and the diff it introduced: exactly what changed in that commit and no other.
 
 ```text
 git show <commit>
@@ -108,7 +108,7 @@ Only that commit's change: the added lines marked with `+`, with a few unchanged
 
 ## 4. Find out who changed a line, and the story of a file
 
-`git blame <file>` annotates every line with the commit, author, and date that last touched it. It's how you find out who to ask about a line — not to assign blame in the negative sense, despite the name.
+`git blame <file>` annotates every line with the commit, author, and date that last touched it. It's how you find out who to ask about a line, not to assign blame in the negative sense, despite the name.
 
 ```text
 git blame <file>
@@ -180,7 +180,7 @@ So the fix for a leaked secret is never "commit a removal". **Revoke and replace
 
 ## 6. Compare two branches
 
-`git diff <branch>..<branch>` shows everything that differs between two branches — effectively the same diff a pull request would show a reviewer. To have something to compare, first make a branch with a change on it.
+`git diff <branch>..<branch>` shows everything that differs between two branches, effectively the same diff a pull request would show a reviewer. To have something to compare, first make a branch with a change on it.
 
 ```text
 git diff <from>..<to>
@@ -226,25 +226,25 @@ git checkout main
 git branch -D lab4-explore
 ```
 
-`lab4-explore` was never merged into `main`, so the safe `-d` delete would refuse it — capital `-D` forces the delete anyway. That's fine here because it's a disposable practice branch; on real work, a refusal from `-d` is usually git telling you something isn't merged yet, worth a second look before you force it.
+`lab4-explore` was never merged into `main`, so the safe `-d` delete would refuse it, and capital `-D` forces the delete anyway. That's fine here because it's a disposable practice branch; on real work, a refusal from `-d` is usually git telling you something isn't merged yet, worth a second look before you force it.
 
 ---
 
 ## Recap
 
 - A commit is a snapshot, an author, a message and a pointer to its parent; history is the chain of parents.
-- `git log` / `git log --oneline` — browse history.
-- `git log --oneline --graph --all` — visualize branches and merges.
-- `git log --author` / `--since` / `--stat` — filter history to the commits you care about.
-- `git show <commit>` — see exactly what one commit changed.
-- `git blame <file>` — see who last changed each line, and in which commit.
-- `git log -p <file>` — see every change ever made to one file.
-- `git log -S<text>` — find the commits that added or removed some text.
-- `gitleaks git` — scan the whole history for secrets when you don't know what to search for.
+- `git log` / `git log --oneline`: browse history.
+- `git log --oneline --graph --all`: visualize branches and merges.
+- `git log --author` / `--since` / `--stat`: filter history to the commits you care about.
+- `git show <commit>`: see exactly what one commit changed.
+- `git blame <file>`: see who last changed each line, and in which commit.
+- `git log -p <file>`: see every change ever made to one file.
+- `git log -S<text>`: find the commits that added or removed some text.
+- `gitleaks git`: scan the whole history for secrets when you don't know what to search for.
 - A secret removed in a later commit is still in history: revoke it, don't just delete it.
-- `git diff <branch-1>..<branch-2>` — compare two branches directly.
+- `git diff <branch-1>..<branch-2>`: compare two branches directly.
 
-**Next:** [lab5.md](lab5.md) — resolving a merge conflict and safely undoing a shared change.
+**Next:** [lab5.md](lab5.md): resolving a merge conflict and safely undoing a shared change.
 
 ---
 

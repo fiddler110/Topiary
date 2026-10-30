@@ -1,4 +1,4 @@
-# Lab 6 — OpenBao Agent
+# Lab 6: OpenBao Agent
 
 **Goal:** give the app an identity of its own and let **OpenBao Agent** do the vault work: it logs in, keeps the token fresh and writes the secret to a file only the app can read, in memory. Rotate the secret and the app picks it up without a commit or a restart.
 

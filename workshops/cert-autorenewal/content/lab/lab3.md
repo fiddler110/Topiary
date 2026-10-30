@@ -1,9 +1,9 @@
-# Lab 3 — The Same Task with acme.sh
+# Lab 3: The Same Task with acme.sh
 
 certbot is a full Python application with plugins and a
 config system; acme.sh is a single shell script that speaks ACME directly.
 Same protocol, same CA, very different level of transparency into what's
-actually happening. This lab issues a second certificate for comparison —
+actually happening. This lab issues a second certificate for comparison:
 it won't touch the live site you built in Lab 2.
 
 > **Starting here?** This lab needs Lab 2's port-80 site on demo-app (steps 1-2). Run `dojo prep 3` to set that up; it's safe to run even if you did the earlier labs.
@@ -12,7 +12,7 @@ it won't touch the live site you built in Lab 2.
 
 ## 1. Issue, into a separate directory
 
-`--ca-bundle` is acme.sh's equivalent of certbot's `REQUESTS_CA_BUNDLE` —
+`--ca-bundle` is acme.sh's equivalent of certbot's `REQUESTS_CA_BUNDLE`:
 same problem (trust `step-ca`'s own HTTPS listener), different flag.
 `--cert-home` keeps this lab's output separate from anything else, and
 acme.sh needs no `--config-dir`-style root-avoidance flags at all: its
@@ -50,7 +50,7 @@ acme.sh --issue \
 ## 2. Read the output
 
 Scroll back through what acme.sh printed. Compare it against certbot's
-output from Lab 2 — same four ACME steps (account, order, challenge,
+output from Lab 2: same four ACME steps (account, order, challenge,
 finalize), but acme.sh shows more of the raw HTTP exchange rather than
 summarizing it. Look for:
 
@@ -78,12 +78,12 @@ openssl x509 -in ~/acmesh-lab3/${host}_ecc/${host}.cer -noout -dates -subject -i
 <!-- dojo-reveal: Results of the list and openssl -->
 
 - One row for `${host}`: the key type, the CA it came from, when it was made and when acme.sh plans to renew it.
-- `-issuer` is the same CA as Lab 2's certificate — same CA, same claims, different client.
+- `-issuer` is the same CA as Lab 2's certificate: same CA, same claims, different client.
 
 <!-- /dojo-reveal -->
 
 This lab never copies its output into `/srv/webroot/${me}/certs/`, so
-`demo-app` is still serving Lab 2's certificate, not this one — the acme.sh
+`demo-app` is still serving Lab 2's certificate, not this one: the acme.sh
 cert exists (you can inspect it above), it's just not installed. The
 `curl --cacert` check from Lab 2 step 5 would confirm that if you ran it
 again here, and so would the homepage's **Site Inspector**: its
@@ -94,7 +94,7 @@ certificate's serial and dates are still Lab 2's.
 ## Checkpoint
 
 You can name at least one thing acme.sh showed you directly that certbot
-summarized. (There's no single right answer — that's the point: different
+summarized. (There's no single right answer: that's the point: different
 tools, same protocol underneath.)
 
 Next: [lab4.md](lab4.md), automating renewal.

@@ -1,4 +1,4 @@
-# Lab 7 — Encrypted config in the repo
+# Lab 7: Encrypted config in the repo
 
 **Goal:** keep a config file with secrets in git, encrypted, with **sops**. The key that opens it never leaves the vault: OpenBao's **transit** engine does the encrypting and decrypting, and the vault decides who may. Then change who can read it, and rotate the key.
 

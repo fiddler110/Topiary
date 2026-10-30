@@ -1,4 +1,4 @@
-# Lab 4 — Meet Dojo Cloud
+# Lab 4: Meet Dojo Cloud
 
 **Goal:** open the cloud's web portal, see your (empty) subscription, find out how your terminal is connected to it, and run `init` for a real cloud provider. Nothing is created yet.
 

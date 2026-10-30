@@ -1,4 +1,4 @@
-# tofu-basics — facilitator guide
+# tofu-basics: facilitator guide
 
 For the person running the session. The technical reference is [`README.md`](README.md); the deck's
 speaker notes carry the talking points. This guide is the practical part: before, during, after, and

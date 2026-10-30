@@ -1,4 +1,4 @@
-# Lab 1 — Your Own Zone
+# Lab 1: Your Own Zone
 
 **Part 1.** By the end of this lab you'll have created your own DNS zone from a config file, checked it's really live with `dig`, and added, changed and removed records, catching a mistake before it reached the server. Everything here happens in **your own zone**, `<your-username>.dojo.test`: nobody else's config touches it, so experiment freely.
 

@@ -1,7 +1,7 @@
 # Cheat Sheet
 
 Condensed reference for every command used across Labs 1-5. `me="$(whoami)"`
-and `host="${me}.certs.dojo.test"` are assumed set in most examples below —
+and `host="${me}.certs.dojo.test"` are assumed set in most examples below:
 see each lab for the first time they're introduced.
 
 ## Trust (Lab 1)
@@ -13,7 +13,7 @@ step ca bootstrap --ca-url https://step-ca:9443 --fingerprint <fp> # trust it (s
 step ca health --ca-url https://step-ca:9443                      # confirm you can reach the CA
 ```
 
-certbot and acme.sh each need telling about this root **separately** —
+certbot and acme.sh each need telling about this root **separately**:
 that's the two env vars/flags below, not `step ca bootstrap`.
 
 | Client | How it trusts step-ca's own HTTPS listener |
@@ -28,9 +28,9 @@ https://step-ca:9443/acme/acme/directory
 ```
 
 (`acme` appears twice: once for the ACME protocol, once as this CA's
-provisioner name — coincidence of the defaults, not a typo.)
+provisioner name: coincidence of the defaults, not a typo.)
 
-## Issue — certbot, http-01 (Lab 2)
+## Issue: certbot, http-01 (Lab 2)
 
 ```sh
 mkdir -p ~/certbot/{config,work,logs}
@@ -44,7 +44,7 @@ certbot certonly \
 # cert lands at ~/certbot/config/live/${host}/{fullchain.pem,privkey.pem}
 ```
 
-## Issue — acme.sh, http-01 (Lab 3)
+## Issue: acme.sh, http-01 (Lab 3)
 
 ```sh
 acme.sh --issue \
@@ -56,7 +56,7 @@ acme.sh --issue \
   --accountemail "${me}@example.com"
 ```
 
-## Issue — certbot, dns-01 (Lab 5)
+## Issue: certbot, dns-01 (Lab 5)
 
 ```sh
 certbot certonly --manual --preferred-challenges dns-01 \
@@ -73,7 +73,7 @@ cp <issued-fullchain> "/srv/webroot/${me}/certs/fullchain.pem"
 cp <issued-privkey>   "/srv/webroot/${me}/certs/privkey.pem"
 ```
 
-Copying into `/srv/webroot/${me}/certs/` is the entire "install" step —
+Copying into `/srv/webroot/${me}/certs/` is the entire "install" step:
 `demo-app` watches that volume and reloads nginx itself.
 
 ## Verify
@@ -108,9 +108,9 @@ crontab -e
 
 | Term | Meaning here |
 | ---- | ------------- |
-| ACME | The protocol (RFC 8555) all three clients speak to `step-ca` — account, order, challenge, finalize. |
+| ACME | The protocol (RFC 8555) all three clients speak to `step-ca`: account, order, challenge, finalize. |
 | http-01 | Prove domain control by serving a file at a well-known HTTP path. |
 | dns-01 | Prove domain control by publishing a specific DNS TXT record. |
-| Provisioner | step-ca's term for a configured way of authenticating requests — ours is an ACME provisioner named `acme`. |
-| Claims | Per-provisioner limits/defaults — here, the 5-10 minute cert lifetime that makes Lab 4 observable. |
+| Provisioner | step-ca's term for a configured way of authenticating requests: ours is an ACME provisioner named `acme`. |
+| Claims | Per-provisioner limits/defaults: here, the 5-10 minute cert lifetime that makes Lab 4 observable. |
 | Webroot | The directory nginx already serves, where an http-01 client drops its challenge file. |

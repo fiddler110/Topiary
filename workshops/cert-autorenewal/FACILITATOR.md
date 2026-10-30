@@ -1,4 +1,4 @@
-# cert-autorenewal — facilitator guide
+# cert-autorenewal: facilitator guide
 
 For the person running the session. The technical reference is [`README.md`](README.md); the deck's
 speaker notes carry the talking points. This guide is the practical part: before, during, after, and
@@ -16,7 +16,7 @@ on a shared `demo-app`.
 | Talk | ~20 | Why certs expire, ACME, http-01 vs dns-01, renewal as automation not a reminder. *A guess until a dry run.* |
 | Lab 1 | ~10 | Trusting the CA: bootstrap, inspect the root cert |
 | Lab 2 | ~25 | Issue and install a certificate with `certbot` (the core lab) |
-| Lab 3 | ~15 | The same task with `acme.sh` — comparing ACME clients |
+| Lab 3 | ~15 | The same task with `acme.sh`: comparing ACME clients |
 | Lab 4 | ~15 | Automating renewal, and watching it actually fire |
 | Lab 5 | ~15 | The dns-01 challenge, against real DNS records the student writes |
 | Recap | ~5 | What surprised them (usual: HSTS, the renewal cron, dns-01's TXT dance) |
@@ -40,15 +40,15 @@ with a verified certificate, and a second visit upgraded by HSTS.
 
 1. `./dojo setup` if there is no `.env`. Set `PUBLIC_BASE_URL`, `GATEWAY_TOKEN`,
    `STUDENT_COUNT`.
-2. **No password to announce** — each terminal is signed in with the student's own token. **Password** on
+2. **No password to announce**: each terminal is signed in with the student's own token. **Password** on
    the Roster tile shows it if needed.
 3. `./dojo cert-autorenewal`. The first build takes several minutes (the terminal image carries `step`,
    `certbot` and `acme.sh`; `step-ca`, `demo-app` and PowerDNS start alongside). Open `/admin` and wait for
    **Forgejo**, **Terminals**, **Slides**, **Site Inspector**, the **DNS Zones** view and the gate to go
    green. Terminals (account creation) is the slowest; yellow there is normal.
-4. **Size the machine:** `./dojo capacity cert-autorenewal --students 30` — it counts `step-ca`,
+4. **Size the machine:** `./dojo capacity cert-autorenewal --students 30`: it counts `step-ca`,
    `demo-app` and PowerDNS on top of the terminals.
-5. **Rehearse as a student** in a private window: Labs 1-2 at least — trust the CA, issue with `certbot`,
+5. **Rehearse as a student** in a private window: Labs 1-2 at least: trust the CA, issue with `certbot`,
    then open **Site Inspector** and confirm the `http → 301 → https` chain with a verified cert. If you have
    time, Lab 5's dns-01 so you have seen the TXT records appear and clear on `/dns`. Then `./dojo stop`
    and start clean.
@@ -66,7 +66,7 @@ with a verified certificate, and a second visit upgraded by HSTS.
 **What you can see.** `/admin` tabs: Roster, VS Code, Terminal, Forgejo, Slides, **Site Inspector** and
 **DNS Zones**.
 
-- **Say it first:** `step-ca` is on port 9443 on purpose — the terminal's per-account firewall drops
+- **Say it first:** `step-ca` is on port 9443 on purpose: the terminal's per-account firewall drops
   9000-9099, so the CA sits just outside it. If a student's ACME call to a 90xx port times out silently,
   that is the firewall, not the CA.
 - **Lab 4 renewal** installs a crontab; a student who re-runs it can end up with duplicates. A **Reset**
@@ -87,12 +87,12 @@ overwritten.
 | `certbot`/`acme.sh` fails to verify (http-01) | `demo-app` isn't serving the student's webroot yet, or the A record is wrong. Confirm `<user>.certs.dojo.test` on `/dns` and that files are under `/srv/webroot/<user>/` |
 | dns-01 fails to verify | A leftover `_acme-challenge.<user>.certs.dojo.test` TXT from a previous run. Check `/dns`; a **Reset** re-seeds clean records |
 | Site Inspector shows no cert / plain http | The student hasn't issued or installed yet (Lab 2), or installed to the wrong vhost dir |
-| Renewal cron doesn't fire | Lab 4 — check the crontab is installed and the timer reachable; a duplicate crontab from a re-run is common. A **Reset** clears it |
+| Renewal cron doesn't fire | Lab 4: check the crontab is installed and the timer reachable; a duplicate crontab from a re-run is common. A **Reset** clears it |
 | `git push` asks for a password | Token missing (`ls -l ~/.git-credentials`). **Password** on the Roster tile as a stop-gap |
 | One student's terminal wedged | Roster → **Release**; **Reset** returns them to stack-start (crontab gone, two seeded records back), keeping the seat |
 
 ## After the session
 
-- `./dojo stop` wipes everything — containers, volumes, the CA's data, every issued cert, the webroot,
+- `./dojo stop` wipes everything: containers, volumes, the CA's data, every issued cert, the webroot,
   PowerDNS data, every account.
 - Note anything that confused the room or a wrong timing in `ROADMAP.md` (Manual checks) and fix the lab.

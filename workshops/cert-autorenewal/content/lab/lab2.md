@@ -1,6 +1,6 @@
-# Lab 2 — Issue and Install a Certificate with certbot
+# Lab 2: Issue and Install a Certificate with certbot
 
-certbot is the most widely used ACME client in the industry —
+certbot is the most widely used ACME client in the industry:
 this is the most transferable skill in the whole workshop. By the end of
 this lab you'll have a real certificate, issued by `step-ca`, actually
 serving HTTPS for your own site on the shared `demo-app`.
@@ -11,7 +11,7 @@ serving HTTPS for your own site on the shared `demo-app`.
 
 `/srv/webroot` is shared with `demo-app`, but your `${me}/` subdirectory
 was already created for you, owned by your own account, before you ever
-logged in — so `mkdir -p` below just confirms it's there. Normal file
+logged in: so `mkdir -p` below just confirms it's there. Normal file
 permissions are what keep other students out of it: no other student can
 write inside `/srv/webroot/${me}/`, and you can't write inside theirs.
 It has three folders: `conf.d` (nginx config), `html` (the page) and
@@ -42,7 +42,7 @@ echo "<h1>${host}</h1>" > "/srv/webroot/${me}/html/index.html"
 A vhost is an nginx config block that says which hostname gets which site.
 The workshop ships a template with a `studentNN` placeholder.
 (`~/lab/sample-repo/` is a copy of this workshop's sample repo, seeded into
-your home directory — see its `README.md` for what's in it.) `sed` swaps
+your home directory: see its `README.md` for what's in it.) `sed` swaps
 the placeholder for your own name as it copies:
 
 ```text
@@ -50,11 +50,11 @@ sed "s/studentNN/<you>/g" <template> > <your .conf>
 ```
 
 The moment that file is saved, `demo-app`'s watcher notices and reloads
-nginx — no restart, no facilitator action, nothing else to do.
+nginx: no restart, no facilitator action, nothing else to do.
 
 To test it, `curl --resolve` pins curl's DNS answer for one request
 without needing your own resolver to know about the private
-`certs.dojo.test` zone — `step-ca` is configured to query it directly,
+`certs.dojo.test` zone: `step-ca` is configured to query it directly,
 your terminal isn't, so this is the same trick a real client uses to test
 a vhost before DNS has actually propagated for it.
 
@@ -78,13 +78,13 @@ curl --resolve "${host}:80:${demo_ip}" "http://${host}/"
 ## 3. Issue the certificate
 
 certbot's **webroot** plugin proves you control `${host}` by writing a
-file into the path nginx already serves — no port-binding, no root needed.
+file into the path nginx already serves: no port-binding, no root needed.
 `--config-dir`/`--work-dir`/`--logs-dir` point certbot's own state at your
 home directory instead of the system-wide `/etc/letsencrypt` (which you
 don't have permission to write to, and shouldn't need to).
 
 `REQUESTS_CA_BUNDLE` is what tells certbot to trust `step-ca`'s own HTTPS
-listener — separate from the `step ca bootstrap` trust you set up in Lab 1
+listener: separate from the `step ca bootstrap` trust you set up in Lab 1
 (see that lab's step 4).
 
 ```text
@@ -109,7 +109,7 @@ openssl x509 -in ~/certbot/config/live/${host}/fullchain.pem -noout -dates -subj
 
 <!-- dojo-reveal: Results of certbot and openssl -->
 
-- certbot prints each ACME step — account registration, order creation, the http-01 challenge, validation, and finalization — the exact protocol exchange the slides describe.
+- certbot prints each ACME step (account registration, order creation, the http-01 challenge, validation, and finalization), the exact protocol exchange the slides describe.
 - `notAfter` is only minutes after `notBefore`: that's the provisioner's 5-10 minute claim from the slides, not a mistake.
 
 <!-- /dojo-reveal -->
@@ -119,7 +119,7 @@ openssl x509 -in ~/certbot/config/live/${host}/fullchain.pem -noout -dates -subj
 ## 4. Install it
 
 Installing means copying the issued cert/key into your subdirectory of the
-shared volume — this is the only "installation" step there is, since
+shared volume: this is the only "installation" step there is, since
 `demo-app` picks up changes automatically. Then you append the TLS block
 to the same `.conf` file (rather than a separate one), which is what
 triggers demo-app's watcher again.
@@ -147,7 +147,7 @@ sed "s/studentNN/${me}/g" ~/lab/sample-repo/vhost-tls.conf.template \
 `--cacert` hands curl the root to validate against, so it checks the full
 chain up to `step-ca`'s root, the same validation any real client does.
 `--insecure`/`-k` instead still connects but no longer *verifies*
-anything — worth seeing the difference once.
+anything: worth seeing the difference once.
 
 **Your turn:** before you run it, predict: what line in the verbose output
 proves the chain validated?
@@ -241,7 +241,7 @@ back; **Forget all** does the same at once.
 You have a live HTTPS-only site, an issued certificate you can inspect,
 and you've watched the full ACME http-01 exchange happen. Plain HTTP now
 redirects (except the challenge path) and browsers remember HSTS. You also now know
-that certificate expires in minutes, not months — which is exactly what
+that certificate expires in minutes, not months: which is exactly what
 Lab 4 automates.
 
 Next: [lab3.md](lab3.md), the same task with acme.sh.

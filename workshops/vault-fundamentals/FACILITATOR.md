@@ -1,11 +1,11 @@
-# vault-fundamentals — facilitator guide
+# vault-fundamentals: facilitator guide
 
 For the person running the session. The technical reference is [`README.md`](README.md); the design and
 history are in [`VAULT-FUNDAMENTALS-PLAN.md`](../../docs/archive/VAULT-FUNDAMENTALS-PLAN.md); the deck's
 speaker notes carry the talking points. This guide is the practical part: before, during, after, and what
 to do when something breaks.
 
-**Honest status:** the longest and most advanced course — fourteen labs (0-13, about 3½ hours) on a real
+**Honest status:** the longest and most advanced course: fourteen labs (0-13, about 3½ hours) on a real
 OpenBao. Run end to end with the demo bots (`--test` walks labs 0-11) and the student-reset live pass, not
 yet with a room. The timings below are estimates. Do the rehearsal, and budget a longer first build.
 
@@ -16,7 +16,7 @@ half-day. A rough shape:
 
 | Block | Labs | What |
 | ----- | ---- | ---- |
-| Talk | — | Secrets out of code/git/pipelines/servers; identity and short-lived credentials over long-lived passwords |
+| Talk | n/a | Secrets out of code/git/pipelines/servers; identity and short-lived credentials over long-lived passwords |
 | Foundations | 0-3 | Sign in by identity, leaks in git, encrypt on your own machine (`pass`/`sops`), KV secrets and policies |
 | Your namespace | 4-7 | Your own namespace, secrets in code and in git |
 | CI and platform | 8-9 | CI that logs in with its own identity (a fork + Forgejo Actions), deploys with a platform identity |
@@ -41,15 +41,15 @@ CI runs on the single-use runner pool. The demo bots do the same.
 2. **Rootful Podman on macOS only:** start with `--env mac-podman` (it sets `RUNNER_POOL_SECURITY_OPT_1=unmask=/proc/*`
    and `RUNNER_POOL_SECURITY_OPT_2=label=type:container_engine_t`), or neither the runner pool nor the app
    host starts (`unshare: mount /proc failed`). On Docker / rootless Linux, leave them unset. Also give `openbao-setup` more than 64m of
-   memory — it needs it to provision every namespace. (Details in `modules/runner-pool/README.md`.)
-3. **No password to announce** — each terminal is signed in with the student's own token. **Password** on
+   memory, because it needs it to provision every namespace. (Details in `modules/runner-pool/README.md`.)
+3. **No password to announce.** Each terminal is signed in with the student's own token. **Password** on
    the Roster tile shows it if needed.
 4. `./dojo vault-fundamentals`. The first build is the longest of the series (OpenBao, `app-host`,
    `app-db`, the runner pool, and a terminal image with `sops`, `gitleaks`, `pass`, `psql`, `hvac`). Open
    `/admin` and wait for **Forgejo**, **Terminals**, **Slides**, the **runner pool**, and the vault to go
    green; `openbao-setup` provisions namespaces and seed secrets per student, which takes a while.
-5. **Size the machine:** `./dojo capacity vault-fundamentals --students 30` — it counts OpenBao,
-   `app-host`, `app-db` and the runner pool on top of the terminals.
+5. **Size the machine:** `./dojo capacity vault-fundamentals --students 30` (it counts OpenBao,
+   `app-host`, `app-db` and the runner pool on top of the terminals).
 6. **Rehearse as a student** in a private window: Labs 0-1 (identity sign-in, a git leak), then jump to
    Lab 8 (fork + CI) so you have seen a runner job go green, and the capstone slot come up. Then
    `./dojo stop` and start clean.
@@ -75,12 +75,12 @@ CI runs on the single-use runner pool. The demo bots do the same.
   hits CI at once, raise the runner count (Runners tab, +). A job that "hangs" is usually waiting for a
   free runner.
 - **Audit tab** is the teaching aid for the "what did I just do" question: filter by the student and you
-  can see their path and operation (not the secret value — those are HMACed).
-- **Lab 11 is an incident drill** — expect deliberate breakage and questions; that is the lab.
+  can see their path and operation (not the secret value, which is HMACed).
+- **Lab 11 is an incident drill.** Expect deliberate breakage and questions; that is the lab.
 
 **Security shortcuts stated to the class** (slide "What today's vault cuts short", from the threat-model
 remediation): **one unseal-key share** on the `openbao_setup` volume, so the vault unseals itself after a
-restart. That is a lab convenience, not production practice — say so.
+restart. That is a lab convenience, not production practice, so say so.
 
 **Updating content mid-session.** Slides and labs are bind-mounted; edits to `content/slides/` show
 immediately, a new lab file reaches `~/lab` on the next terminal restart, an edited file is never
@@ -93,7 +93,7 @@ overwritten.
 | Runner pool / app host won't start on macOS | The two `RUNNER_POOL_SECURITY_OPT_*` vars are not set: start with `--env mac-podman` |
 | `openbao-setup` fails or namespaces missing | It needs more than 64m; raise its memory. Check `./dojo logs openbao-setup \| tail -40` |
 | Vault "sealed" after a restart | It should self-unseal from the share on `openbao_setup`. If it didn't, `./dojo logs openbao \| tail`; a restart of the setup service re-runs unseal |
-| CI job stuck "queued" | No free runner — single-use pool. Raise the count in the **Runners** tab |
+| CI job stuck "queued" | No free runner (single-use pool). Raise the count in the **Runners** tab |
 | Lab 8 push goes to the team repo | The student cloned the team repo, not their fork. `git remote -v`; the lab has them fork first |
 | App won't deploy / slot stuck | **Apps** tab shows each slot and its log. A student reset drops and remakes their database and empties both slots |
 | `git push` asks for a password | Token missing (`ls -l ~/.git-credentials`). **Password** on the Roster tile as a stop-gap |
@@ -101,6 +101,6 @@ overwritten.
 
 ## After the session
 
-- `./dojo stop` wipes everything — containers and volumes, the vault with them, every app slot and
+- `./dojo stop` wipes everything: containers and volumes, the vault with them, every app slot and
   database, all accounts.
 - Note anything that confused the room or a wrong timing in `ROADMAP.md` (Manual checks) and fix the lab.

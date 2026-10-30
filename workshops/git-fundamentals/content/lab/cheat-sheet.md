@@ -1,6 +1,6 @@
 # Git Cheat Sheet
 
-A quick reference for the commands used across [lab1.md](lab1.md)-[lab5.md](lab5.md). Print this, `glow` it, or keep it open in a split pane — you don't need to memorize any of it.
+A quick reference for the commands used across [lab1.md](lab1.md)-[lab5.md](lab5.md). Print this, `glow` it, or keep it open in a split pane. You don't need to memorize any of it.
 
 ---
 
@@ -60,7 +60,7 @@ cd <repo-name>
 git pull                     # get the latest from the remote
 ```
 
-`clone` downloads every commit and branch, not just the current snapshot — after cloning, you have the whole project's history on your machine. `pull` fetches new commits from the remote and merges them into your current branch; run it whenever you start work, so you're not building on stale history.
+`clone` downloads every commit and branch, not just the current snapshot. After cloning, you have the whole project's history on your machine. `pull` fetches new commits from the remote and merges them into your current branch; run it whenever you start work, so you're not building on stale history.
 
 ### Create a branch for your work
 
@@ -70,7 +70,7 @@ git checkout -b <branch-name>
 
 Creates a new branch pointing at your current commit and switches you onto it. Work on a branch, not directly on `main`, so your in-progress changes can't affect anyone else until you're ready to share them.
 
-Newer Git versions also offer `git switch -c <branch-name>` (and `git switch <branch-name>` to switch to an existing branch) — a command split out of `checkout` specifically for branch switching, with the same effect as above. This workshop uses `checkout` since it's what you'll most often see in existing docs and scripts, but the two are interchangeable for this purpose.
+Newer Git versions also offer `git switch -c <branch-name>` (and `git switch <branch-name>` to switch to an existing branch), a command split out of `checkout` specifically for branch switching, with the same effect as above. This workshop uses `checkout` since it's what you'll most often see in existing docs and scripts, but the two are interchangeable for this purpose.
 
 ### See what changed
 
@@ -80,7 +80,7 @@ git diff                # the exact line-by-line changes, unstaged
 git diff <filename>      # the same, for one file
 ```
 
-`git status` is the command you'll run more than any other — it always tells you exactly where you stand. `git diff` shows you the content of the change, not just which files it touched; read it before every commit.
+`git status` is the command you'll run more than any other. It always tells you exactly where you stand. `git diff` shows you the content of the change, not just which files it touched; read it before every commit.
 
 ### Stage and commit
 
@@ -90,7 +90,7 @@ git add .                   # stage everything changed
 git commit -m "message"     # save a snapshot of what's staged
 ```
 
-Staging is a deliberate middle step: it lets you build a commit out of exactly the changes you want, even if your working directory has other, unrelated edits sitting around. The commit message should say what changed and, if it isn't obvious, why — `"fix bug"` tells a reviewer nothing; `"fix off-by-one error in roster loop"` does.
+Staging is a deliberate middle step: it lets you build a commit out of exactly the changes you want, even if your working directory has other, unrelated edits sitting around. The commit message should say what changed and, if it isn't obvious, why. `"fix bug"` tells a reviewer nothing; `"fix off-by-one error in roster loop"` does.
 
 ### Push and share
 
@@ -99,9 +99,9 @@ git push -u origin <branch-name>   # first push from this branch
 git push                           # every push after that
 ```
 
-Nothing you've done is visible to anyone else until you push — up to that point, everything (branch, commits) exists only on your machine. `-u` remembers the branch's remote so later pushes don't need the full form.
+Nothing you've done is visible to anyone else until you push. Up to that point, everything (branch, commits) exists only on your machine. `-u` remembers the branch's remote so later pushes don't need the full form.
 
-Then open a pull request in Forgejo — click **Open Forgejo** from the workshop landing page (this signs you in automatically), find your branch, and open a PR into `main`.
+Then open a pull request in Forgejo: click **Open Forgejo** from the workshop landing page (this signs you in automatically), find your branch, and open a PR into `main`.
 
 ### Clean up after it's merged
 
@@ -143,7 +143,7 @@ git restore .                     # discard ALL uncommitted changes (careful!)
 git restore --staged <filename>   # unstage a file, keeping the edit
 ```
 
-`git restore` only ever touches uncommitted work — once something is committed, restoring won't undo it (see "Undoing Committed Changes" below instead). It's destructive for what it does touch: there's no confirmation prompt, so double-check with `git status`/`git diff` first if you're not certain.
+`git restore` only ever touches uncommitted work. Once something is committed, restoring won't undo it (see "Undoing Committed Changes" below instead). It's destructive for what it does touch: there's no confirmation prompt, so double-check with `git status`/`git diff` first if you're not certain.
 
 ---
 
@@ -158,7 +158,7 @@ git stash pop       # restore the most recent stash and remove it from the stack
 git stash apply     # restore the most recent stash but keep it on the stack
 ```
 
-Stashing is a short-term clipboard, not storage — if you're not coming back to it soon, commit the work instead (even to a throwaway branch).
+Stashing is a short-term clipboard, not storage. If you're not coming back to it soon, commit the work instead (even to a throwaway branch).
 
 ---
 
@@ -166,7 +166,7 @@ Stashing is a short-term clipboard, not storage — if you're not coming back to
 
 See [lab5.md](lab5.md) for the full walkthrough, including why this distinction matters.
 
-### Not pushed yet (local only) — safe to rewrite history
+### Not pushed yet (local only): safe to rewrite history
 
 ```sh
 git reset --soft HEAD~1     # undo the last commit, keep the changes staged
@@ -175,7 +175,7 @@ git commit --amend -m "New message"   # fix the last commit's message
 git commit --amend --no-edit          # add staged changes to the last commit, message unchanged
 ```
 
-Prefer `git reset --hard origin/<branch>` over counting commits with `HEAD~N` whenever the branch tracks a remote (`git fetch` first, so `origin/<branch>` is current). "Match the server" can't be off by one; `HEAD~2` when you meant `HEAD~3` silently discards a commit. `--hard` also throws away uncommitted edits in your working directory, with no confirmation — commit or stash them first.
+Prefer `git reset --hard origin/<branch>` over counting commits with `HEAD~N` whenever the branch tracks a remote (`git fetch` first, so `origin/<branch>` is current). "Match the server" can't be off by one; `HEAD~2` when you meant `HEAD~3` silently discards a commit. `--hard` also throws away uncommitted edits in your working directory, with no confirmation, so commit or stash them first.
 
 ### Committed on the wrong branch (not pushed)
 
@@ -186,17 +186,17 @@ git reset --hard origin/<wrong-branch>   # 3. move the wrong branch back to the 
 git checkout <new-branch>          # 4. carry on, on the right branch
 ```
 
-A branch is a label pointing at a commit, not a container, so the commits never move — you add a second label, then move the first one off them. Create the new label **before** the `reset`: that's what makes the destructive step safe. See [lab1.md](lab1.md) step 9 for the walkthrough.
+A branch is a label pointing at a commit, not a container, so the commits never move. You add a second label, then move the first one off them. Create the new label **before** the `reset`: that's what makes the destructive step safe. See [lab1.md](lab1.md) step 9 for the walkthrough.
 
-If you already pushed to the wrong branch, don't reset it — `git revert` the commit on the shared branch instead (below).
+If you already pushed to the wrong branch, don't reset it. Use `git revert` the commit on the shared branch instead (below).
 
-### Already pushed (shared with others) — never rewrite history
+### Already pushed (shared with others): never rewrite history
 
 ```sh
 git revert <commit-hash>
 ```
 
-`revert` creates a *new* commit that undoes an earlier one, instead of erasing anything — so anyone who already pulled the original commit isn't left with a broken local history. Find the hash to revert with `git log --oneline`. **Never use `git reset` on a branch someone else might already have pulled from** — that's the line that matters, not whether you personally think it's safe.
+`revert` creates a *new* commit that undoes an earlier one, instead of erasing anything, so anyone who already pulled the original commit isn't left with a broken local history. Find the hash to revert with `git log --oneline`. **Never use `git reset` on a branch someone else might already have pulled from**. That's the line that matters, not whether you personally think it's safe.
 
 ---
 
@@ -229,7 +229,7 @@ git merge --abort
 
 ## Ignoring Local-Only Files
 
-Add patterns to a `.gitignore` file at the repo root for files that should never be tracked — build output, editor settings, local secrets:
+Add patterns to a `.gitignore` file at the repo root for files that should never be tracked: build output, editor settings, local secrets:
 
 ```gitignore
 .DS_Store
@@ -238,7 +238,7 @@ Add patterns to a `.gitignore` file at the repo root for files that should never
 dist/
 ```
 
-`.gitignore` only affects files git doesn't already know about. It does not untrack a file that was already committed, and it does nothing to remove a secret from history — if a secret was ever committed, treat it as exposed and rotate it. See [lab2.md](lab2.md).
+`.gitignore` only affects files git doesn't already know about. It does not untrack a file that was already committed, and it does nothing to remove a secret from history. If a secret was ever committed, treat it as exposed and rotate it. See [lab2.md](lab2.md).
 
 ---
 
@@ -267,7 +267,7 @@ git fetch && git reset --hard origin/main   # move main back to the server's ver
 git checkout good-branch
 ```
 
-Nothing is lost — see **Committed on the wrong branch** above, and [lab1.md](lab1.md) step 9.
+Nothing is lost. See **Committed on the wrong branch** above, and [lab1.md](lab1.md) step 9.
 
 **"I forgot to add a file to my last commit"**
 
@@ -296,9 +296,9 @@ git branch --merged
 git fetch --prune
 ```
 
-Deleting a branch on the server doesn't touch your local remote-tracking branches — `git fetch --prune` syncs them by removing any whose remote counterpart is gone.
+Deleting a branch on the server doesn't touch your local remote-tracking branches. `git fetch --prune` syncs them by removing any whose remote counterpart is gone.
 
-**"push rejected — updates were rejected because the remote contains work..."**
+**"push rejected: updates were rejected because the remote contains work..."**
 
 The remote has commits you don't have locally yet. Run `git pull` to bring them in (resolve a conflict if one comes up), then push again.
 
@@ -313,8 +313,8 @@ You've checked out a specific commit instead of a branch. `git checkout main` (o
 - **Repository (repo):** a folder containing your files plus the full git history (the hidden `.git` folder).
 - **Commit:** a saved snapshot of staged changes, with a message.
 - **Branch:** an independent line of work; defaults to `main`.
-- **Remote:** the shared copy on the Forgejo server — usually called `origin`.
-- **Remote-tracking branch:** your local record of where a remote's branch was as of your last fetch (e.g. `origin/main`) — not a branch you work on directly, and `git fetch --prune` cleans it up once the real branch is deleted.
+- **Remote:** the shared copy on the Forgejo server, usually called `origin`.
+- **Remote-tracking branch:** your local record of where a remote's branch was as of your last fetch (e.g. `origin/main`), not a branch you work on directly. `git fetch --prune` cleans it up once the real branch is deleted.
 - **Clone:** download a repo and its full history to your machine.
 - **Pull / push:** sync commits down from / up to the remote.
 - **Staging area:** where you mark exactly what goes into the next commit.
@@ -322,8 +322,8 @@ You've checked out a specific commit instead of a branch. `git checkout main` (o
 - **Pull request (PR):** a proposal to merge a branch, with room for review and discussion before it happens.
 - **Conflict:** what happens when git can't auto-merge and needs a human decision.
 - **Stash:** a temporary, short-term holding spot for uncommitted changes.
-- **Revert:** a new commit that undoes an earlier one — safe on shared branches.
-- **Reset:** moves your branch pointer backward, rewriting local history — only safe before pushing.
+- **Revert:** a new commit that undoes an earlier one. It's safe on shared branches.
+- **Reset:** moves your branch pointer backward, rewriting local history. It's only safe before pushing.
 - **HEAD:** shorthand for "the commit you're currently on."
 
 ---
@@ -331,8 +331,8 @@ You've checked out a specific commit instead of a branch. `git checkout main` (o
 ## When to Ask for Help
 
 - Before force-pushing, or anything that says "cannot be undone."
-- During a conflict — they're normal, not a sign you did something wrong.
+- During a conflict, they're normal, not a sign you did something wrong.
 - If you're unsure what a command does: `git <command> --help`, or just ask.
-- If you think you've lost committed work, it's almost never actually gone — git keeps old commits around (the reflog) even after a branch is deleted or reset; ask for help recovering it rather than trying more commands blind.
+- If you think you've lost committed work, it's almost never actually gone. Git keeps old commits around (the reflog) even after a branch is deleted or reset; ask for help recovering it rather than trying more commands blind.
 
 **More:** [README.md](README.md) for the lab menu, or the official docs at <https://git-scm.com/doc>.
