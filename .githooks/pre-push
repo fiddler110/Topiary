@@ -1,0 +1,18 @@
+#!/bin/sh
+# Unit tests, dry runs, shellcheck and gitleaks (~4 min) before a push, so a PR doesn't
+# go red on CI's `unit-tests` / `dry-runs` jobs. Cross-pack tests (e.g. the
+# achievements service reading a workshop's labs) mean a changed folder can break a
+# suite elsewhere, so this runs everything rather than guessing which suites.
+# Pushes that change only docs or text are skipped; deleting a branch is skipped.
+# Skip once with:  git push --no-verify   (same checks by hand: sh .github/scripts/pre-pr.sh)
+root="$(git rev-parse --show-toplevel)"
+zero=0000000000000000000000000000000000000000
+need=""
+while read -r _ local_sha _ _; do
+  [ "$local_sha" = "$zero" ] && continue
+  base="$(git merge-base "$local_sha" origin/main 2>/dev/null)" || base=""
+  if [ -z "$base" ]; then need=1; continue; fi
+  if git diff --name-only "$base" "$local_sha" | grep -qvE '\.(md|txt)$|^docs/'; then need=1; fi
+done
+[ -n "$need" ] || { echo "pre-push: docs/text only, skipping tests"; exit 0; }
+exec sh "$root/.github/scripts/pre-pr.sh" unit dry lint leaks
