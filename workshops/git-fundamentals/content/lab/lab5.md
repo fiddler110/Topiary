@@ -1,6 +1,6 @@
-# Lab 5 — Merge Conflicts & Safely Undoing a Change
+# Lab 5: Merge Conflicts & Safely Undoing a Change
 
-Two topics that go together: what happens when git *can't* merge automatically, and how to undo something once it's out there — safely.
+Two topics that go together: what happens when git *can't* merge automatically, and how to undo something once it's out there, safely.
 
 Do this from your `sample-training-repo` clone, on `main`. This lab creates its own throwaway branches and deletes them again, and the commands start from `main` each time.
 
@@ -22,7 +22,7 @@ Do this from your `sample-training-repo` clone, on `main`. This lab creates its 
 
 ---
 
-## Part A — Causing and resolving a conflict
+## Part A: Causing and resolving a conflict
 
 ### The idea
 
@@ -59,7 +59,7 @@ git checkout main
 git checkout -b conflict-a
 ```
 
-Open `roster/team.yaml` in your editor and change Alice's role — for example:
+Open `roster/team.yaml` in your editor and change Alice's role, for example:
 
 ```yaml
 - name: Alice Engineer
@@ -114,7 +114,7 @@ batcat roster/team.yaml
   role: Principal Engineer
 ```
 
-Then finish the merge. Git pre-fills a merge commit message — accepting the default is fine.
+Then finish the merge. Git pre-fills a merge commit message. Accepting the default is fine.
 
 ```sh
 git add roster/team.yaml
@@ -137,7 +137,7 @@ git branch -D conflict-a conflict-b
 
 ---
 
-## Part B — Undoing a change safely
+## Part B: Undoing a change safely
 
 ### The idea
 
@@ -200,7 +200,7 @@ The commit is gone from the log, and `roster/team.yaml` is under "Changes to be 
 
 <!-- /dojo-reveal -->
 
-**Your turn:** now throw it away completely — undo the commit *and* the edit. Commit it again first, since `--soft` left it staged. Predict: will the "Oops Entry" line survive?
+**Your turn:** now throw it away completely: undo the commit *and* the edit. Commit it again first, since `--soft` left it staged. Predict: will the "Oops Entry" line survive?
 
 ```sh
 git commit -m "Oops, wrong entry"
@@ -229,7 +229,7 @@ You add a new commit that does the opposite. That's `git revert <commit>`: the o
 git revert <commit> [--no-edit]
 ```
 
-This demo stays local — no need to actually push it — but the same command is what you'd run on a real shared branch. Make a commit to revert: open `roster/team.yaml` in your editor, add `- name: Reverted Later`, and save.
+This demo stays local (no need to actually push it), but the same command is what you'd run on a real shared branch. Make a commit to revert: open `roster/team.yaml` in your editor, add `- name: Reverted Later`, and save.
 
 **Prefer the terminal?**
 
@@ -271,10 +271,10 @@ git branch -D undo-demo
 
 - **Conflict:** both branches changed the same line, so git can't choose. It marks `<<<<<<<` / `=======` / `>>>>>>>` around the disputed lines; you resolve by hand, then `git add` + `git commit`. `git merge --abort` bails out entirely if needed.
 - **Not committed:** `git restore` (Lab 2).
-- **Committed, not shared:** `git reset` is safe — it rewrites your own local history. `--soft` keeps the changes staged, `--hard` discards them.
-- **Committed and shared:** `git revert` is safe — it adds a new commit instead of rewriting history.
+- **Committed, not shared:** `git reset` is safe: it rewrites your own local history. `--soft` keeps the changes staged, `--hard` discards them.
+- **Committed and shared:** `git revert` is safe: it adds a new commit instead of rewriting history.
 
-You've now covered the full loop (Lab 1) plus the most common "something went sideways" tools. That's the everyday git toolkit — see [README.md](README.md) for the quick reference, and don't hesitate to ask the facilitator about anything that came up.
+You've now covered the full loop (Lab 1) plus the most common "something went sideways" tools. That's the everyday git toolkit. See [README.md](README.md) for the quick reference, and don't hesitate to ask the facilitator about anything that came up.
 
 ---
 

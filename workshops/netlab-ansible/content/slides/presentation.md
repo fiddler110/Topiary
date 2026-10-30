@@ -38,23 +38,25 @@ footer: "[&larr; Hub](index.md) &nbsp;|&nbsp; Ansible on a Small Network | Engin
 
 ## Do it by hand once. Then say it in a playbook.
 
-**Talk + hands-on lab**
+Prerequisite: a shell and `ssh`. No Ansible experience needed.
 
-<!-- Assumes the room can use a shell and ssh. No Ansible experience needed. The firewall is only the thing being configured; the lesson is Ansible. About 20 minutes of talk, then labs. -->
+**Talk ~25 min · By hand (M1-M9) ~105 min · Playbooks (A1-A9) ~150 min**
+Stretch labs A10 and A11 add ~45 min. About 4.5 hours in all, or two sessions.
+
+<!-- Assumes the room can use a shell and ssh. The firewall is only the thing being configured; the lesson is Ansible. Lab times are the figures on the lab pages (M1-M9 sum to 105 min, A1-A9 to 150 min, A10 and A11 are 25 and 20). The talk time is my estimate from the slide count: about 20 minutes if you skip the secrets slides. For a shorter slot (lunch and learn), see FACILITATOR.md. -->
 
 ---
 
 ## Today
 
-1. **The problem**: why configuring machines by hand breaks down
-2. **The idea**: describe the state you want, let a tool get there
-3. **How Ansible works**: control node, inventory, modules, playbooks, a run
-4. **Your pod**: a small network you build twice
-5. **The labs**: by hand, by playbook, then prove it
+1. **The problem**: why configuring machines by hand breaks down, and what to do instead
+2. **How Ansible works**: control node, inventory, modules, playbooks, a run
+3. **Your pod**: a small network you build twice
+4. **The labs**: by hand, by playbook, then prove it
 
 > Same result two ways. The second way is the one you can repeat.
 
-<!-- Say the goal: leave knowing what Ansible is for and able to read and write a playbook. Nobody needs to know networking. -->
+<!-- Say the goal: leave knowing what Ansible is for and able to read and write a playbook. Nobody needs to know networking. About 1 minute. -->
 
 ---
 
@@ -63,6 +65,8 @@ footer: "[&larr; Hub](index.md) &nbsp;|&nbsp; Ansible on a Small Network | Engin
 # Part 1
 
 ## The problem
+
+<!-- Part 1 is the problem. Move fast, the room already knows it. -->
 
 ---
 
@@ -80,7 +84,7 @@ Everything plugs into the **switch**. The pc and web server sit on different VLA
 
 You log in to **each box** and type commands: open ports on the firewall, set up the web server, assign VLANs on the switch.
 
-<!-- Four boxes, a handful of settings each. This is a normal day for an operations team. -->
+<!-- Four boxes, a handful of settings each. This is an ordinary day for an operations team, and nobody thinks it's a problem yet. Ask who has done this for real. Thirty seconds. -->
 
 ---
 
@@ -118,6 +122,8 @@ The commands ran. Nothing recorded them.
 </div>
 </div>
 
+<!-- Let the room answer the three questions out loud. Most people admit they've forgotten a port at least once. The commands ran fine, and that's the point: nothing recorded them. If someone doesn't know iptables, open the popup, but don't linger. It isn't what this workshop is about. About 2 minutes. -->
+
 ---
 
 ## Where by-hand breaks down
@@ -131,6 +137,8 @@ The commands ran. Nothing recorded them.
 | **Risky**         | One typo in `sshd_config` locks you out of the box   |
 
 > The server remembers what you did. Nobody else does.
+
+<!-- Ask which row has hurt them most. Drift and no record are usually the winners. Keep it short, they've felt all five. About 1 minute. -->
 
 ---
 
@@ -148,6 +156,8 @@ root@web: Permission denied
 - On a real server this means a console visit or an outage
 
 We want a way to **test a change before it is applied**, and to **undo it**.
+
+<!-- This one is personal for most people. Tell the sshd story if you have one. We come back to it in A7, where validate stops it happening. About 1 minute. -->
 
 ---
 
@@ -199,6 +209,8 @@ Reviewable. Versioned in git. Runs the same on 1 box or 50.
 </div>
 </div>
 
+<!-- This is the first time they see a playbook. Don't explain the syntax yet: say it reads like a to-do list for the firewall. The YAML popup is there for anyone who wants it. We take it apart over the next few slides. About 2 minutes. -->
+
 ---
 
 <!-- _class: section-title -->
@@ -206,6 +218,8 @@ Reviewable. Versioned in git. Runs the same on 1 box or 50.
 # Part 2
 
 ## How Ansible works
+
+<!-- Part 2 is the longest. Playbooks, idempotency and handlers are the core. The secrets slides at the end are optional. -->
 
 ---
 
@@ -219,6 +233,8 @@ An **automation tool** that configures machines over **SSH**.
 - **Readable**: the playbook is YAML, and is also the documentation
 
 > You describe the end state. Ansible works out what is missing.
+
+<!-- Four words to remember: agentless, declarative, idempotent, readable. Idempotent gets its own slide shortly. Nothing runs on the managed nodes except sshd and Python. About 1 minute. -->
 
 ---
 
@@ -240,6 +256,8 @@ flowchart LR
 
 Ansible runs **where you are** and reaches out. The managed nodes only need `sshd` and Python.
 
+<!-- Point at the diagram: everything runs from your terminal and reaches out over SSH. Here the control node is each student's own terminal, and the nodes are their pod. About 1 minute. -->
+
 ---
 
 ## Where to run Ansible
@@ -253,6 +271,8 @@ The control node must be **Linux or macOS**. Ansible does not run natively on Wi
 | **Best for** | learning, small teams                | many teams, one audited place to run changes                  |
 
 A shared node keeps keys and secrets off laptops. No shared logins; log who ran what.
+
+<!-- Mostly background. If the room is all on Windows, mention WSL2 and move on. Skip this slide if you're short on time. The labs don't depend on it. -->
 
 ---
 
@@ -268,6 +288,8 @@ A shared node keeps keys and secrets off laptops. No shared logins; log who ran 
 **How they fit:** a playbook has plays. A play picks hosts **from the inventory** and runs tasks. Each task **calls a module**.
 
 Everything else (variables, templates, handlers, roles) is built from these four.
+
+<!-- Spend time here. If they get playbook, inventory, task and module straight, the rest of the day is detail. Say the sentence at the bottom out loud: a playbook has plays, a play picks hosts, each task calls a module. About 2 minutes. -->
 
 ---
 
@@ -290,6 +312,8 @@ Everything else (variables, templates, handlers, roles) is built from these four
 - This file is a **playbook**: a list of **plays**. A play = who (`hosts:`) + what (`tasks:`)
 - Tasks run top to bottom on **every host** in the group, each calling a **module** (here `copy`)
 
+<!-- Walk the file top to bottom and point at who (hosts) and what (tasks). Both tasks run on every host in the group. About 1 minute. -->
+
 ---
 
 ## Inventory: Ansible's address book
@@ -311,6 +335,8 @@ web-a-07
 - A **group** is a label for several hosts: `[fw]` means "the firewalls"
 - A play says `hosts: fw`, and Ansible runs on **every host in that group**
 
+<!-- Ansible only touches machines it has a name for. Point out the pod number in the host names, because they'll see it in every lab. About 1 minute. -->
+
 ---
 
 ## One host, several groups
@@ -327,6 +353,8 @@ The same machine can sit in more than one group, so you can aim at it **by job o
 - `hosts: fw` reaches both firewalls. `hosts: auto` reaches every branch-a node
 - See it yourself: `ansible-inventory --graph`. Next: combine two groups
 
+<!-- This is what lets a playbook aim at branch a and never touch the hand-built branch m. Suggest they try ansible-inventory --graph in the first lab. About 1 minute. -->
+
 ---
 
 ## Host patterns: pick the machines
@@ -339,6 +367,8 @@ A **pattern** says which hosts to run on. `:&` means **and also in**: the host m
 | `auto`        | every branch-a node                      | all of branch m                          |
 | `fw:&auto`    | `fw-a-07`: in `fw` **and** in `auto`     | `fw-m-07` (not in `auto`), non-firewalls |
 | `web:&manual` | `web-m-07`: in `web` **and** in `manual` | `web-a-07` (not in `manual`), non-web    |
+
+<!-- The :& pattern trips people up, so read one row aloud: in fw and also in auto. You don't need to cover every row. About 1 minute. -->
 
 ---
 
@@ -353,6 +383,8 @@ The same pattern works in three places:
 | `--limit`         | `ansible-playbook site.yml --limit web-a-07` | Run the playbook, but **only** on these hosts |
 
 > The labs use `fw:&auto` so a playbook can never touch your hand-built branch m.
+
+<!-- One idea, three places. The labs use fw:&auto so a mistake on branch a can't touch branch m. Reassure students that this is a safety feature, not extra work. About 1 minute. -->
 
 ---
 
@@ -370,6 +402,8 @@ The same pattern works in three places:
 - Arguments describe the **result**: this file, with this content
 - No `if file exists` logic: the module checks that for you
 
+<!-- Stress that arguments describe the result, not the steps. There's no if-file-exists logic because the module does that check. About 1 minute. -->
+
 ---
 
 ## Modules: the actual work
@@ -385,6 +419,8 @@ A module is a ready-made tool for **one job**. You describe the result; it check
 | `ansible.builtin.command`  | run any command               | Ansible can't tell: **you** decide |
 
 Options and examples: `ansible-doc ansible.builtin.template`
+
+<!-- The last row matters: command is the escape hatch, and Ansible can't tell whether it needs to run, so that's on you. Mention ansible-doc as the first place to look for help. About 1 minute. -->
 
 ---
 
@@ -402,6 +438,8 @@ ansible fw -m ansible.builtin.command -a "iptables -S"
 - `-a`: its **arguments**
 
 Great for asking questions of many nodes at once. For anything you want to repeat, write a playbook.
+
+<!-- They'll use this in A1. Show it live in pod 00 if you can: ansible all -m ping is a satisfying thing to watch run across eight nodes. About 1 minute. -->
 
 ---
 
@@ -421,6 +459,8 @@ sequenceDiagram
 </div>
 
 Each task runs on **every** selected host before the next task starts.
+
+<!-- Walk the diagram once. The detail worth landing: each task finishes on every host before the next task starts. About 1 minute. -->
 
 ---
 
@@ -442,9 +482,11 @@ Each task prints **one line per host**. The first word says what happened there.
 
 The `PLAY RECAP` at the end totals each word per host.
 
+<!-- They'll read this output all day, so make sure they know what the four words mean. Failed is the only one that needs action. About 1 minute. -->
+
 ---
 
-## Idempotent: the key idea
+## Idempotent: run it twice
 
 Run the playbook twice.
 
@@ -475,6 +517,8 @@ Nothing was wrong. Ansible did nothing.
 
 Compare: `echo x >> file` adds a line **every** time you run it. That is a script, not a state.
 
+<!-- If they only remember one thing from the talk, it's this. Ask them to say what changed=0 means. The echo x >> file comparison usually makes it click. About 2 minutes. -->
+
 ---
 
 ## Idempotency, step by step
@@ -488,6 +532,8 @@ flowchart LR
 </div>
 
 A module **looks first**, then acts. That check is why it is safe to run again, on a schedule, or after a half-finished run.
+
+<!-- Show the check-then-act loop. This is why running it again is safe, even after a half-finished run. About 1 minute. -->
 
 ---
 
@@ -541,6 +587,8 @@ Port {{ p }}
 </div>
 </div>
 
+<!-- Show the list once, used twice. Change the list, rerun, and only the difference is applied. The popup covers Jinja2 for people who haven't seen it. Remind them the braces must be quoted. About 2 minutes. -->
+
 ---
 
 ## Templates: a file with blanks
@@ -572,6 +620,8 @@ LoginGraceTime 20</code></pre>
 </div>
 </div>
 
+<!-- Walk left to right: template, variables, finished file. The filling happens on the control node, then the file is copied over. About 1 minute. -->
+
 ---
 
 ## Templates: the playbook that uses them
@@ -590,6 +640,8 @@ LoginGraceTime 20</code></pre>
 - **Variables:** not named here. Ansible finds them by **file name**, next slide
 - **Changed or ok:** the file is replaced only if the result **differs**
 - **`validate`:** runs on a temp copy (`%s`). If it fails, the old file stays and the task **fails**: a typo cannot lock you out
+
+<!-- The variables aren't named in the playbook, which surprises people. That's the next slide. Spend longer on validate: it's the answer to the typo slide. About 1 minute. -->
 
 ---
 
@@ -623,6 +675,8 @@ netlab-ansible/
 
 </div>
 </div>
+
+<!-- Ansible matches the group name to a file name in group_vars. Once they see that, a lot of magic goes away. About 1 minute. -->
 
 ---
 
@@ -659,6 +713,8 @@ If it reports `ok`, the handler never runs.
 </div>
 </div>
 
+<!-- The usual example is reloading nginx only when its config changed. The notify only fires if the task reports changed. About 1 minute. -->
+
 ---
 
 ## Handlers: two runs of the same playbook
@@ -676,6 +732,8 @@ flowchart LR
 
 - Five tasks all notify "Reload nginx"? It still runs **once**, at the end.
 - Without a handler you would reload on every run, or forget to reload at all.
+
+<!-- Compare the two runs. A common question is whether five notifying tasks cause five reloads. They don't: the handler runs once, at the end. About 1 minute. -->
 
 ---
 
@@ -696,6 +754,8 @@ ansible-playbook site.yml --check --diff
 ```
 
 By hand you never get a preview. With Ansible you do, every time.
+
+<!-- You can't get a preview by hand. Run it live if you have a minute: the diff makes the point better than the slide does. About 1 minute. -->
 
 ---
 
@@ -727,6 +787,8 @@ It fails early, before anything changes.
 
 </div>
 </div>
+
+<!-- These two stop a bad change before it lands: validate tests the file, assert tests the input. A7 uses validate and A8 uses assert. About 1 minute. -->
 
 ---
 
@@ -766,6 +828,8 @@ Normally Ansible hits every host at once. With `serial: 1`, a failure on the fir
 </div>
 </div>
 
+<!-- Block, rescue and always give you try, undo, report. Serial limits the blast radius. Don't go deep. A8 is where they practise it. About 1 minute. -->
+
 ---
 
 ## Secrets: keep them out of git
@@ -796,6 +860,8 @@ admin_password: "change-me"</code></pre>
 
 </div>
 </div>
+
+<!-- Playbooks live in git, so a password in one stays there. Vault encrypts the file instead. The vault password is the key and never goes in the repo. The next five slides are optional if time is short: A10 covers secrets with OpenBao in the lab, and these slides cover the Azure Key Vault options. About 1 minute. -->
 
 ---
 
@@ -831,6 +897,8 @@ ansible-playbook site.yml \
 </div>
 </div>
 
+<!-- Three numbered points: load the file, hide the output with no_log, supply the password at run time. Skip if you're cutting the secrets section. -->
+
 ---
 
 ## Secrets: no plain-text password on your laptop
@@ -861,6 +929,8 @@ ansible-playbook site.yml \
 
 </div>
 </div>
+
+<!-- A script that prints the password means no secret is saved on disk. Skip if you're cutting the secrets section. -->
 
 ---
 
@@ -915,6 +985,8 @@ az login                                                                 # 3</co
 </div>
 </div>
 
+<!-- For teams on a shared VM. The point is that access is checked against who you are, not who the VM is. The popup has the setup steps. I haven't run the Azure Key Vault part in this workshop's pods, so treat it as an example of the pattern. Skip if you're short on time. -->
+
 ---
 
 ## Secrets: how a team does it
@@ -926,6 +998,8 @@ The encrypted `secrets.yml` is in git in all three. Only the **vault password** 
 | **Vault password** | `pass`/`gopass`, read by a script | **Key Vault**, one per team, read as you | **Key Vault**, read by the runner's identity  |
 | **Who holds it**   | you                               | no one: your team group is checked       | no one: the pipeline fetches it               |
 | **Best for**       | learning, small setups            | many teams, one audited node             | `--check --diff` on the PR, real run on merge |
+
+<!-- Compare the three columns. Only the vault password changes, and the encrypted file is the same everywhere. Skip if you're cutting the secrets section. -->
 
 ---
 
@@ -939,6 +1013,8 @@ The encrypted `secrets.yml` is in git in all three. Only the **vault password** 
 4. **Rotate** the key when someone leaves: `ansible-vault rekey secrets.yml`.
 5. **Review changes by pull request**, so a secret never changes unseen.
 
+<!-- Five rules, read them quickly. This is a good place to stop and take questions before the pod. About 1 minute. -->
+
 ---
 
 <!-- _class: section-title -->
@@ -946,6 +1022,8 @@ The encrypted `secrets.yml` is in git in all three. Only the **vault password** 
 # Part 3
 
 ## Your pod
+
+<!-- Part 3 is the pod itself. Keep it short and get them to a terminal. -->
 
 ---
 
@@ -990,6 +1068,8 @@ flowchart LR
 </div>
 </div>
 
+<!-- Start with the picture, not the networking. The point is that pc and web are on separate networks and everything crosses the firewall. Nobody needs to know VLANs: open the popup only if someone asks. About 2 minutes. -->
+
 ---
 
 ## Follow one request
@@ -1014,6 +1094,8 @@ flowchart LR
 
 The switch is used **twice**. The firewall is the only place the request can cross, so it is where the rules live.
 
+<!-- Trace the numbers on the diagram. The switch is used twice and the firewall is the only place the request can cross, so that's where the rules live. About 1 minute. -->
+
 ---
 
 ## Why a network?
@@ -1025,6 +1107,8 @@ You do not need to know networking. It gives us:
 - **Several kinds of machine** to show one tool managing them all
 
 The firewall is only the thing being configured. **The lesson is Ansible.**
+
+<!-- Say it plainly: the network is a prop. It gives us real failures and a yes or no test. The lesson is Ansible. About 30 seconds. -->
 
 ---
 
@@ -1044,6 +1128,8 @@ flowchart LR
 
 Eight nodes per student. Both branches **start identical** and are isolated from each other.
 
+<!-- Each student has eight nodes, two copies of the same four. Both branches start identical and they're isolated, so a mistake on one can't hurt the other. About 1 minute. -->
+
 ---
 
 ## Your login and your nodes
@@ -1059,6 +1145,8 @@ ssh root@fw-m-07                 # by hand (pod 07)
 - Ansible already has the password (`group_vars/all.yml`), so playbooks never ask
 - You are `root` on the nodes: no `become`, no `sudo`
 
+<!-- Pod number comes from the login name. Node names are role-branch-pod. Ansible already has the password, so playbooks won't ask. You're root on the nodes, so there's no sudo. About 1 minute. -->
+
 ---
 
 ## Branch m is the by-hand run, branch a is the playbook
@@ -1073,6 +1161,8 @@ ssh root@fw-m-07                 # by hand (pod 07)
 You build the result by hand first. Then you write the playbook that says the same thing, and branch a must end in the **same state** as branch m.
 
 > If `compare.yml` says DIFFERENT, one of the two branches is wrong. Find out which.
+
+<!-- Branch m is the reference. The question is whether the playbook ends where your hands ended. Compare.yml answers that in A9. About 1 minute. -->
 
 ---
 
@@ -1090,6 +1180,8 @@ dojo netlab check A5
 | `compare.yml`         | Do the firewall rules and nginx config on m and a match?  |
 | `dojo netlab check A<n>` | Does the whole lab pass, from outside your pod?           |
 
+<!-- Three tools, three questions. Probe checks traffic, compare checks the two branches, the checker looks at the whole lab from outside the pod. The checker allows about six runs a minute per student, so tell them to read the output before rerunning. About 1 minute. -->
+
 ---
 
 <!-- _class: section-title -->
@@ -1097,6 +1189,8 @@ dojo netlab check A5
 # Part 4
 
 ## The labs
+
+<!-- Part 4 is the lab path and where to get help. -->
 
 ---
 
@@ -1110,6 +1204,8 @@ flowchart LR
 </div>
 
 Each lab page states the **goal** and the steps. You do the job by hand first, then say it as a playbook and compare the results.
+
+<!-- Hands first, then playbook, then proof, then the twist. The twist is where the playbook wins: rerun it, undo it, change one value. About 1 minute. -->
 
 ---
 
@@ -1126,9 +1222,11 @@ Each lab page states the **goal** and the steps. You do the job by hand first, t
 | M8 Lock the server down    | A8 Errors and rollback          |
 | M9 Rebuild from clean      | A9 Capstone (A10, A11 optional) |
 
+<!-- Each A lab repeats the M lab with the same number. A10 and A11 are stretch and have no by-hand twin. About 1 minute. Time check: the M labs take about 105 minutes and the A labs about 150. -->
+
 ---
 
-## The habits to take away
+## Habits worth keeping
 
 1. **Describe the end state**, not the steps
 2. **Run it twice**: the second run must say `changed=0`
@@ -1136,6 +1234,8 @@ Each lab page states the **goal** and the steps. You do the job by hand first, t
 4. **Validate before you apply** anything that can lock you out
 5. **Test, and roll back** on failure
 6. **Keep it in git**: the playbook is the record
+
+<!-- A recap of what the labs practise. Don't read the list: ask which ones they expect to use first. About 1 minute. -->
 
 ---
 
@@ -1147,15 +1247,20 @@ Each lab page states the **goal** and the steps. You do the job by hand first, t
 - Read the error: Ansible says which task, which host, and why
 - Put your hand up: the facilitator has a pod of their own
 
+<!-- Tell them you have a pod of your own and can reproduce their problem without touching theirs. The first command to run is verify_topology.yml. About 1 minute. -->
+
 ---
+<!-- _class: lead -->
+<!-- _paginate: false -->
+<!-- _footer: "[&larr; Hub](index.md)" -->
 
-## Let's go
+# Let's go
 
-1. Open `lab-index.md` and the Lab M1 page
-2. Work in `~/netlab` in your terminal
-3. Part 1 by hand first, then Part 2 as playbooks
+## Next: [labs.md](labs.md) for what each lab covers, then your terminal
 
-<!-- Suggested timing is in FACILITATOR.md. -->
+Keep [cheat-sheet.md](cheat-sheet.md) open in another tab. Ask for help any time. This is a lab, not a test.
+
+<!-- Send them to labs.md for a two-minute overview, then to the Lab M1 page and their terminal in ~/netlab. Suggested timing for the whole session is in FACILITATOR.md. -->
 
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"

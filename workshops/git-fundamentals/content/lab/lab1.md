@@ -1,6 +1,6 @@
-# Lab 1 — The Core Workflow
+# Lab 1: The Core Workflow
 
-By the end of this lab you'll have personally cloned a repo, created a branch, made and committed a change, pushed it, and opened a pull request. This is the loop you'll use for most of your day-to-day git work — see the table in [README.md](README.md) if you want the one-line summary of each step first.
+By the end of this lab you'll have personally cloned a repo, created a branch, made and committed a change, pushed it, and opened a pull request. This is the loop you'll use for most of your day-to-day git work. See the table in [README.md](README.md) if you want the one-line summary of each step first.
 
 ---
 
@@ -26,7 +26,7 @@ Later labs say "your turn" and leave the command to you. The [cheat sheet](cheat
 
 ## 1. Clone the sample repo
 
-`git clone` downloads the whole repository — every commit, every branch — to your machine. You get a full local copy; you don't need the network to look at history or make commits, only to share them. Inside this terminal, the repo lives at the internal Forgejo URL.
+`git clone` downloads the whole repository (every commit, every branch) to your machine. You get a full local copy; you don't need the network to look at history or make commits, only to share them. Inside this terminal, the repo lives at the internal Forgejo URL.
 
 ```text
 git clone <url>
@@ -50,7 +50,7 @@ cd sample-training-repo
 
 ## 2. Create a branch
 
-A branch creates a new label pointing at the same commit as `main`, and `git checkout -b` switches you onto it. Anything you commit afterwards happens on that branch, not `main` — so there's no way to break anything anyone else is working on. Naming the branch after what it's for (or who it's for) helps everyone else understand it at a glance.
+A branch creates a new label pointing at the same commit as `main`, and `git checkout -b` switches you onto it. Anything you commit afterwards happens on that branch, not `main`, so there's no way to break anything anyone else is working on. Naming the branch after what it's for (or who it's for) helps everyone else understand it at a glance.
 
 ```text
 git checkout -b <name>
@@ -129,7 +129,7 @@ batcat roster/team.yaml
 Two commands let you look at your work before it becomes history:
 
 - `git status` shows *which* files changed.
-- `git diff` shows *exactly what* changed, line by line, before you commit it. Get in the habit of reading this before every commit — it catches typos and accidental edits early.
+- `git diff` shows *exactly what* changed, line by line, before you commit it. Get in the habit of reading this before every commit. It catches typos and accidental edits early.
 
 ```text
 git status
@@ -156,8 +156,8 @@ git diff
 
 Committing is two steps:
 
-- `git add` moves your change into the **staging area** — a holding pen for exactly what you want in the next commit. If you had touched other files you didn't mean to change, you could leave them unstaged.
-- `git commit` saves a permanent snapshot of everything staged, along with a message. A good commit message says *what* changed and, if it's not obvious, *why* — future-you (and your reviewer) will thank you.
+- `git add` moves your change into the **staging area**, a holding pen for exactly what you want in the next commit. If you had touched other files you didn't mean to change, you could leave them unstaged.
+- `git commit` saves a permanent snapshot of everything staged, along with a message. A good commit message says *what* changed and, if it's not obvious, *why*. Future-you (and your reviewer) will thank you.
 
 ```text
 git add <file>
@@ -236,7 +236,7 @@ ls -l ~/.git-credentials
 
 ## 7. Open a pull request
 
-Go back to the workshop landing page (the tab or window where you opened your terminal) and click **Open Forgejo**. It opens a new tab, already signed in as you — no separate login.
+Go back to the workshop landing page (the tab or window where you opened your terminal) and click **Open Forgejo**. It opens a new tab, already signed in as you, with no separate login.
 
 Find your `add-yourname` branch (Forgejo usually prompts you with a banner offering to open a pull request for a recently-pushed branch) and open a pull request into `main`. Sensei, the class review bot, looks at it within a few seconds and, if your roster entry follows the format, rubber-stamps it and merges it for you. If something is off, Sensei leaves a comment saying what and flags your facilitator, who will take a look.
 
@@ -244,7 +244,7 @@ Find your `add-yourname` branch (Forgejo usually prompts you with a banner offer
 
 ## 8. Clean up after your branch is merged
 
-Once Sensei (or, if it flagged your PR, the facilitator) merges your pull request, `add-yourname` has done its job — the change lives on `main` now. Your local copy doesn't know that yet, though. Switch back to `main` and bring it up to date:
+Once Sensei (or, if it flagged your PR, the facilitator) merges your pull request, `add-yourname` has done its job. The change lives on `main` now. Your local copy doesn't know that yet, though. Switch back to `main` and bring it up to date:
 
 ```sh
 git checkout main
@@ -257,7 +257,7 @@ Now tell git to notice that the branch is gone from the server:
 git fetch --prune
 ```
 
-Forgejo deletes the remote branch as soon as a PR merges (this repo is configured that way), but your local clone still remembers a *remote-tracking* branch called `origin/add-yourname` pointing at it — `git fetch --prune` (or the shorthand `git fetch -p`) removes remote-tracking branches whose remote counterpart no longer exists. Without it, `git branch -a` would keep showing `origin/add-yourname` indefinitely, long after it's actually gone.
+Forgejo deletes the remote branch as soon as a PR merges (this repo is configured that way), but your local clone still remembers a *remote-tracking* branch called `origin/add-yourname` pointing at it. `git fetch --prune` (or the shorthand `git fetch -p`) removes remote-tracking branches whose remote counterpart no longer exists. Without it, `git branch -a` would keep showing `origin/add-yourname` indefinitely, long after it's actually gone.
 
 `--prune` only cleans up *remote-tracking* branches. Your own local `add-yourname` branch is still sitting there, so delete it too:
 
@@ -265,7 +265,7 @@ Forgejo deletes the remote branch as soon as a PR merges (this repo is configure
 git branch -d add-yourname
 ```
 
-`-d` is the safe delete: git checks that the branch is fully merged into your current branch first and refuses if it isn't (use `-D` to force it — but only once you're sure you don't need those commits). If it refuses even though your pull request shows as merged, your facilitator probably used a *squash* merge, which lands your change on `main` as a brand-new commit, so git can't see your branch's commits in `main`. The change is safely merged, so `git branch -D add-yourname` is fine here.
+`-d` is the safe delete: git checks that the branch is fully merged into your current branch first and refuses if it isn't (use `-D` to force it, but only once you're sure you don't need those commits). If it refuses even though your pull request shows as merged, your facilitator probably used a *squash* merge, which lands your change on `main` as a brand-new commit, so git can't see your branch's commits in `main`. The change is safely merged, so `git branch -D add-yourname` is fine here.
 
 Confirm it's gone:
 
@@ -273,13 +273,13 @@ Confirm it's gone:
 git branch
 ```
 
-Make `git fetch --prune` a habit at the start of every work session — it keeps your local branch list matching what's actually on the server, so you're never guessing whether a branch you see locally still means anything.
+Make `git fetch --prune` a habit at the start of every work session. It keeps your local branch list matching what's actually on the server, so you're never guessing whether a branch you see locally still means anything.
 
 ---
 
 ## 9. When you commit on the wrong branch
 
-Step 2 was "create a branch" — and sooner or later everyone forgets it, edits away, commits, and only then notices
+Step 2 was "create a branch", and sooner or later everyone forgets it, edits away, commits, and only then notices
 the prompt still says `main`. Nothing is broken and nothing is lost: the fix is three short steps, and it's worth doing
 once now, deliberately, so you recognise it later.
 
@@ -294,12 +294,12 @@ git log --oneline -2
 ```
 
 That commit is sitting on your local `main`, where it doesn't belong. (If your class has achievements on, this is the
-one and only time the lab tells you to earn **Living Dangerously** — and there's a second one waiting for you once
+one and only time the lab tells you to earn **Living Dangerously**, and there's a second one waiting for you once
 you've put `main` back.)
 
 ### Why nothing is lost
 
-A branch in git is just a **label pointing at a commit** — it is not a container holding your work. Your commit
+A branch in git is just a **label pointing at a commit**. It is not a container holding your work. Your commit
 exists on its own; `main` merely happens to point at it. So you don't need to move the commit anywhere. You add a
 second label, then move `main` off it.
 
@@ -316,7 +316,7 @@ git log --oneline --graph --decorate -2
 ```
 
 `git branch <name>` (no `-b`, no `checkout`) creates the label at your current commit **without switching you onto
-it** — that's what `HEAD ->` points at. `--decorate` is what prints the names in brackets, and they are the whole
+it**. That's what `HEAD ->` points at. `--decorate` is what prints the names in brackets, and they are the whole
 point here: one commit with two labels on it, and `origin/main` still back where the server is. Your commit is now
 safe whatever happens to `main` next.
 
@@ -331,13 +331,13 @@ git log --oneline --graph --decorate -2
 git status
 ```
 
-`origin/main` is your local record of what the server's `main` looked like at your last `fetch` — so `git fetch`
+`origin/main` is your local record of what the server's `main` looked like at your last `fetch`, so `git fetch`
 first, to make sure that record is current. `git reset --hard origin/main` then moves your `main` to exactly that
 commit and makes your working directory match it. Your accidental commit is no longer on `main`; `notes.md` is gone
 from the working directory, and `git status` is clean.
 
 You'll often see this written as `git reset --hard HEAD~1` instead ("one commit before where I am"), and that works
-too — but it makes you count. Two accidental commits need `HEAD~2`, three need `HEAD~3`, and `--hard` with the wrong
+too, but it makes you count. Two accidental commits need `HEAD~2`, three need `HEAD~3`, and `--hard` with the wrong
 number silently throws away work you meant to keep. Resetting to `origin/main` says "match the server" and needs no
 arithmetic, so prefer it whenever the branch tracks a remote.
 
@@ -352,12 +352,12 @@ git log --oneline -2
 batcat notes.md
 ```
 
-There's your commit, and there's `notes.md` back in your working directory — on a branch this time. From here it's
+There's your commit, and there's `notes.md` back in your working directory, on a branch this time. From here it's
 the normal loop again: push with `-u`, open a pull request.
 
 ### Already pushed to the wrong branch?
 
-Then stop and don't use `git reset`. Rewriting a branch other people have pulled breaks their clone — and in most
+Then stop and don't use `git reset`. Rewriting a branch other people have pulled breaks their clone, and in most
 real repositories `main` is protected, so the force-push it would need is refused anyway. Use `git revert` on the
 shared branch instead: [lab5.md](lab5.md) covers it. The question is never "is it committed", it's **"has anyone
 else already got it"**.
@@ -369,7 +369,7 @@ git checkout main
 git branch -d notes-yourname
 ```
 
-`-d` refuses, exactly as described in step 8 — your commit was never merged into `main`, which is the whole point of
+`-d` refuses, exactly as described in step 8: your commit was never merged into `main`, which is the whole point of
 this exercise. You're sure you don't need it, so force it:
 
 ```sh
@@ -402,7 +402,7 @@ Before moving on, be ready to show or say:
 - **`git branch -d` refuses unmerged branches** so you can't throw away commits that exist nowhere else by accident; `-D` overrides it when you mean it.
 <!-- /dojo-reveal -->
 
-**Next:** [lab2.md](lab2.md) — reviewing and undoing changes before you commit.
+**Next:** [lab2.md](lab2.md): reviewing and undoing changes before you commit.
 
 ---
 

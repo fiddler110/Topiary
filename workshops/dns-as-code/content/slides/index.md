@@ -16,7 +16,7 @@ style: |
 
 # DNS as Code
 
-<p class="tag">Managing DNS records the way we manage everything else — builds on Git Fundamentals, same workflow, a new kind of file.</p>
+<p class="tag">Managing DNS records the way we manage everything else. Builds on Git Fundamentals: same workflow, a new kind of file.</p>
 
 <div class="links">
 <a class="enter" href="presentation.md">&rarr; Presentation</a>

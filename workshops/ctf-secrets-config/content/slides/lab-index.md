@@ -26,7 +26,7 @@ footer: '[&larr; Hub](index.md)'
 </div>
 </div>
 
-<p class="setup-label">No repo to clone for Lab 1 -- start the <b>Attack Range</b> card from the landing
+<p class="setup-label">No repo to clone for Lab 1: start the <b>Attack Range</b> card from the landing
 page. Labs 2 and 3 use your own repos in Forgejo instead.</p>
 
 <ul class="lab-links">

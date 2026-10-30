@@ -1,4 +1,4 @@
-# Lab 7 — Drift: when reality changes behind your back
+# Lab 7: Drift: when reality changes behind your back
 
 **Goal:** change your deployment by clicking in the portal, then see how OpenTofu notices (`plan`) and puts things right (`apply`).
 

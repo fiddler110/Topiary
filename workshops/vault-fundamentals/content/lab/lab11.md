@@ -1,4 +1,4 @@
-# Lab 11 — Deploy with workload identity
+# Lab 11: Deploy with workload identity
 
 **Goal:** deploy your app to a server the way it's done well at work. The **pipeline deploys** the app but **can't read its secrets**. The **app gets its own secrets** by proving *where it runs*, with an identity the platform gives it, like an Azure managed identity or a Kubernetes service account. Nobody hands the app a password, not even you, and not even the pipeline: Lab 10's delivered secret ID goes away.
 

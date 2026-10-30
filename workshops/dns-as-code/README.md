@@ -1,4 +1,4 @@
-# DNS as Code — Session 3
+# DNS as Code: Session 3
 
 About two hours (the six labs alone take about 100 minutes): managing DNS records via git + pull requests
 (`dnscontrol`), for anyone who's already been through
@@ -6,7 +6,7 @@ About two hours (the six labs alone take about 100 minutes): managing DNS record
 muscle memory, applied to a `dnsconfig.js` file instead of a roster.
 
 Adapted from a real internal `dns-as-code-template` pattern (dnscontrol +
-Cloudflare, with GitHub Actions CI) — trimmed down for a self-contained
+Cloudflare, with GitHub Actions CI): trimmed down for a self-contained
 lab: PowerDNS instead of a real DNS provider, Forgejo Actions instead of
 GitHub Actions (the `runner-pool` module), no GitHub-specific tooling
 (`dnsctl_lib/forgejo.py` stands in for the GitHub CLI). See
@@ -28,7 +28,7 @@ PowerDNS container (`dns-server`), swaps in a terminal image with
 (`MODULES` in `workshop.env`): `runner-pool` turns on Forgejo Actions with
 single-use runners so the sample repo's `.forgejo/workflows/` actually
 execute, `dns-ui` adds the DNS Zones page, and `dns-gate` puts the `dns-api`
-gate in front of PowerDNS (see **Who may change what** below) — everything else
+gate in front of PowerDNS (see **Who may change what** below): everything else
 (gateway, Forgejo itself, slides, account provisioning) is the same
 shared engine [git-fundamentals](../git-fundamentals/) uses. See
 [`workshops/README.md`](../README.md) for how that selection mechanism
@@ -37,13 +37,13 @@ works.
 Workshop content you can edit per-session, with no script/compose changes
 required:
 
-- [`content/slides/presentation.md`](content/slides/presentation.md) — the deck
-- [`content/lab/README.md`](content/lab/README.md) — instructions seeded into every student's `~/lab`
-- [`content/sample-repo/`](content/sample-repo/) — seeded into Forgejo as `dns-team/dns-as-code` by the `bootstrap` service, including its `.forgejo/workflows/`
+- [`content/slides/presentation.md`](content/slides/presentation.md): the deck
+- [`content/lab/README.md`](content/lab/README.md): instructions seeded into every student's `~/lab`
+- [`content/sample-repo/`](content/sample-repo/): seeded into Forgejo as `dns-team/dns-as-code` by the `bootstrap` service, including its `.forgejo/workflows/`
 
 Only touch [`compose/`](compose/) if you need different tooling in the
 terminal, a different backend than PowerDNS, or to change the CI
-pipeline's job tools (`JOB_TOOLS` in the overlay) — see the comments in
+pipeline's job tools (`JOB_TOOLS` in the overlay): see the comments in
 [`compose/docker-compose.override.yml`](compose/docker-compose.override.yml) and
 [`compose/terminal/Dockerfile`](compose/terminal/Dockerfile) first. The workflow files themselves
 live in `content/sample-repo/.forgejo/workflows/`, alongside the rest of
@@ -72,7 +72,7 @@ Preview check and one approval) keeps an edited workflow from reaching
 ## What's intentionally simplified vs. a production setup
 
 - **PowerDNS, not a real DNS provider.** Ephemeral, internal-only,
-  reset on every teardown — matches this whole engine's "nothing persists"
+  reset on every teardown: matches this whole engine's "nothing persists"
   design. `dnsconfig.js`'s `dojo.test` zone uses the IETF-reserved `.test`
   TLD so it can never collide with a real domain.
 - **CI is real, via Forgejo Actions.** `content/sample-repo/.forgejo/workflows/`
@@ -93,30 +93,30 @@ Preview check and one approval) keeps an edited workflow from reaching
   changed only to point at this lab's PowerDNS zone (`CREDKEY`/`ZONES`) and
   to route its PR/CI operations through a small Forgejo API client
   (`dnsctl_lib/forgejo.py`) instead of the GitHub CLI when the remote isn't
-  GitHub — see `procutil.detect_forge()`. `gh` itself is untouched and still
+  GitHub (see `procutil.detect_forge()`). `gh` itself is untouched and still
   used as-is against a real GitHub remote; the two coexist. Everything else
   Cloudflare-flavored in its output (the record wizard's proxy prompt, the
-  `CLOUDFLARE_API_TOKEN` env var name) is left unmodified on purpose — see
+  `CLOUDFLARE_API_TOKEN` env var name) is left unmodified on purpose, see
   `docs/dnsctl-cli.md` in the sample repo for why. `merge`/`validate` now
   find a real "DNS Preview"/"DNS Apply" status to check, same as they
   would against a GitHub repo with CI configured.
 - **Smoke-tested end to end** (`./dojo dns-as-code` on podman, both
-  tracks) — three real bugs turned up and got fixed in the process:
+  tracks). Three real bugs turned up and got fixed in the process:
   the runner's `host` label had a stray `://` (forgejo-runner rejects
-  arguments on the `host` scheme — only `docker`/`lxc` take one), the
+  arguments on the `host` scheme; only `docker`/`lxc` take one), the
   `DNS Preview` comment's marker text didn't match dnsctl.py's own
   `"dnscontrol preview"` substring filter (fixed to mirror the upstream
   template's exact marker, and made update-in-place instead of spamming a
   new comment per push), and `forgejo.py`'s PR state mapping didn't
   distinguish "merged" from "closed" (Forgejo's REST API has no MERGED
-  state like GitHub's GraphQL API does — it's `state: closed` +
+  state like GitHub's GraphQL API does: it's `state: closed` +
   `merged: true` as separate fields). All three confirmed fixed by
   re-running the affected `dnsctl.py` commands (`review`, `validate`)
   against the live stack afterward.
 
 ## Delivery notes
 
-- Run through the whole lab yourself once before facilitating — confirm
+- Run through the whole lab yourself once before facilitating: confirm
   `dnscontrol push` + `dig @dns-server` actually work end to end in your
   environment, and specifically confirm the CI path: open a test PR,
   confirm `dns-preview.yml` posts a comment and sets a status, merge it,
@@ -124,7 +124,7 @@ Preview check and one approval) keeps an edited workflow from reaching
   in `/admin`, `podman logs workshop_runner_pool` and
   `podman logs workshop_dns_api` (one line per refused or allowed zone
   change) are the first places to look if it doesn't.
-- Reuses the git workflow from Session 1 — don't re-teach branching/PRs
+- Reuses the git workflow from Session 1: don't re-teach branching/PRs
   from scratch, just point back to it.
 - Keep the talk light on new git mechanics; the new material is
   `dnsconfig.js` syntax and the preview/push loop.

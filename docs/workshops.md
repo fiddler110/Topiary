@@ -7,12 +7,12 @@ series and a test harness.
 | # | Pack | Title | Length | Labs | Modules |
 |---|---|---|---|---|---|
 | 0 | `dojo-introduction` | Dojo Introduction | ~35 min | none (tour) | runner-pool, dojo-cloud, dns-ui, dns-gate, sensei |
-| 1 | `git-fundamentals` | Git Training Lab | 60 min | 5 | sensei |
+| 1 | `git-fundamentals` | Git Training Lab | ~100 min | 5 | sensei |
 | 2 | `dns-as-code` | DNS as Code Lab | ~2 h | 6 | runner-pool, dns-ui, dns-gate, sensei |
 | 3 | `cert-autorenewal` | Certificate Autorenewal Lab | ~1¾ h | 5 | dns-ui, dns-gate, sensei |
 | 4 | `tofu-basics` | OpenTofu Basics Lab | ~2¼ h | 11 (0-10) | dojo-cloud, sensei |
-| 5 | `vault-fundamentals` | Vault Fundamentals Lab | ~3½ h | 14 (0-13) | openbao, runner-pool, sensei |
-| 6 | `cloud-policy-as-code` | Cloud-Policy-as-Code | ~4-5 h | 13 (0-12) + capstone | dojo-cloud, runner-pool, sensei |
+| 5 | `vault-fundamentals` | Vault Fundamentals Lab | ~4½ h | 14 (0-13) | openbao, runner-pool, sensei |
+| 6 | `cloud-policy-as-code` | Cloud-Policy-as-Code | ~5½ h | 13 (0-12) + capstone | dojo-cloud, runner-pool, sensei |
 | 7 | `ctf-defend` | CTF-5: Defend | ~2 h | 1 | ctf-range, runner-pool |
 | 100 | `ctf-access` | CTF-1: Access and Identity | ~150 min | 4 | ctf-range |
 | 101 | `ctf-server-trust` | CTF-2: Server-side Trust and APIs | ~150 min | 4 | ctf-range |

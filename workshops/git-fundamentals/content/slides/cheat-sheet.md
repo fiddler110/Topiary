@@ -17,7 +17,7 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; Git Fundamentals | Cheat Sheet'
 
 ## Every command from Labs 1-5, in one place
 
-Keep this open in a split pane or another tab while you work — you don't
+Keep this open in a split pane or another tab while you work. You don't
 need to memorize any of it.
 
 <p class="nav">Full detail: <code>~/lab/cheat-sheet.md</code> in your terminal.</p>
@@ -33,7 +33,7 @@ git pull                     # get the latest from the remote
 ```
 
 `clone` downloads every commit and branch, not just the current snapshot.
-`pull` fetches and merges new commits — run it whenever you start work.
+`pull` fetches and merges new commits: run it whenever you start work.
 
 ---
 
@@ -80,7 +80,7 @@ git restore --staged <filename>   # unstage a file, keep the edit
 ```
 
 `restore` only touches uncommitted work, and it's destructive with no
-confirmation prompt — double-check with `status`/`diff` first.
+confirmation prompt: double-check with `status`/`diff` first.
 
 ---
 
@@ -93,14 +93,14 @@ git stash pop       # restore the most recent stash, remove from stack
 git stash apply     # restore the most recent stash, keep on stack
 ```
 
-> A short-term clipboard, not storage — commit the work if you're not
+> A short-term clipboard, not storage: commit the work if you're not
 > coming back to it soon.
 
 ---
 
 ## Undoing committed changes
 
-**Not pushed yet — safe to rewrite history**
+**Not pushed yet: safe to rewrite history**
 
 ```sh
 git reset --soft HEAD~1               # undo last commit, keep staged
@@ -108,13 +108,13 @@ git reset --hard HEAD~1               # undo last commit, discard it
 git commit --amend -m "New message"   # fix the last commit's message
 ```
 
-**Already pushed — never rewrite history**
+**Already pushed: never rewrite history**
 
 ```sh
 git revert <commit-hash>
 ```
 
-`revert` creates a *new* commit undoing an earlier one — safe on shared branches.
+`revert` creates a *new* commit undoing an earlier one, safe on shared branches.
 
 ---
 
@@ -154,12 +154,12 @@ gitleaks git -v .
 git diff <branch-1>..<branch-2>
 ```
 
-- `--author`/`--since` — filter by who and when
-- `show` — exactly what one commit changed
-- `blame` — who last touched each line
-- `-S` — commits that added or removed text
-- `gitleaks` — scan all commits for secrets
-- `diff a..b` — everything that differs
+- `--author`/`--since`: filter by who and when
+- `show`: exactly what one commit changed
+- `blame`: who last touched each line
+- `-S`: commits that added or removed text
+- `gitleaks`: scan all commits for secrets
+- `diff a..b`: everything that differs
 
 </div>
 
@@ -188,13 +188,13 @@ git commit --amend --no-edit
 - **Repo:** files + full history (the hidden `.git` folder).
 - **Commit:** a saved snapshot, with a message.
 - **Branch:** an independent line of work.
-- **Remote:** the shared Forgejo copy — usually `origin`.
+- **Remote:** the shared Forgejo copy: usually `origin`.
 - **Stage:** what goes into the next commit.
 - **Merge:** combine one branch's changes into another.
 - **PR:** a proposal to merge, reviewed first.
 - **Conflict:** git can't auto-merge; needs a human decision.
-- **Revert:** a new commit undoing an earlier one — safe.
-- **Reset:** moves your branch pointer back — only safe pre-push.
+- **Revert:** a new commit undoing an earlier one: safe.
+- **Reset:** moves your branch pointer back: only safe pre-push.
 - **HEAD:** the commit you're currently on.
 
 </div>
@@ -208,9 +208,9 @@ git commit --amend --no-edit
 # When to ask for help
 
 - Before force-pushing, or anything that says "cannot be undone."
-- During a conflict — normal, not a sign you did something wrong.
+- During a conflict: normal, not a sign you did something wrong.
 - Unsure what a command does: `git <command> --help`, or just ask.
-- Think you lost committed work? It's almost never gone — the reflog
+- Think you lost committed work? It's almost never gone: the reflog
   keeps it. Ask for help recovering it rather than guessing.
 
 <p class="nav"><a href="index.md">&larr; Back to hub</a> &middot; <a href="labs.md">&larr; Lab overview</a> &middot; <a href="presentation.md">&larr; Deck</a></p>

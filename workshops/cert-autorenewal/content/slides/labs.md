@@ -38,8 +38,8 @@ dig -v
 ```
 
 Preinstalled in your terminal: `step`, `certbot`, `acme.sh`, `openssl`,
-`dig`, `jq` — nothing to install. Your username (`studentNN`) is also your
-DNS label — `studentNN.certs.dojo.test` — for the rest of this lab.
+`dig`, `jq`, nothing to install. Your username (`studentNN`) is also your
+DNS label, `studentNN.certs.dojo.test`, for the rest of this lab.
 
 > Full detail lives in `~/lab/README.md` once you're in the terminal.
 
@@ -50,8 +50,8 @@ DNS label — `studentNN.certs.dojo.test` — for the rest of this lab.
 | Lab | Topic | Time |
 | --- | ----- | ---- |
 | **1** | Trusting the CA: bootstrap, inspect the root cert | ~10 min |
-| **2** | Issue and install a certificate with certbot | ~20 min |
-| 3 | The same task with acme.sh — comparing ACME clients | ~15 min |
+| **2** | Issue and install a certificate with certbot | ~25 min |
+| 3 | The same task with acme.sh: comparing ACME clients | ~15 min |
 | **4** | Automating renewal, and watching it actually happen | ~15 min |
 | 5 | The dns-01 challenge, against real DNS records | ~15 min |
 
@@ -61,7 +61,7 @@ DNS label — `studentNN.certs.dojo.test` — for the rest of this lab.
 
 # The core path
 
-## Labs 1, 2, 4 — trust, issue, automate
+## Labs 1, 2, 4: trust, issue, automate
 
 <div class="flow">
 <span><b>1</b><br>trust<br><small>step ca bootstrap</small></span>
@@ -79,16 +79,16 @@ Trust the CA, put a real certificate on a real HTTPS site, then let cron renew i
 
 ---
 
-## Labs 3 & 5 — going deeper
+## Labs 3 & 5: going deeper
 
 <div class="cards">
 <div>
-<h3>Lab 3 — acme.sh</h3>
+<h3>Lab 3: acme.sh</h3>
 <p>Issue a second certificate with a different client and compare what each one shows you about the ACME exchange underneath.</p>
 </div>
 <div>
-<h3>Lab 5 — dns-01</h3>
-<p>Prove control of your hostname via a DNS TXT record instead of a web server — the challenge type you'd need for a wildcard cert or an unreachable service.</p>
+<h3>Lab 5: dns-01</h3>
+<p>Prove control of your hostname via a DNS TXT record instead of a web server, the challenge type you'd need for a wildcard cert or an unreachable service.</p>
 </div>
 </div>
 
@@ -100,11 +100,11 @@ Lab 1 (trust), so it still works if you joined partway with `dojo prep`.
 ## Getting unstuck
 
 - `openssl x509 -in <cert> -noout -dates` always tells you exactly when a
-  certificate is valid from/until — your fastest sanity check at any point.
-- Nothing here can break another student's site — your vhost, docroot, and
+  certificate is valid from/until, your fastest sanity check at any point.
+- Nothing here can break another student's site: your vhost, docroot, and
   certificate all live only in your own subdirectory of the shared volume.
 - Client can't reach `step-ca`'s ACME directory? Double-check you're using
-  `https://step-ca:9443/...`, not `http://` — step-ca has no plain-HTTP
+  `https://step-ca:9443/...`, not `http://`: step-ca has no plain-HTTP
   listener.
 - Stuck more than a minute or two? Ask the facilitator.
 

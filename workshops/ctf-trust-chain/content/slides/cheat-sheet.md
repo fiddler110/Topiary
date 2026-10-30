@@ -17,7 +17,7 @@ footer: '[&larr; Hub](index.md) &nbsp;|&nbsp; CTF-4: Trusting the Wrong Thing | 
 
 ## Session mechanics, not tool tutorials
 
-For tool mechanics (`nmap`, `curl`, `openssl`, `jq`, ...) see the **Lab Info** card -- this page is just
+For tool mechanics (`nmap`, `curl`, `openssl`, `jq`, ...) see the **Lab Info** card. This page is just
 the commands specific to running this session.
 
 ---
@@ -30,7 +30,7 @@ Stop    -- tear your slot down
 Reset   -- return the current target to its untouched state
 ```
 
-Only one target is live in your slot at a time. The card shows your slot's **IP only** -- find the ports
+Only one target is live in your slot at a time. The card shows your slot's **IP only**. Find the ports
 yourself.
 
 ---
@@ -41,7 +41,7 @@ yourself.
 nmap -sV -p- <your-slot-ip>
 ```
 
-Expect more than one open port. Some are decoys -- that's by design, not a bug in the range.
+Expect more than one open port. Some are decoys: that's by design, not a bug in the range.
 
 ---
 

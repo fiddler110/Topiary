@@ -1,4 +1,4 @@
-# Lab 13 — Incident drill: a token leaked
+# Lab 13: Incident drill: a token leaked
 
 **Goal:** practise the leak you'll one day get a message about. A vault token was pasted where it shouldn't be, and someone used it. Find out **what it did** from the audit log, **cut it off** (and anything it made), **rotate** what it saw, and check that the app recovers **by itself**.
 

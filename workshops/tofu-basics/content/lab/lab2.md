@@ -1,4 +1,4 @@
-# Lab 2 — Change a value and read the plan
+# Lab 2: Change a value and read the plan
 
 **Goal:** edit an input, predict what OpenTofu will do, then confirm with `plan`. Also: outputs, state, and idempotency.
 
@@ -10,7 +10,7 @@ cd ~/lab/tofu-basics/sandbox
 
 ---
 
-## 1. Idempotency — apply twice, change once
+## 1. Idempotency: apply twice, change once
 
 **Idempotency** means running the same config repeatedly is safe: if the desired state already matches reality, OpenTofu has nothing to do.
 
@@ -102,8 +102,8 @@ Plan: 1 to add, 1 to change, 1 to destroy.
 
 **One edit, two different outcomes:**
 
-- `terraform_data.note` can be **updated in place** (`~`) — the provider can change `input` without recreating anything.
-- `local_file.greeting` says **`# forces replacement`** — the provider can't edit a file's content in place, so it deletes and recreates it (`-/+`).
+- `terraform_data.note` can be **updated in place** (`~`): the provider can change `input` without recreating anything.
+- `local_file.greeting` says **`# forces replacement`**: the provider can't edit a file's content in place, so it deletes and recreates it (`-/+`).
 - Note that `random_pet.nickname` isn't in the plan. Its name (`deep-wildcat`) is remembered in state and stays stable.
 
 <!-- /dojo-reveal -->

@@ -1,7 +1,7 @@
-# Lab 1 — Trust the CA
+# Lab 1: Trust the CA
 
 Before any ACME client will talk to `step-ca`, it has to trust
-it — the same way your laptop trusts a public CA's root, or the way this
+it: the same way your laptop trusts a public CA's root, or the way this
 org's systems trust whatever root Venafi issues from. By the end of this
 lab you'll have fetched and verified `step-ca`'s root certificate, told the
 `step` CLI to trust it, and inspected what's actually in it.
@@ -10,12 +10,12 @@ lab you'll have fetched and verified `step-ca`'s root certificate, told the
 
 ## 1. Get the CA's root certificate
 
-`step-ca`'s public root certificate (never its private key — that never
+`step-ca`'s public root certificate (never its private key: that never
 leaves the CA container) is mounted read-only in your terminal at
 `/opt/step-ca-root/root_ca.crt`.
 
 This is exactly the out-of-band distribution step a real org has to solve
-too — a client needs the root cert (or at least its fingerprint) from
+too: a client needs the root cert (or at least its fingerprint) from
 *somewhere* it already trusts before ACME can bootstrap trust for
 everything else. Here, that's a read-only file; at work, it might be a
 wiki page, an MDM push, or a Venafi-managed trust bundle.
@@ -48,7 +48,7 @@ step certificate inspect /opt/step-ca-root/root_ca.crt --short
 
 A fingerprint is a SHA-256 hash of the certificate. It is what
 `step ca bootstrap` uses to verify it's actually talking to the right CA
-before trusting anything it says — without it, a client bootstrapping
+before trusting anything it says: without it, a client bootstrapping
 against `https://step-ca:9443` would have no way to know it isn't being
 handed a different root by something in the middle.
 
@@ -75,7 +75,7 @@ step certificate fingerprint /opt/step-ca-root/root_ca.crt
 ## 3. Bootstrap trust
 
 `step ca bootstrap` writes the CA's config and root cert into your own
-`step` config directory (`~/.step` by default — check with `step path`).
+`step` config directory (`~/.step` by default: check with `step path`).
 From here on, `step` commands against this CA work without re-specifying
 the URL or fingerprint every time. `step ca health` then asks the CA
 whether it is up.
@@ -104,14 +104,14 @@ step ca health --ca-url https://step-ca:9443
 
 ---
 
-## 4. certbot and acme.sh need to trust it too — separately
+## 4. certbot and acme.sh need to trust it too: separately
 
 `step ca bootstrap` only configures the `step` CLI itself. certbot and
-acme.sh are independent tools with their own HTTPS trust — each one needs
+acme.sh are independent tools with their own HTTPS trust: each one needs
 to be told about this root separately, which you'll do the first time you
 use each in Labs 2 and 3 (`REQUESTS_CA_BUNDLE` for certbot, `--ca-bundle`
-for acme.sh). This split — one root cert, three tools that each need
-telling about it in their own way — is a small, hands-on version of a
+for acme.sh). This split (one root cert, three tools that each need
+telling about it in their own way) is a small, hands-on version of a
 problem a real internal-CA rollout has to solve at much larger scale.
 
 ---
@@ -122,7 +122,7 @@ You should be able to run `step ca health --ca-url https://step-ca:9443`
 and get `ok`, and explain in one sentence why `step ca bootstrap` needs a
 fingerprint, not just a URL.
 
-Nothing to see in the homepage's **Site Inspector** yet — that
+Nothing to see in the homepage's **Site Inspector** yet: that
 becomes useful starting next lab, once you actually have a vhost.
 
-Next: [lab2.md](lab2.md) — issue your first certificate.
+Next: [lab2.md](lab2.md): issue your first certificate.

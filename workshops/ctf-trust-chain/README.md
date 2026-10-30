@@ -16,12 +16,12 @@ a component, and a rule. See the plan's section 8 for how this session fits with
 
 | Target id | Lab | What it teaches |
 |---|---|---|
-| `dns-resolver-cve` | 1 | A real CVE (CVE-2022-30295) in a pinned old DNS resolver -- the resolver itself is an attack surface (A06), ties `dns-as-code` |
-| `policy-bypass` | 2 | An authorization rule with no bug, just the wrong logic -- the policy compiles and passes its tests and is still wrong (A04), ties `cloud-policy-as-code` |
+| `dns-resolver-cve` | 1 | A real CVE (CVE-2022-30295) in a pinned old DNS resolver: the resolver itself is an attack surface (A06), ties `dns-as-code` |
+| `policy-bypass` | 2 | An authorization rule with no bug, just the wrong logic: the policy compiles and passes its tests and is still wrong (A04), ties `cloud-policy-as-code` |
 | `runner-escape` | 3 | A PR's own branch controls the workflow file `pull_request` runs, so attacker-chosen code executes on a shared `runner-pool` runner with `CTF_FLAG` in scope; the cross-job escalation fails by design (A08; needs `runner-pool` in `MODULES`). No image: seeded by this pack's `compose/` hook. |
 
 Target source, images and reference solve scripts: `modules/ctf-range/targets/<id>/`. This pack only
-*wires* them (which, and which image tag each builds into `ctf-host`) -- never rebuilds the images
+*wires* them (which, and which image tag each builds into `ctf-host`) and never rebuilds the images
 themselves (students attack, never patch them; CTF-5's `customer-portal` is the only target that rebuilds
 on a merge).
 
@@ -29,7 +29,7 @@ on a merge).
 
 `ctf-range` is the reusable module (targets, firewall, the flag service, terminal tools, `ctf-host`/
 `ctf-controller`); every CTF session lists it in `MODULES=`. Per CTF-D26, `ctf-range`'s own
-`module.env` defaults build the **full** 14-target catalog into `ctf-host` -- fine for
+`module.env` defaults build the **full** 14-target catalog into `ctf-host`, which is fine for
 the module default's full catalog, wasteful for a real single-session pack that
 only exposes a few. This pack overrides two vars to scope the image to just its own container targets:
 
@@ -54,27 +54,27 @@ stage, for the mechanics.
   engagement **without naming either target's specific bug**, the labs index/overview, and a session-mechanics
   cheat sheet (tool mechanics live in the module's **Lab Info** card instead).
 - [`content/lab/`](content/lab/): `lab1.md`-`lab3.md`, one per target, each guiding toward the technique
-  with two rounds of hints before pointing at that target's own `exploit-guide/<id>.md` -- the full
+  with two rounds of hints before pointing at that target's own `exploit-guide/<id>.md`, the full
   spoiler walkthrough, reachable both from a terminal `cat`/`glow` and, one click from the lab text,
   through the browser lab reader (`dojo`'s `sync_lab_docs` mirrors `content/lab/**/*.md` recursively,
   `exploit-guide/` included). `dns-resolver-cve` is two flags (a captured credential, then a
-  replayed one) -- the lab walks both.
+  replayed one). The lab walks both.
 - [`content/sample-repo/`](content/sample-repo/): seeded into Forgejo as `training/ctf-trust-chain`, but
-  **not used by any lab** -- CTF-4 has no git exercise. It just mirrors the engagement brief for anyone who
+  **not used by any lab**. CTF-4 has no git exercise. It just mirrors the engagement brief for anyone who
   wants it in git form.
 - [`achievements/`](achievements/): a minimal catalog, engine-level (gated by `ACHIEVEMENTS_ENABLED` plus
-  this folder existing -- not a `MODULES=` entry). Two process milestones (`recon-versions`, matched on
+  this folder existing, not a `MODULES=` entry). Two process milestones (`recon-versions`, matched on
   `nmap -sV`; `recon-full-sweep`, matched on `nmap -p-`) reward scanning properly before attacking, and one
   core milestone per flag (`l1-flag-token`, `l1-flag` for `dns-resolver-cve`'s two flags; `l2-flag` for
   `policy-bypass`), each matched on the `ctf`/`flag_solved` adapter event `ctf-flags` already posts with
-  `challenge=<target-id>` -- no new plumbing needed, the achievements module already supports this exact
+  `challenge=<target-id>`, so no new plumbing is needed: the achievements module already supports this exact
   event shape (see `ctf-access`'s own README for the precedent).
 
 ## Facilitator view
 
 The `/admin` workspace's **Attack Range** tab shows every student's slot state and lets you stop/reset
-one; it does not itself show solved state -- that's the achievements leaderboard's job. There is no
-attacker-bot swarm or SOC feed in CTF-1/CTF-4 -- that's CTF-5 only.
+one; it does not itself show solved state. That\'s the achievements leaderboard's job. There is no
+attacker-bot swarm or SOC feed in CTF-1/CTF-4. That\'s CTF-5 only.
 
 ## Status
 
@@ -82,4 +82,4 @@ Built by porting the `ctf-access` (CTF-1) pack's structure to targets 6 and 9, t
 (10) as its own hook once `runner-pool` joined `MODULES`, following `docs/CTF-WORKSHOP-PLAN.md` section 8.
 `dns-resolver-cve`, `policy-bypass` and `ctf-host`'s `ctf-host-ctf4` stage already existed; this pack's own
 scoping, `runner-escape`'s hook, and all three labs' content are new here. Not yet live-verified as its own
-pack -- rehearse before a room (see `FACILITATOR.md`).
+pack, so rehearse before a room (see `FACILITATOR.md`).

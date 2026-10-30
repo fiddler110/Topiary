@@ -1,4 +1,4 @@
-# Lab 2 — Keep it encrypted on your own machine
+# Lab 2: Keep it encrypted on your own machine
 
 **Goal:** keep secrets encrypted on your own machine with `pass`, see how its store is laid out (the same shape a vault uses), and find where it stops working for a team.
 

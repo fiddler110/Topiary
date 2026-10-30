@@ -1,7 +1,7 @@
 # CTF-3: Secrets and Misconfiguration
 
 The third session in the CTF series (`docs/CTF-WORKSHOP-PLAN.md`): two medium/hard, self-contained attack
-targets from the `ctf-range` module's ladder, grouped by how the exploit works -- leaked credentials and
+targets from the `ctf-range` module's ladder, grouped by how the exploit works: leaked credentials and
 how far they reach. See the plan's section 8 for how this session fits with CTF-1, CTF-2, CTF-4 and CTF-5.
 
 ## Running it
@@ -17,11 +17,11 @@ how far they reach. See the plan's section 8 for how this session fits with CTF-
 | Target id | Lab | What it teaches |
 |---|---|---|
 | `leaky-config` | 1 | An ops admin panel exposes a debug log and a stale config backup; the log leaks a service credential reused on a second endpoint (A05) |
-| `git-secrets` | 2 | A deploy token committed, then "cleaned up" in a later commit -- still live in git history, not revoked (ties `git-fundamentals`) |
+| `git-secrets` | 2 | A deploy token committed, then "cleaned up" in a later commit, still live in git history, not revoked (ties `git-fundamentals`) |
 | `tfstate-treasure` | 3 | A committed `terraform.tfstate` leaks a vault AppRole login; the flag sits at a path only that role can read (A09; ties `tofu-basics` + `vault-fundamentals`). No image: seeded by this pack's `compose/` hooks, so it is not in `CTF_ATTACK_TARGETS`. |
 
 Target source, images and reference solve scripts: `modules/ctf-range/targets/<id>/`. This pack only
-*wires* them (which two, and which image tag each builds into `ctf-host`) -- never rebuilds the images
+*wires* them (which two, and which image tag each builds into `ctf-host`) and never rebuilds the images
 themselves (students attack, never patch them; CTF-5's `customer-portal` is the only target that rebuilds
 on a merge).
 
@@ -29,7 +29,7 @@ on a merge).
 
 `ctf-range` is the reusable module (targets, firewall, the flag service, terminal tools, `ctf-host`/
 `ctf-controller`); every CTF session lists it in `MODULES=`. Per CTF-D26, `ctf-range`'s own
-`module.env` defaults build the **full** 14-target catalog into `ctf-host` -- fine for
+`module.env` defaults build the **full** 14-target catalog into `ctf-host`, which is fine for
 the module default's full catalog, wasteful for a real single-session pack that
 only exposes a few. This pack overrides two vars to scope the image to just its own container targets:
 
@@ -54,26 +54,26 @@ stage, for the mechanics.
   engagement **without naming any target's specific bug**, the labs index/overview, and a session-mechanics
   cheat sheet (tool mechanics live in the module's **Lab Info** card instead).
 - [`content/lab/`](content/lab/): `lab1.md`-`lab3.md`, one per target, each guiding toward the technique
-  with two rounds of hints before pointing at that target's own `exploit-guide/<id>.md` -- the full
+  with two rounds of hints before pointing at that target's own `exploit-guide/<id>.md`, the full
   spoiler walkthrough, reachable both from a terminal `cat`/`glow` and, one click from the lab text,
   through the browser lab reader (`dojo`'s `sync_lab_docs` mirrors `content/lab/**/*.md` recursively,
   `exploit-guide/` included).
 - [`content/sample-repo/`](content/sample-repo/): seeded into Forgejo as `training/ctf-secrets-config`,
   separate from each student's own per-student `internal-tools` repo that `git-secrets`'s own terminal hook
-  provisions (`modules/ctf-range/terminal/start.d/55-git-secrets.sh`) -- this one just mirrors the
+  provisions (`modules/ctf-range/terminal/start.d/55-git-secrets.sh`). This one just mirrors the
   engagement brief for anyone who wants it in git form.
 - [`achievements/`](achievements/): a minimal catalog, engine-level (gated by `ACHIEVEMENTS_ENABLED` plus
-  this folder existing -- not a `MODULES=` entry). Two process milestones (`recon-versions`, matched on
+  this folder existing, not a `MODULES=` entry). Two process milestones (`recon-versions`, matched on
   `nmap -sV`; `recon-full-sweep`, matched on `nmap -p-`) reward scanning properly before attacking, and one
   core milestone per target (`l1-flag`, `l2-flag`), each matched on the `ctf`/`flag_solved` adapter event
-  `ctf-flags` already posts with `challenge=<target-id>` -- no new plumbing needed, same shape `ctf-access`
+  `ctf-flags` already posts with `challenge=<target-id>`, so no new plumbing is needed: same shape `ctf-access`
   already uses.
 
 ## Facilitator view
 
 The `/admin` workspace's **Attack Range** tab shows every student's slot state and lets you stop/reset
-one; it does not itself show solved state (see below) -- that's the achievements leaderboard's job. There
-is no attacker-bot swarm or SOC feed in CTF-1/CTF-2/CTF-3 -- that's CTF-5 only.
+one; it does not itself show solved state (see below). That\'s the achievements leaderboard's job. There
+is no attacker-bot swarm or SOC feed in CTF-1/CTF-2/CTF-3. That\'s CTF-5 only.
 
 ## Status
 

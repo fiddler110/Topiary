@@ -60,7 +60,7 @@ resource "random_pet" "x" { length = 2 }             # resource: random_pet.x
 output "pet" { value = random_pet.x.id }             # output
 ```
 
-A reference like `random_pet.x.id` creates a dependency — OpenTofu orders the work for you.
+A reference like `random_pet.x.id` creates a dependency, and OpenTofu orders the work for you.
 
 ---
 

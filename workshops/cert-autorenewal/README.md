@@ -1,6 +1,6 @@
-# cert-autorenewal — Certificate Autorenewal Lab
+# cert-autorenewal: Certificate Autorenewal Lab
 
-The mechanics behind automated TLS certificate issuance and renewal — the open-source, protocol-level
+The mechanics behind automated TLS certificate issuance and renewal: the open-source, protocol-level
 version of what a tool like Venafi automates for you at work. Five labs (0 is the talk; labs 1-5, about
 80 minutes) against a real ACME CA (`step-ca`) and a real shared web app (`demo-app`): the certificates
 students issue are real X.509 certs, actually installed, actually serving HTTPS. Prerequisite:
@@ -15,12 +15,12 @@ students issue are real X.509 certs, actually installed, actually serving HTTPS.
 ./dojo stop                        # removes every container and volume, the CA and issued certs with them
 ```
 
-`dojo` picks this workshop's identity and overlay from [`workshop.env`](workshop.env) — see
+`dojo` picks this workshop's identity and overlay from [`workshop.env`](workshop.env): see
 [`workshops/README.md`](../README.md) for how workshop selection works. First-time account/secret setup is
 `./dojo setup` (shared by every workshop).
 
 The facilitator's `/admin` has, besides the engine's tabs: **Site Inspector** (visit any student's site
-like a browser — redirects, certificate, HSTS and headers) and the **DNS Zones** view (each student's A
+like a browser: redirects, certificate, HSTS and headers) and the **DNS Zones** view (each student's A
 record, and the `_acme-challenge` TXT records appearing and clearing during dns-01).
 
 ## What's in this folder
@@ -36,14 +36,14 @@ record, and the `_acme-challenge` TXT records appearing and clearing during dns-
 ## Who may change what
 
 The class shares the zone `certs.dojo.test`. Each account holds its own DNS key (`$DNS_API_KEY`) and may
-change only names under `<user>.certs.dojo.test` — its A record and, during dns-01, its `_acme-challenge`
+change only names under `<user>.certs.dojo.test`: its A record and, during dns-01, its `_acme-challenge`
 TXT record. This is enforced by the `dns-gate` module (`dns-api`, the only path to the PowerDNS API), not
 by trust. PowerDNS's own key is derived from this install's `GATEWAY_TOKEN`, so it is never in the repo and
 students never see it.
 
 `step-ca` listens on **9443** on purpose: the terminal's per-account firewall (`DOJO_ISOLATION`) drops TCP
 9000-9099 for every non-root account, so the CA sits just outside that range. An ACME call to a 90xx port
-times out silently — that is the firewall, not the CA.
+times out silently: that is the firewall, not the CA.
 
 ## Security shortcuts (accepted)
 

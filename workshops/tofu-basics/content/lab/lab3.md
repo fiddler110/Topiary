@@ -1,4 +1,4 @@
-# Lab 3 — Tear it down
+# Lab 3: Tear it down
 
 **Goal:** destroy what you created, and understand what is left behind and what belongs in git.
 
@@ -74,10 +74,10 @@ cat terraform.tfstate
 <!-- dojo-reveal: Results of looking at what is left -->
 
 - `out/hello.txt` is gone.
-- `terraform state list` prints nothing — OpenTofu tracks no resources.
+- `terraform state list` prints nothing, because OpenTofu tracks no resources.
 - `terraform.tfstate` still exists but has `"resources": []`.
 - `terraform.tfstate.backup` holds the previous state.
-- `.terraform/` (the downloaded providers) is untouched — `destroy` doesn't uninstall plugins.
+- `.terraform/` (the downloaded providers) is untouched, because `destroy` doesn't uninstall plugins.
 
 <!-- /dojo-reveal -->
 

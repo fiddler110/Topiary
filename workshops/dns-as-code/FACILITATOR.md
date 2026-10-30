@@ -1,4 +1,4 @@
-# dns-as-code — facilitator guide
+# dns-as-code: facilitator guide
 
 For the person running the session. The technical reference is [`README.md`](README.md); the deck's
 speaker notes carry the talking points. This guide is the practical part: before, during, after, and
@@ -6,7 +6,7 @@ what to do when something breaks.
 
 **Honest status:** run end to end with the demo bots, not yet with a room. The per-lab times below are the
 labs' own estimates (`content/lab/README.md`). Do the rehearsal. This pack adds the most moving parts of
-the early series — PowerDNS, a CI runner pool and the DNS gate — so give the first build time.
+the early series (PowerDNS, a CI runner pool and the DNS gate) so give the first build time.
 
 ## The session at a glance (about 2 hours)
 
@@ -17,7 +17,7 @@ the early series — PowerDNS, a CI runner pool and the DNS gate — so give the
 | **Part 2** (the shared zone), Labs 3-6 | ~70 | The company way: branch → PR → CI preview → review → CI apply, then `dnsctl.py`, history and rollback |
 | Recap | ~5 | What surprised them (usual: only CI may touch `dojo.test`; the preview comment) |
 
-**Prerequisite:** git-fundamentals — this is the same clone/branch/commit/push/PR muscle memory applied to
+**Prerequisite:** git-fundamentals: this is the same clone/branch/commit/push/PR muscle memory applied to
 `dnsconfig.js`. **Every lab is mandatory, in order.** The two halves matter: Part 1 is a zone the student
 owns and pushes directly; Part 2 is the shared `dojo.test`, which **only CI** can change (a `dnscontrol
 push` from a terminal is refused, and nobody can push to `main`).
@@ -28,7 +28,7 @@ merge. This is enforced by the `dns-gate` module, not by trust.
 
 **Sensei** opens one practice PR (`dns-bot/add-status`) into the class repo so everyone has something to
 review in Lab 3; it never approves or merges it. In approve mode it approves a PR that adds or removes one
-of the author's **own** records — the demo bots' at once, a student's once they have reviewed someone
+of the author's **own** records: the demo bots' at once, a student's once they have reviewed someone
 else's. The `/admin` Sensei tab lists these.
 
 ## Before the session
@@ -37,15 +37,15 @@ else's. The `/admin` Sensei tab lists these.
 
 1. `./dojo setup` if there is no `.env`. Set `PUBLIC_BASE_URL`, `GATEWAY_TOKEN`,
    `STUDENT_COUNT`.
-2. **No password to announce** — each terminal is signed in with the student's own token. **Password** on
+2. **No password to announce**: each terminal is signed in with the student's own token. **Password** on
    the Roster tile shows it if ever needed.
 3. `./dojo dns-as-code`. The first build takes several minutes (the terminal image carries `dnscontrol`
    + `dig`). Open `/admin` and wait for **Forgejo**, **Terminals**, **Slides**, the **DNS Zones** view and
    the **runner pool** to go green. Terminals (account creation) is the slowest; yellow there is normal.
-4. **Size the machine:** `./dojo capacity dns-as-code --students 30` — it counts PowerDNS, the runner
+4. **Size the machine:** `./dojo capacity dns-as-code --students 30`: it counts PowerDNS, the runner
    pool and the gate on top of the terminals.
 5. **Rehearse as a student** in a private window: Part 1 (push to your own zone, see it on `/dns`), then
-   Lab 3 end to end — open a PR, watch **DNS Preview** go green, get it reviewed/merged, watch **DNS
+   Lab 3 end to end: open a PR, watch **DNS Preview** go green, get it reviewed/merged, watch **DNS
    Apply** go green, and `dig` the record. Then `./dojo stop` and start clean.
 6. Skim the deck with speaker notes on.
 
@@ -58,7 +58,7 @@ else's. The `/admin` Sensei tab lists these.
 ## During the session
 
 **What you can see.** `/admin` tabs: Roster, VS Code, Terminal, Forgejo, Slides, **DNS Zones** and
-**Sensei**. CI jobs (DNS Preview on a PR, DNS Apply on merge) run on the runner pool — the Runners control
+**Sensei**. CI jobs (DNS Preview on a PR, DNS Apply on merge) run on the runner pool: the Runners control
 is in `/admin`.
 
 - **Say it first:** CI takes a little while; a PR is mergeable only once **DNS Preview** is green, and the
@@ -84,5 +84,5 @@ overwritten.
 
 ## After the session
 
-- `./dojo stop` wipes everything — containers, volumes, PowerDNS data, every repo and account.
+- `./dojo stop` wipes everything: containers, volumes, PowerDNS data, every repo and account.
 - Note anything that confused the room or a wrong timing in `ROADMAP.md` (Manual checks) and fix the lab.

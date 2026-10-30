@@ -1,4 +1,4 @@
-# Lab 10 — Clean up
+# Lab 10: Clean up
 
 **Goal:** destroy everything you built, prove the cloud is empty, understand what OpenTofu leaves behind, and commit your work.
 

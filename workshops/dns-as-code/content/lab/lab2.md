@@ -1,4 +1,4 @@
-# Lab 2 — Drift, and Undoing Your Own Changes
+# Lab 2: Drift, and Undoing Your Own Changes
 
 **Part 1.** DNS as code only works if the file stays the source of truth. In real life someone eventually "just fixes it in the dashboard". This lab shows what `dnscontrol` does about that, and how to undo a change you've already pushed. Still in your own zone:
 
@@ -11,7 +11,7 @@ dnscontrol preview   # start from 0 corrections; if not, finish Lab 1 first
 
 ---
 
-## Part A — Someone changes the zone behind your back
+## Part A: Someone changes the zone behind your back
 
 **The idea.** `dnscontrol` treats `dnsconfig.js` as the truth and makes the live zone match it. If anyone changes the zone another way (a web dashboard, a script, a colleague "just fixing it"), the live zone and the code disagree. That difference is **drift**, and `preview` reports it as a correction. You have two choices when you see it:
 
@@ -56,7 +56,7 @@ dig @dns-server hotfix.$USER.dojo.test A +short
 
 ---
 
-## Part B — Undo a change you've already pushed
+## Part B: Undo a change you've already pushed
 
 **The idea.** To undo something already pushed, don't hand-edit the old value back. `git revert` adds a **new commit** that is the inverse of an earlier one, so the history still shows what happened and when. That matters more once the history is shared: Lab 5 does the same thing in the shared zone, through a pull request.
 

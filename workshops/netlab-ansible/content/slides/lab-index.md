@@ -13,12 +13,12 @@ footer: '[&larr; Hub](index.md)'
 
 # Labs
 
-<p class="nav">Everything for this workshop's labs in one place. Work in `~/netlab` in your terminal; the labs are read here.</p>
+<p class="nav">Everything for this workshop's labs in one place. Work in `~/netlab` in your terminal; the labs are read here. The full <a href="assets/lab-reader.html?file=README.md.txt">lab README</a> has the same list.</p>
 
 <div class="cards">
 <div>
-<h3><a href="assets/lab-reader.html?file=README.md.txt">Lab overview &rarr;</a></h3>
-<p>Your pod, the two branches, the labs in order.</p>
+<h3><a href="labs.md">Lab overview &rarr;</a></h3>
+<p>Your pod, the two branches, the labs in order, and the time each takes.</p>
 </div>
 <div>
 <h3><a href="cheat-sheet.md">Cheat sheet &rarr;</a></h3>

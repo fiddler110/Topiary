@@ -1,4 +1,4 @@
-# Lab 8 — Secrets in the pipeline: Forgejo Actions secrets
+# Lab 8: Secrets in the pipeline: Forgejo Actions secrets
 
 **Goal:** give a CI job a secret the way most teams start: a **repository secret** in the CI system. Watch the log hide it, then see how little that hiding protects, and who can really read it.
 

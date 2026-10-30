@@ -1,4 +1,4 @@
-# Lab 0 — Sign in, meet your token, take the tour
+# Lab 0: Sign in, meet your token, take the tour
 
 **Goal:** find your way around the workspace, sign in to the vault in the browser and in the terminal, and read what your token says about you. Nothing you do here changes anything.
 

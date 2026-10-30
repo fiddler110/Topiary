@@ -1,4 +1,4 @@
-# Lab 6 — Break a policy on purpose
+# Lab 6: Break a policy on purpose
 
 **Goal:** make three deliberate mistakes, read the errors the cloud gives back, and learn where each kind of mistake gets caught.
 

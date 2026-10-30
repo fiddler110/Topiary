@@ -16,7 +16,7 @@ style: |
 
 # Git Fundamentals
 
-<p class="tag">Version control for Engineering &amp; IT Operations — what, why, and how.</p>
+<p class="tag">Version control for Engineering &amp; IT Operations: what, why and how.</p>
 
 <div class="links">
 <a class="enter" href="presentation.md">&rarr; Presentation</a>
@@ -26,4 +26,4 @@ style: |
 <a class="enter secondary" href="cheat-sheet.md">&rarr; Cheat sheet</a>
 </div>
 
-<p class="meta">30-minute talk · Hands-on lab</p>
+<p class="meta">Talk ~30 min · Labs ~65 min</p>

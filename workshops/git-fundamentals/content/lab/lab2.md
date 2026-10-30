@@ -1,4 +1,4 @@
-# Lab 2 — Reviewing & Undoing Before You Commit
+# Lab 2: Reviewing & Undoing Before You Commit
 
 Not everything you type is meant to be kept. This lab is about catching mistakes before they become part of your history: discarding an edit, unstaging a file, and keeping local-only files out of git entirely. Along the way you'll see _why_ each undo command works, which is what lets you pick the right one under pressure.
 
@@ -255,8 +255,8 @@ That still doesn't protect the secret: it remains in every earlier commit, which
 
 - Files live in three places: the **working tree**, the **index**, and **HEAD**. `git add` moves a change from the first to the second, and `git commit` from the second to the third.
 - `git diff` compares working tree to index; `git diff --staged` compares index to HEAD.
-- `git restore <file>` — copies index to working tree: discards uncommitted edits.
-- `git restore --staged <file>` — copies HEAD to index: unstages, keeping your edit.
-- `.gitignore` — keeps new, untracked files out of `git status` and `git add .`; it does nothing for files already committed.
+- `git restore <file>`: copies index to working tree: discards uncommitted edits.
+- `git restore --staged <file>`: copies HEAD to index: unstages, keeping your edit.
+- `.gitignore`: keeps new, untracked files out of `git status` and `git add .`; it does nothing for files already committed.
 
-**Next:** [lab3.md](lab3.md) — stashing, for when you need to switch branches mid-edit.
+**Next:** [lab3.md](lab3.md): stashing, for when you need to switch branches mid-edit.

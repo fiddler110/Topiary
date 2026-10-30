@@ -25,15 +25,16 @@ footer: "[&larr; Hub](index.md) &nbsp;|&nbsp; Vault Fundamentals | Engineering &
 
 # Vault Fundamentals
 
-## Secrets in code, git, pipelines and deployments
+## Keep secrets out of code, git, pipelines and servers
 
 Builds on Git Fundamentals: the same repos, now without the passwords in them
 
-**Talk, then hands-on labs**
+**Talk ~50 min · Labs 0-13 ~3½ h · about 4½ hours total**
 
 <!--
-The talk is the "what" and the "why": every idea the labs use, in the order the
-labs use it. The labs are the "how". Assumes the room knows clone/commit/push.
+Timing, about 4½ hours in all. Talk ~50 min is my estimate from the slide count; I haven't timed it with a room. Labs ~3 h 37 min is the sum of the lab README estimates: lab 0 (8), 1 (12), 2 (12), 3 (15), 4 (15), 5 (15), 6 (15), 7 (15), 8 (15), 9 (20), 10 (25), 11 (20), 12 (15), 13 (15) = 217 min.
+
+That's more than one lunch slot. Each part ends on a pause point, so you can alternate talk and labs, or split it across two sessions. The talk gives the "what" and "why" of every idea the labs use, in the order the labs use it. The labs are the "how". Assumes the room knows clone, commit and push.
 -->
 
 ---
@@ -71,11 +72,7 @@ The rules again, and where you used each one.
 </div>
 
 <!--
-Each part ends with a "what to remember" slide whose footer names the labs
-for that part. The default is the whole talk first, then all the labs; the
-footer marks where you can stop for a lab or two instead, and come back.
-The list links jump to each part's title slide (#n = slide number); adding or
-removing slides before a part shifts these numbers, so update them.
+About 2 minutes. This is the map for the day. The default is the whole talk first, then all the labs. The last slide of each part is a pause point if you'd rather alternate, and its footer names the labs for that part. The list links jump to each part's divider.
 -->
 
 ---
@@ -85,6 +82,10 @@ removing slides before a part shifts these numbers, so update them.
 # Part 1
 
 ## Foundations: why secrets leak, and what a vault does
+
+<!--
+Part 1 runs about 15 minutes (my estimate). Don't rush the early slides: the copies idea and the request checks carry the whole day.
+-->
 
 ---
 
@@ -98,6 +99,10 @@ removing slides before a part shifts these numbers, so update them.
 If someone else has a copy, they **are** you, as far as the system can tell.
 
 The system can't tell a stolen copy from the real one. So the question is never "is it strong?" but **"how many copies are there, and who has them?"**
+
+<!--
+One minute. Ask the room to name a secret they handled this week; there's always one. Land the last line: strength isn't the problem, the number of copies is. A 40-character password in six places is still in six places.
+-->
 
 ---
 
@@ -142,10 +147,9 @@ Each copy is **one more place to leak from**, and one more place to change when 
 </div>
 
 <!--
-Walk the arrows: nobody did anything unusual, and still the password is in
-eight places, most of which nobody will remember to clean up.
-Click "Once it's pushed, it's leaked." for the wall of real incidents
-(from GitGuardian's breach timeline); "close" at the top right hides it.
+Two to three minutes with the popup. Walk the arrows: nobody did anything unusual, and the password still ends up in eight places, most of which nobody will remember to clean up.
+
+Click "Once it's pushed, it's leaked." for the wall of real incidents (from GitGuardian's breach timeline). Don't read it out; let people scan for a company they know. "close" at the top right hides it. Where people get stuck: they think deleting the line fixes it. It doesn't, and lab 1 shows why.
 -->
 
 ---
@@ -164,9 +168,7 @@ Click "Once it's pushed, it's leaked." for the wall of real incidents
 | 8   | Never in git, logs or images | Including history and build output                    |
 
 <!--
-Every idea in the rest of the talk is one of these rules put into practice.
-Don't explain all eight now: each part's "what to remember" slide names the
-rules it used, and the wrap-up comes back to this table.
+One minute. Every idea in the rest of the talk is one of these rules in practice. Don't explain all eight now. Each part's closing slide names the rules it used, and the wrap-up comes back to this table with the lab where each one showed up.
 -->
 
 ---
@@ -212,10 +214,7 @@ Windows: **gopass**, same store.
 </div>
 
 <!--
-Lab 2. The simplest fix for rule 8 on your own machine. The point for the rest
-of the talk is the shape: a vault's KV store is exactly this, a path pointing
-at key/value pairs, only on a server. gopass (Windows, macOS, Linux) reads and
-writes the same store, so this isn't a Linux/macOS-only habit.
+Lab 2. This is the simplest fix for rule 8, on your own machine. What matters for the rest of the talk is the shape: a path pointing at key/value pairs. A vault's KV store is exactly that, only on a server. gopass (Windows, macOS, Linux) reads and writes the same store, so this isn't a Linux-only habit. About a minute.
 -->
 
 ---
@@ -246,9 +245,7 @@ To share, **encrypt it again for each person**; each keeps a copy.
 </div>
 
 <!--
-Lab 2 ends here too: take a teammate off and their old copy still opens. An app or a pipeline would need a private key of its own: one more secret to hide. For
-your own secrets, pass is great. For a team, the copies are the problem, which
-is exactly what the next slide fixes.
+Lab 2 ends here too: take a teammate off and their old copy still opens. An app or a pipeline would need a private key of its own, which is one more secret to hide. For your own secrets, pass is great. For a team, the copies are the problem, and the next slide fixes that.
 -->
 
 ---
@@ -280,9 +277,7 @@ flowchart LR
 </div>
 
 <!--
-The point isn't the encryption, it's that copies stop multiplying. People and
-programs fetch the secret when they need it, so rotating means changing one
-place. Tools built for Vault (sops, Python's hvac) work unchanged with OpenBao.
+The point isn't the encryption. It's that copies stop multiplying: people and programs fetch the secret when they need it, so rotating means changing one place. Tools built for Vault (sops, Python's hvac) work unchanged with OpenBao.
 -->
 
 ---
@@ -303,8 +298,7 @@ flowchart LR
 - Allowed or denied, every request **and its answer** are logged.
 
 <!--
-This slide is the mental model for the whole day. A path looks like `secret/students/student07/db`. Every "permission denied"
-in the labs is one of these two diamonds saying no.
+Spend a bit of time here. It's the mental model for the whole day. A path looks like `secret/students/student07/db`. Every "permission denied" in the labs is one of the two diamonds saying no. When students get stuck later, bring them back to this slide: which check said no, the token or the policy?
 -->
 
 ---
@@ -325,11 +319,7 @@ flowchart LR
 - **Token:** what you get back, and what every request carries. Machines sign in the same way (AppRole, JWT).
 
 <!--
-Like the front desk at an office: you show ID (auth method), they look you up
-(entity), and hand you a visitor badge that expires tonight (token).
-A JWT is like a boarding pass: the airline signed it, it says who you are and
-until when, and the gate checks the signature instead of asking for a password.
-It comes back for CI jobs (Part 5) and deployed apps (Part 6).
+Think of the front desk at an office: you show ID (auth method), they look you up (entity), and hand you a visitor badge that expires tonight (token). A JWT is a boarding pass: the airline signed it, it says who you are and until when, and the gate checks the signature instead of asking for a password. It comes back for CI jobs (Part 5) and deployed apps (Part 6). Don't go deep on OIDC versus JWT now; lab 0 has them do both.
 -->
 
 ---
@@ -345,11 +335,9 @@ It comes back for CI jobs (Part 5) and deployed apps (Part 6).
 **Why:** a password works until someone changes it. A token that leaks stops working **by itself**, and you can kill it the moment you know.
 
 <!--
-Rule 3: short-lived, revocable. Contrast with a password in a .env file, which
-has no expiry at all. The accessor comes back in the incident part.
-One exception to "up to a max TTL": a periodic token (token_period, lab 10)
-can be renewed for as long as something keeps renewing it, one period at a
-time. It still dies soon after the renewals stop.
+Rule 3. Contrast it with a password in a .env file, which never expires. The accessor comes back in the incident drill (lab 13).
+
+One exception to "up to a max TTL": a periodic token (`token_period`, lab 10) can be renewed for as long as something keeps renewing it, one period at a time. It still dies soon after the renewals stop. Mention it only if someone asks.
 -->
 
 ---
@@ -373,17 +361,9 @@ OpenBao isn't only a store. It runs several **secrets engines**, each at its own
 Only **KV** keeps what you gave it. The others **do a job** with keys that stay inside the vault. The **first part** of the path (`secret/`, `transit/`, `database/`) picks the engine; the rest means something to that engine. Sign-in methods work the same way, under `auth/`.
 
 <!--
-Read the first path aloud: "the KV engine at secret/, the secret named
-students/student07/db". Then the others: "the transit engine, encrypt, with
-the key called sops"; "the database engine, credentials for the role app".
-Same gate for all three: a token, a policy that allows that path.
-KV is where you'll spend the next few slides. Transit comes back later
-(sops, lab 7): it locks config files so they're safe to commit, and the
-key that opens them never leaves the vault. Database comes back later
-(lab 12): instead of one shared DB password, every caller gets its own
-login that expires in minutes. The point to land now: a vault is more than
-a password safe; some engines hand out things that never existed before
-you asked.
+Read the first path aloud: "the KV engine at secret/, the secret named students/student07/db". Then the others: "the transit engine, encrypt, with the key called sops" and "the database engine, credentials for the role app". Same gate for all three: a token, and a policy that allows that path.
+
+Land one point: a vault is more than a password safe. Some engines hand out things that didn't exist until you asked. Transit comes back in lab 7, the database engine in lab 12. Two minutes; the table doesn't need a line-by-line read.
 -->
 
 ---
@@ -423,8 +403,7 @@ The next two slides take these one at a time.
 </div>
 
 <!--
-KV v1 just overwrites: one value per path, no history. v2 is what you use in
-practice. The labs' shared vault, secret/, is KV v2.
+KV v1 just overwrites: one value per path, no history. v2 is what you'd use in practice, and the labs' shared vault (`secret/`) is KV v2. If someone asks how many versions it keeps, ten by default, and that's configurable.
 -->
 
 ---
@@ -443,8 +422,7 @@ flowchart LR
 - **Like git:** a version is a commit, and a rollback is a revert. It copies an old version's data as a **new** version, so even the rollback is on record
 
 <!--
-Nothing here ever loses data: every step adds a version. That's the property
-you want from anything that holds credentials.
+Nothing here loses data: every step adds a version. That's the property you want from anything that holds credentials. If you have time, ask what the current version is after the rollback. The answer is v4, and that surprises people.
 -->
 
 ---
@@ -506,14 +484,9 @@ stateDiagram-v2
 </div>
 
 <!--
-The common mistake: "I deleted it" after a leak. Deleted versions come back
-with one command. Also: KV v2 splits the permissions (data/ for the value,
-metadata/, delete/, destroy/ for the history), so a policy can let an app read
-a secret without letting it wipe the history. That's why the policy on the
-next slide says secret/data/...
-For a deeper dive, click "A secret leaked?": the order (rotate, revoke,
-destroy), why destroying still matters once you've rotated, and how to guard
-undelete/ and destroy/. "close" at the top right hides it.
+The mistake to head off: "I deleted it" after a leak. A deleted version comes back with one command. KV v2 also splits the permissions (data/ for the value, then metadata/, delete/, undelete/ and destroy/ for the history), so a policy can let an app read a secret without letting it wipe the history. That's why the policy on the next slide says secret/data/...
+
+Click "A secret leaked?" for the order: rotate, revoke, then destroy, and why destroying still matters once you've rotated. "close" at the top right hides it. Skip the popup if you're short on time; lab 3 covers delete versus destroy by hand. This slide is dense on purpose, because it's one idea (delete is reversible, destroy isn't), and splitting it loses that.
 -->
 
 ---
@@ -533,12 +506,9 @@ path "secret/data/students/{{identity.entity.name}}/*" {
 - `{{identity.entity.name}}` is filled in on each request with the caller's name: **one policy** for 30 students or 3,000, no per-person rule to maintain
 
 <!--
-Read the policy aloud as a sentence: "anyone may create, read, update... under
-secret/data/students/ followed by their own name". student07 asking for
-student02's folder matches no rule, so it's denied.
-The data/ in the path: `bao kv get secret/students/student07/db` really asks
-for secret/data/students/student07/db. Splitting data/ from destroy/ is what
-lets a policy say "read this, but never wipe its history" (the last slide).
+Read the policy aloud as a sentence: "anyone may create, read, update and so on under secret/data/students/ followed by their own name". When student07 asks for student02's folder, no rule matches, so it's denied.
+
+On the data/ in the path: `bao kv get secret/students/student07/db` really asks for secret/data/students/student07/db, because `bao kv` adds it for you. It's an easy one to trip on when writing a first policy by hand in lab 4.
 -->
 
 ---
@@ -555,9 +525,7 @@ lets a policy say "read this, but never wipe its history" (the last slide).
 <p class="lede">Rules so far: 1 least privilege, 3 short-lived, 6 audit, 8 never in git. <b>Next:</b> one shared vault works for a class. Does it work for forty teams?</p>
 
 <!--
-Pause point (labs 0-3). Labs 0-3 cover all of Part 1: signing in, a leak in git, pass, KV v2 and the templated policy. If you run them now, pick the talk up again at
-the next slide afterwards; if not, just carry on. The footer is the only hint
-students see.
+Pause point: labs 0-3 (about 47 min). Labs 0-3 cover all of Part 1: signing in, a leak in git, pass, KV v2 and the templated policy. If you run them now, pick the talk up at the next slide afterwards. If not, carry on. Students only see the footer hint, nothing else marks the break.
 -->
 
 ---
@@ -567,6 +535,10 @@ students see.
 # Part 2
 
 ## From a shared vault to your own
+
+<!--
+Part 2 is short, about 6 minutes (my estimate). One lab, lab 4.
+-->
 
 ---
 
@@ -604,10 +576,7 @@ flowchart TB
 </div>
 
 <!--
-Lab 3 is this model: secret/students/<you>/, and the one templated policy
-from Part 1. Nothing wrong with it; plenty of companies stay here. The
-strains are about ownership: the team that owns the secrets can't run their
-own access. That's what namespaces fix, next.
+Lab 3 is this model: secret/students/<you>/ and the one templated policy from Part 1. There's nothing wrong with it, and plenty of companies stay here. The strains are about ownership: the team that owns the secrets can't run their own access. That's what namespaces fix, next. Ask who in the room works somewhere that looks like this.
 -->
 
 ---
@@ -641,9 +610,7 @@ Each namespace has its **own** engines, policies, tokens and auth methods.
 </div>
 
 <!--
-Multi-tenancy without running a vault per team: each strain on the last
-slide goes away, because the team runs its own engines, policies and
-sign-ins, and a mistake stays inside one namespace.
+This is multi-tenancy without running a vault per team. Each strain on the last slide goes away, because the team runs its own engines, policies and sign-ins, and a mistake stays inside one namespace.
 -->
 
 ---
@@ -689,14 +656,9 @@ path "team/data/app" {
 - **Paths are relative** to where the policy lives: root writes `students/student07/team/...`, you write `team/...`
 
 <!--
-This is how the namespace slide actually works. The platform team doesn't
-create 30 admin policies: one templated rule in the root namespace's
-student policy (the same policy as Part 1's folder rule) covers
-students/<name>/*, and a path in a root policy includes the namespace, so
-that's "everything in your namespace", sys/ included. That's what lets you
-write policies at all.
-Inside your namespace you write paths without the prefix: team/data/app is
-students/student07/team/data/app seen from the root.
+This is how the namespace slide works in practice. The platform team doesn't create 30 admin policies. One templated rule in the root namespace's student policy covers students/<name>/*, and a path in a root policy includes the namespace, so that means everything in your namespace, sys/ included. That's what lets you write policies at all.
+
+Inside your namespace you write paths without the prefix: team/data/app is students/student07/team/data/app as seen from the root. The two are easy to mix up in lab 4.
 -->
 
 ---
@@ -748,14 +710,9 @@ flowchart TB
 | **Azure**         | root management group, Azure Policy | its subscription; Azure RBAC, as code, by PR |
 
 <!--
-The boundary runs one way: a root policy can reach down into namespaces, a
-namespace's policy can never reach up or sideways.
-Names are local too: student02 can have an app-read of their own, and
-neither affects the other. Lab 4 has you write app-read in the UI, then as
-a file, and hand it to a token.
-The Azure row is the same shape: policy and RBAC assigned at a management
-group are inherited by every subscription below it, and a subscription
-owner can add access but can't remove what was assigned above.
+The boundary runs one way: a root policy can reach down into namespaces, and a namespace's policy can never reach up or sideways. Names are local too: student02 can have an app-read of their own, and neither affects the other. In lab 4 they write app-read in the UI, then as a file, then hand it to a token.
+
+The Azure row is the same shape. Policy and RBAC assigned at a management group are inherited by every subscription below it, and a subscription owner can add access but can't remove what was assigned above. Skip the table if the room isn't an Azure room.
 -->
 
 ---
@@ -771,9 +728,7 @@ owner can add access but can't remove what was assigned above.
 <p class="lede">Rules: 1 least privilege, 5 separation of duties (the platform team and the team). <b>Next:</b> so far a person signed in. How does a program nobody is watching get its secret?</p>
 
 <!--
-Pause point (lab 4). Lab 4: a namespace you run, an engine, a policy in the UI and then as code, a token you revoke. If you run them now, pick the talk up again at
-the next slide afterwards; if not, just carry on. The footer is the only hint
-students see.
+Pause point: labs 4 (about 15 min). Lab 4: a namespace you run, an engine, a policy in the UI and then as code, a token you revoke. If you run them now, pick the talk up at the next slide afterwards. If not, carry on. Students only see the footer hint, nothing else marks the break.
 -->
 
 ---
@@ -783,6 +738,10 @@ students see.
 # Part 3
 
 ## Secrets in code
+
+<!--
+Part 3 takes about 9 minutes (my estimate). It sets up the secret-zero ladder, which Parts 5 and 6 climb.
+-->
 
 ---
 
@@ -797,8 +756,7 @@ students see.
 **Never log a secret:** log _that_ you loaded the config, not _what_ it holds.
 
 <!--
-The vault's catch is the rest of this part: how does an app prove who it is,
-and who keeps its token alive?
+The vault's catch is the rest of this part: how does an app prove who it is, and who keeps its token alive? Keep this one quick, about a minute. Lab 5 has them run one app all three ways, so they'll feel the differences.
 -->
 
 ---
@@ -835,12 +793,7 @@ Every request needs a **token**, and a token comes from **signing in**. You sign
 </div>
 
 <!--
-Rules 1 and 2. The question to ask the room: "how does a program that nobody
-is watching prove who it is?" A person has a browser and a Forgejo login; a
-program has neither. Borrowing a person's token is the usual shortcut, and it
-breaks least privilege, breaks when the person leaves, and makes the audit
-log lie. The answer is a machine account, the same idea as a service account
-or an Azure service principal.
+Rules 1 and 2. Ask the room: "how does a program that nobody is watching prove who it is?" A person has a browser and a Forgejo login. A program has neither. Borrowing a person's token is the usual shortcut. It breaks least privilege, breaks when the person leaves, and makes the audit log lie. The answer is a machine account, the same idea as a service account or an Azure service principal.
 -->
 
 ---
@@ -867,12 +820,9 @@ sequenceDiagram
 **Once:** an admin creates the role. **At every start:** the app trades its two halves for a short-lived token, and uses the token for every read.
 
 <!--
-Walk the diagram top to bottom. The top half happens once, and it's done by
-someone who already has a token (you, in lab 6). The bottom half happens on
-every start: the app trades its two halves for a short-lived token, and uses
-that token, not the halves, for every read. The weak spot is the arrow
-"hand over both": someone has to give the app its secret ID. Keep that
-thought; it's secret zero, two slides on.
+Walk the diagram top to bottom. The top half happens once, and someone who already has a token does it (you, in lab 6). The bottom half happens at every start: the app trades its two halves for a short-lived token, and uses that token, not the halves, for every read.
+
+The weak spot is the arrow "hand over both": someone has to give the app its secret ID. Keep that thought for two slides; it's secret zero.
 -->
 
 ---
@@ -913,11 +863,9 @@ Neither half alone logs in, so they can travel by **different routes**: the role
 </div>
 
 <!--
-The table is the thing to remember about AppRole: the role ID is not a
-secret, the secret ID is, and briefly, and the token is what the app actually
-uses. Click "Secret ID" in the table for how it's kept small (expiry, single
-use, address binding, wrapping, deleted after reading, split delivery);
-"close" at the top right hides it.
+The table is what to remember about AppRole: the role ID isn't a secret, the secret ID is (and only briefly), and the token is what the app actually uses. Click "Secret ID" in the table for how it's kept small: expiry, single use, address binding, wrapping, deleted after reading, split delivery. "close" at the top right hides it.
+
+The popup is the dense part, and I've left it as a popup rather than a second slide so the table stays the main thing. If you're short on time, skip it; lab 10 comes back to wrapping.
 -->
 
 ---
@@ -938,9 +886,7 @@ flowchart LR
 - The Agent runs **next to** the app (a sidecar), and handles logins, renewals and re-reads
 
 <!--
-This is the usual pattern at work: Vault Agent, the Kubernetes Vault injector,
-the Secrets Store CSI driver on AKS. The app reads a file or env; something
-beside it does the vault work.
+This is the usual pattern at work: Vault Agent, the Kubernetes Vault injector, the Secrets Store CSI driver on AKS. The app reads a file or an environment variable, and something beside it does the vault work. In lab 6 they rotate a secret and watch the file change with no restart. That's the moment this slide is for.
 -->
 
 ---
@@ -972,11 +918,9 @@ We climb it twice: **CI jobs** (Part 5), then **deployed apps** (Part 6).
 </div>
 
 <!--
-Rule 4. Asking "what's our secret zero?" about any system shows where the real
-risk sits. In lab 6 you were the deliverer, by hand, with a reusable
-one-hour secret ID: somewhere between rungs 2 and 3. The rest of the talk
-climbs the ladder: Part 5 goes from rung 3 to rung 1 for CI, Part 6 from
-rung 2 to rung 1 for a running app.
+Rule 4. Asking "what's our secret zero?" about any system shows where the real risk sits. In lab 6 you were the deliverer, by hand, with a reusable one-hour secret ID: somewhere between rungs 2 and 3.
+
+The rest of the talk climbs the ladder. Part 5 goes from rung 3 to rung 1 for CI. Part 6 goes from rung 2 to rung 1 for a running app. Slow down here; people who get this slide get the next 25.
 -->
 
 ---
@@ -993,9 +937,7 @@ rung 2 to rung 1 for a running app.
 <p class="lede">Rules: 1, 2 identity over secrets, 4 secret zero, 8. <b>Next:</b> the app's config lives in git. Can its secrets live there too?</p>
 
 <!--
-Pause point (labs 5-6). Lab 5: one app three ways. Lab 6: the Agent logs in with an AppRole, then a rotation with no restart. If you run them now, pick the talk up again at
-the next slide afterwards; if not, just carry on. The footer is the only hint
-students see.
+Pause point: labs 5-6 (about 30 min). Lab 5: one app three ways. Lab 6: the Agent logs in with an AppRole, then a rotation with no restart. If you run them now, pick the talk up at the next slide afterwards. If not, carry on. Students only see the footer hint, nothing else marks the break.
 -->
 
 ---
@@ -1005,6 +947,10 @@ students see.
 # Part 4
 
 ## Secrets in git
+
+<!--
+Part 4 is the shortest, about 5 minutes (my estimate). One lab, lab 7.
+-->
 
 ---
 
@@ -1037,11 +983,7 @@ GitOps wants **all** config in git: reviewed, versioned, deployable. Passwords a
 </div>
 
 <!--
-Part 3 kept secrets out of the code by having the app fetch them. But
-GitOps wants the whole config in git, including the database block. sops
-squares that: the structure stays readable and reviewable, only the values
-are ciphertext. The sops: block at the bottom is sops' own metadata: which
-vault key locked this file.
+Part 3 kept secrets out of the code by having the app fetch them. But GitOps wants the whole config in git, including the database block. sops squares that: the structure stays readable and reviewable, and only the values are ciphertext. The sops: block at the bottom is sops' own metadata, which says which vault key locked this file.
 -->
 
 ---
@@ -1069,11 +1011,7 @@ sequenceDiagram
 </div>
 
 <!--
-Same pattern as a safe-deposit box: the file is locked with its own key, and
-that key sits in a box only the bank (the vault) can open. The v1 in
-vault:v1: is the version of the transit key; it matters on the next slide.
-Cloud KMS, Azure Key Vault keys and AWS KMS all do envelope encryption the
-same way, and sops supports all of them.
+Same idea as a safe-deposit box: the file is locked with its own key, and that key sits in a box only the bank (the vault) can open. The v1 in vault:v1: is the version of the transit key, and it matters on the next slide. Cloud KMS, Azure Key Vault keys and AWS KMS all do envelope encryption the same way, and sops supports all of them. If the sequence diagram loses people, say it once in words: the vault locks the key, not the file.
 -->
 
 ---
@@ -1089,13 +1027,9 @@ same way, and sops supports all of them.
 Compare: a password committed in plaintext can't be un-leaked. An encrypted one can be **locked out**.
 
 <!--
-Rules 1, 6 and 7. The order in lab 7: rotate the key, run sops rotate on the
-files in the repo so they use version 2, commit, then retire version 1.
-Rotating the key alone changes nothing in existing files: they still say
-vault:v1: until sops rotate re-encrypts them. After min_decryption_version=2,
-any copy still on v1 (an old fork, a backup, a laptop) stops opening.
-If the file itself leaked, still rotate the secrets inside it: someone may
-have decrypted it before you locked them out.
+Rules 1, 6 and 7. The order in lab 7: rotate the key, run sops rotate on the files in the repo so they use version 2, commit, then retire version 1. Rotating the key alone changes nothing in existing files: they still say vault:v1: until sops rotate re-encrypts them. After min_decryption_version=2, any copy still on v1 (an old fork, a backup, a laptop) stops opening.
+
+If the file itself leaked, still rotate the secrets inside it. Someone may have decrypted it before you locked them out.
 -->
 
 ---
@@ -1111,9 +1045,7 @@ have decrypted it before you locked them out.
 <p class="lede">Rules: 1, 6 audit, 7 plan for leaks, 8. <b>Next:</b> a pipeline needs secrets too. Where do most teams keep them?</p>
 
 <!--
-Pause point (lab 7). Lab 7: sops with transit, an encrypt-only policy, rotating and retiring a key version. If you run them now, pick the talk up again at
-the next slide afterwards; if not, just carry on. The footer is the only hint
-students see.
+Pause point: labs 7 (about 15 min). Lab 7: sops with transit, an encrypt-only policy, rotating and retiring a key version. If you run them now, pick the talk up at the next slide afterwards. If not, carry on. Students only see the footer hint, nothing else marks the break.
 -->
 
 ---
@@ -1123,6 +1055,10 @@ students see.
 # Part 5
 
 ## Secrets in pipelines
+
+<!--
+Part 5 takes about 7 minutes (my estimate). It's the first time the ladder from Part 3 gets used for real.
+-->
 
 ---
 
@@ -1153,9 +1089,7 @@ steps:
 </div>
 
 <!--
-Stored CI secrets are the most common secret zero at work: the bottom rung
-of the ladder from Part 3. Next, the fix most teams try first (AppRole),
-then the real one (the job's own identity).
+Stored CI secrets are the most common secret zero at work: the bottom rung of the ladder from Part 3. Lab 8 has them print one with base64, which is a good moment. Next is the fix most teams try first (AppRole), then the better one (the job's own identity). Of the bullets, the `pull_request_target` one is the one people haven't heard of, so it's worth a sentence.
 -->
 
 ---
@@ -1199,11 +1133,7 @@ Lab 9 starts here, then replaces it with the job's own identity.
 </div>
 
 <!--
-The step most teams take first, and a real improvement: the deploy token is
-in the vault now, with a policy and an audit trail. But the pipeline still
-holds a long-lived credential, and the vault can't tell a job on main from a
-job on some branch: whoever holds the secret ID gets in. That's the problem
-the next slide solves.
+This is the step most teams take first, and it's a real improvement: the deploy token is in the vault now, with a policy and an audit trail. But the pipeline still holds a long-lived credential, and the vault can't tell a job on main from a job on some branch. Whoever holds the secret ID gets in. The next two slides fix that.
 -->
 
 ---
@@ -1224,6 +1154,12 @@ sequenceDiagram
 </div>
 
 **Nothing is stored in CI.** The proof is made fresh for each run, and expires in minutes: the **top rung** of the ladder.
+
+<!--
+Lab 9, second half. Walk the sequence: the job asks Forgejo for a token for this run, Forgejo signs a JWT, the job takes it to OpenBao, and OpenBao checks Forgejo's signature and the role's bound claims. Point at "Nothing is stored in CI". This is rung 1 of the ladder, for CI. About two minutes.
+
+If someone asks how OpenBao trusts Forgejo: it's configured with Forgejo's issuer and public keys, and in lab 9 they read that config themselves.
+-->
 
 ---
 
@@ -1257,8 +1193,7 @@ A branch isn't `main`: **refused**. Another repo: **refused**.
 </div>
 
 <!--
-A JWT is a signed statement: "this job is running for this repo on this
-branch". The vault doesn't need a shared secret, only Forgejo's public keys.
+A JWT is a signed statement: "this job is running for this repo on this branch". The vault doesn't need a shared secret, only Forgejo's public keys. The useful line is the last one: a branch that isn't main is refused, and so is another repo. In lab 9 they try both. Don't read the JSON field by field; point at repository and ref.
 -->
 
 ---
@@ -1280,6 +1215,10 @@ steps:
 
 **Azure:** `azure/login` or an Azure DevOps service connection with **workload identity federation**.
 **GitLab:** `id_tokens:` in the job. The labs use plain `curl` + `bao`, so you can see each step.
+
+<!--
+Thirty seconds, and skip it if you're short. The labs use plain curl and bao so every step is visible. At work you'd use the ready-made action or service connection. We haven't run the hashicorp/vault-action line against OpenBao in this lab, so treat the "works with OpenBao too" comment as what the project says, not as something we've verified here.
+-->
 
 ---
 
@@ -1315,10 +1254,7 @@ flowchart TB
 </div>
 
 <!--
-Long-lived shared runners are how one team's job reads another team's
-leftovers: a token in a temp file, a cached credential. A five-minute vault
-token is short-lived, but not if the next job on the same runner can pick it
-up. Labs 8-9 run on these runners; the Runners panel shows them come and go.
+Long-lived shared runners are how one team's job reads another team's leftovers: a token in a temp file, a cached credential. A five-minute vault token is short-lived, but not if the next job on the same runner can pick it up. Labs 8-9 run on these runners, and the Runners panel in /admin shows them come and go. That panel is a good live demo if the room is quiet.
 -->
 
 ---
@@ -1335,9 +1271,7 @@ up. Labs 8-9 run on these runners; the Runners panel shows them come and go.
 <p class="lede">Rules: 1, 2 identity over secrets, 3 short-lived, 4 secret zero. <b>Next:</b> the same climb up the ladder, for a running app.</p>
 
 <!--
-Pause point (labs 8-9). Lab 8: a repository secret and masking. Lab 9: AppRole in CI, then the job's own identity. If you run them now, pick the talk up again at
-the next slide afterwards; if not, just carry on. The footer is the only hint
-students see.
+Pause point: labs 8-9 (about 35 min). Lab 8: a repository secret and masking. Lab 9: AppRole in CI, then the job's own identity. If you run them now, pick the talk up at the next slide afterwards. If not, carry on. Students only see the footer hint, nothing else marks the break.
 -->
 
 ---
@@ -1347,6 +1281,10 @@ students see.
 # Part 6
 
 ## Secrets in deployments
+
+<!--
+Part 6 is the longest part, about 10 minutes (my estimate). It has four labs, 10 to 13, about 75 minutes of lab time between them.
+-->
 
 ---
 
@@ -1366,10 +1304,7 @@ The secret-zero ladder from Part 3, now for an app on a server. Part 5 climbed i
 **Off the ladder:** secrets in the image, a committed `.env`, env vars pushed by the pipeline, one shared token.
 
 <!--
-Best first, the same three rungs as Part 3, so nothing new to learn here,
-just the same question for a different workload. Most real systems are a
-mix; the goal is to move each app up a rung. The next slide is rung 2, then
-rung 1, then the two side by side.
+Best first, with the same three rungs as Part 3, so there's nothing new to learn here. It's the same question for a different workload. Most real systems are a mix, and the goal is to move each app up one rung. The next slide is rung 2, then rung 1, then the two side by side. The "off the ladder" line is worth a pause: ask who has seen one of those.
 -->
 
 ---
@@ -1401,29 +1336,13 @@ sequenceDiagram
 - The deliverer may **make** secret IDs for `app`, not **read** its secrets
 
 <!--
-This answers "so where does the secret ID live, and who rotates it?", the
-question left open by the AppRole slides in Part 3.
-Pipeline flow: it logs in with its job identity (from lab 9, nothing stored),
-asks for a wrapped secret ID for the "app" role, and puts the wrapper into
-the app bundle. The app's Agent unwraps it once and logs in; the secret ID
-is spent after that first use. The app then keeps renewing its token for
-the rest of its life. No second login, no second secret ID.
+This answers the question left open in Part 3: where does the secret ID live, and who rotates it?
 
-Rung 3 ("just store it"): a company stores the secret ID in their CI
-library, hard-coded or in a vault. Every deploy uses the same one. It's
-never rotated, so it's worth stealing and exploiting offline.
+The pipeline logs in with its job identity (from lab 9, nothing stored), asks for a wrapped secret ID for the "app" role, and puts the wrapper into the app bundle. The app's Agent unwraps it once and logs in, and the secret ID is spent after that first use. The app then keeps renewing its token for the rest of its life.
 
-Rung 2 (this slide): every deploy mints a new secret ID. It's single-use,
-so even if someone intercepted the wrapper, they can't exploit it the same
-way twice. The interception also fails loudly ("wrapping token is not valid or does not exist"), so
-you catch it.
+Rung 3 ("just store it") is the same secret ID in the CI settings, used by every deploy and never rotated, so it's worth stealing. Here every deploy mints a new one. If someone intercepts the wrapper, the Agent's unwrap fails loudly ("wrapping token is not valid or does not exist"), so you find out.
 
-For a long-running app, give the role a periodic token (token_period):
-it lives as long as the Agent keeps renewing it, so no second login,
-no second secret ID. If the app stops, the token lapses by itself.
-
-Lab 10 does this with a real pipeline. Lab 6 did steps 2-4 by hand: you
-were the deliverer, with a one-hour, reusable secret ID.
+For a long-running app, give the role a periodic token (token_period). It lives as long as the Agent keeps renewing it, and lapses on its own if the app stops. Lab 10 does this with a real pipeline. Lab 6 did steps 2 to 4 by hand.
 -->
 
 ---
@@ -1445,10 +1364,7 @@ sequenceDiagram
 The top rung, as for CI in Part 5. **On Azure:** managed identity. **On Kubernetes:** a service account token.
 
 <!--
-Rung 1. Compare with the CI slide "The job's own identity": there Forgejo
-signed a JWT for one run; here app-host signs one for your slot, every ten
-minutes, and nobody hands anything over. The vault checks the signature and
-that sub matches the role's slot, exactly like bound claims for CI. Lab 11.
+This is rung 1. Compare it with "The job's own identity": there, Forgejo signed a JWT for one run. Here, app-host signs one for your slot every ten minutes, and nobody hands anything over. The vault checks the signature and that sub matches the role's slot, the same way it checks bound claims for CI. This is lab 11.
 -->
 
 ---
@@ -1471,13 +1387,9 @@ th, td { padding: 6px 12px; }
 **The deliverer** when the platform can't vouch for the app (a plain VM, an old host). **Platform identity** wherever it can.
 
 <!--
-Lab 10 is the "Rung 2" slide two back, done by a real
-pipeline: it logs in as deliver-main, mints a wrapped single-use secret ID,
-ships it in the bundle; the Agent opens it once. The lab ends by restarting
-the app without a deploy: the Agent says "no known secret ID" and the app has
-no secrets until the next deploy. That's the price of single use, and it's why
-lab 11 exists: the platform keeps handing the app a fresh identity, so a
-restart just logs in again.
+Lab 10 is the "Rung 2" slide done by a real pipeline: it logs in as deliver-main, mints a wrapped single-use secret ID and ships it in the bundle, and the Agent opens it once. The lab ends by restarting the app without a deploy. The Agent says "no known secret ID" and the app has no secrets until the next deploy. That's the price of single use, and it's why lab 11 exists: the platform keeps handing the app a fresh identity, so a restart just logs in again.
+
+Ask the room which they'd pick for a plain VM. The answer is the deliverer, and the table says why.
 -->
 
 ---
@@ -1500,8 +1412,7 @@ td code { white-space: nowrap; }
 **Separation of duties:** whoever ships the code never holds production's secrets, and a branch can't ship.
 
 <!--
-Rule 5. If the pipeline is compromised, the attacker can deploy (bad), but
-can't read the production secrets (much less bad).
+Rule 5. If the pipeline is compromised, the attacker can deploy (bad), but can't read the production secrets (much less bad). Read the table by rows, not columns: for each identity, what it may do and what it may not. The "May not" column is the point.
 -->
 
 ---
@@ -1542,9 +1453,7 @@ sequenceDiagram
 </div>
 
 <!--
-The database engine from Part 1's engine table. The ladder decides how the
-app gets a vault token; dynamic credentials decide what that token reads:
-here, a login that didn't exist until the app asked for it.
+Lab 12. This is the database engine from the engine table in Part 1. The ladder decides how the app gets a vault token. Dynamic credentials decide what that token reads: here, a login that didn't exist until the app asked for it. Ask what a leaked login is worth after five minutes. About two minutes on this slide.
 -->
 
 ---
@@ -1559,8 +1468,7 @@ here, a login that didn't exist until the app asked for it.
 **The question it answers:** "this token leaked, what did it do?", in minutes, not guesses.
 
 <!--
-Rule 6. At work the audit log goes to the SIEM (on Azure: diagnostic settings
-to Log Analytics).
+Rule 6. At work the audit log goes to the SIEM (on Azure: diagnostic settings to Log Analytics). The line to land is the last one: "this token leaked, what did it do?", answered in minutes. Students use `bao-audit` for this in lab 13. Mention that values are hashed, so the log is safe to look at.
 -->
 
 ---
@@ -1588,6 +1496,12 @@ flowchart TB
 </div>
 </div>
 
+<!--
+Lab 13 shows this live. The point: an attacker's first move is to make a spare token, so revoking only the one you know about isn't containment. Ask the room: "what would you do first with a stolen token that can make tokens?" One to two minutes.
+
+Orphan tokens are the exception. They don't die with a parent, so what matters is who may create them.
+-->
+
 ---
 
 ## When a token leaks
@@ -1600,8 +1514,7 @@ flowchart TB
 6. **Review:** why a long-lived, token-making token existed at all
 
 <!--
-The order matters: investigate before you revoke only if it's quick; the audit
-log survives the revoke, so when in doubt, contain first.
+The order matters. Investigate before you revoke only if it's quick. The audit log survives the revoke, so when in doubt, contain first. On step 4: rotate what the token read, not what it was refused. The refusal is evidence that least privilege worked. Lab 13 is this slide, with a clock.
 -->
 
 ---
@@ -1618,9 +1531,7 @@ log survives the revoke, so when in doubt, contain first.
 <p class="lede">Rules: 2, 3, 4, 5 separation of duties, 6 audit, 7 plan for leaks. <b>Next:</b> the whole day on one map, then the labs.</p>
 
 <!--
-Pause point (labs 10-13). Labs 10-11: deploy with a delivered secret ID, then with platform identity. Lab 12: dynamic database logins. Lab 13: the incident drill. If you run them now, pick the talk up again at
-the next slide afterwards; if not, just carry on. The footer is the only hint
-students see.
+Pause point: labs 10-13 (about 75 min). Labs 10-11: deploy with a delivered secret ID, then with platform identity. Lab 12: dynamic database logins. Lab 13: the incident drill. If you run them now, pick the talk up at the next slide afterwards. If not, carry on. Students only see the footer hint, nothing else marks the break.
 -->
 
 ---
@@ -1644,6 +1555,10 @@ th, td { padding: 5px 14px; }
 | Transit engine (sops)                          | Key Vault keys (sops `azure_kv`)                   |
 | Database engine                                | Entra ID sign-in to Azure SQL / Postgres           |
 | Audit device                                   | Diagnostic settings to Log Analytics               |
+
+<!--
+For the Azure shops in the room, about a minute. It's a rough equivalence, not an exact one: Azure acts on a whole secret, KV v2 on one version. Skip it if the room isn't an Azure room. Nothing later depends on it.
+-->
 
 ---
 
@@ -1684,10 +1599,7 @@ flowchart LR
 </div>
 
 <!--
-The whole talk on one slide, just before the labs. team/app is read by the
-Agent (labs 6, 10, 11) and the attacker in the drill (13); team/ci by the CI job
-(9); team/admin is the one nobody should get, and labs 4 and 13 show it
-refused. secret/students/you is where labs 0-3 happen.
+This is the whole talk on one slide, just before the labs. team/app is read by the Agent (labs 6, 10, 11) and the attacker in the drill (13). team/ci is read by the CI job (9). team/admin is the one nobody should get, and labs 4 and 13 show it refused. secret/students/you is where labs 0-3 happen. If you ran the labs part by part, this slide is a recap.
 -->
 
 ---
@@ -1710,20 +1622,26 @@ table { font-size: 22px; }
 About **3½ hours** in all. Details and timings: [labs.md](labs.md).
 
 <!--
-If you paused for labs at the end of each part, this slide and the next are
-a recap: skip to the wrap-up.
+Say the total out loud: about 3½ hours of labs, and people underestimate it. If you paused for labs at the end of each part, this slide is a recap, so skip ahead to the wrap-up.
 -->
 
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
+<!-- _footer: "[&larr; Hub](index.md)" -->
 
 # Let's go
 
-## Next: [labs.md](labs.md), then your terminal
+## Next: [labs.md](labs.md) for what each lab covers, then your terminal
+
+Keep [cheat-sheet.md](cheat-sheet.md) open in another tab. Ask for help any time. This is a lab, not a test.
 
 Open the **Vault** card; the first time, click **Authorize** in Forgejo.
+
+<!--
+Hand over to the labs. Before they start: the Vault card, and the one-time Authorize click in Forgejo. Someone will miss it, so ask who's signed in. If you're running the labs part by part, this isn't the end of the session. Come back to the wrap-up slides afterwards.
+-->
 
 ---
 
@@ -1732,6 +1650,10 @@ Open the **Vault** card; the first time, click **Authorize** in Forgejo.
 # Wrap-up
 
 ## After the labs
+
+<!--
+About five minutes (my estimate). Do this after the labs. Skip anything that isn't landing.
+-->
 
 ---
 
@@ -1752,6 +1674,10 @@ table { font-size: 21px; }
 | 7   | Plan for leaks               | Removing a teammate (2), key rotation (7), no redeploy (6, 11), the drill (13) |
 | 8   | Never in git, logs or images | gitleaks (1), `pass` (2), masking (8), sops (7), no DEBUG dumps (5)            |
 
+<!--
+Two minutes. Ask which rule each person hit hardest in the labs, take one or two answers, and move on. The lab numbers are there so people can go back and redo the one that mattered to them.
+-->
+
 ---
 
 ## At work on Monday
@@ -1764,6 +1690,10 @@ table { font-size: 21px; }
 - **Know who can read the audit log**, and rehearse a leak before you have one
 - **Keep policies in git** and change them by pull request
 
+<!--
+Don't read the list. Ask each person to pick one thing they'll do this week. Scanning repos with gitleaks is the easiest win and the one most likely to find something. About two minutes.
+-->
+
 ---
 
 ## What today's vault cuts short
@@ -1773,14 +1703,25 @@ table { font-size: 21px; }
 - **Plain HTTP inside the lab network**, to the vault and to the database. At work: TLS on every hop
 - **Token accessors in clear** in the audit log, so `bao-audit` and the Audit tab can match your requests. Tokens and secrets stay hashed
 
+<!--
+This slide is here so nobody copies the lab setup into production. The question people ask most is the unseal key, and the answer is on the slide: at work, auto-unseal from a cloud KMS or an HSM, or key shares split between several people. About a minute.
+-->
+
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
+<!-- _footer: "[&larr; Hub](index.md)" -->
 
-# Thank you
+# That's the session
 
-## Questions?
+## Any lab is still there if you want to redo it
+
+Pick one from [labs.md](labs.md). The commands are in [cheat-sheet.md](cheat-sheet.md). Ask if something didn't land.
+
+<!--
+Last slide, so this is where questions go. labs.md has the list and times for anyone who wants to redo a lab.
+-->
 
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"

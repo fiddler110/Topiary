@@ -16,7 +16,7 @@ style: |
 
 # OpenTofu Basics
 
-<p class="tag">init, plan, apply, destroy — and how an Infrastructure-as-Code repo is laid out. <code>terraform</code> runs OpenTofu here.</p>
+<p class="tag">init, plan, apply, destroy, and how an Infrastructure-as-Code repo is laid out. <code>terraform</code> runs OpenTofu here.</p>
 
 <div class="links">
 <a class="enter" href="presentation.md">&rarr; Presentation</a>

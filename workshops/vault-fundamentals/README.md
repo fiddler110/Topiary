@@ -1,4 +1,4 @@
-# vault-fundamentals — Vault Fundamentals Lab
+# vault-fundamentals: Vault Fundamentals Lab
 
 How to use a vault well: get secrets out of code, git, pipelines and servers, and replace long-lived secrets with
 identity and short-lived credentials. Fourteen labs (0-13, about 3½ hours) on a real OpenBao, after a talk

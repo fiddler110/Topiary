@@ -1,4 +1,4 @@
-# Lab 3 — The Change Process on a Shared Zone
+# Lab 3: The Change Process on a Shared Zone
 
 **Part 2.** `dojo.test` is the whole class's zone, standing in for your company's production DNS. Here you can't just push. By the end of this lab you'll have taken one change through the full process: branch, pull request, CI preview, a review by someone else, merge, and CI applying it. On the way, you'll see the two gates that make that process the only way in.
 

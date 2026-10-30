@@ -1,4 +1,4 @@
-# Lab 3 — Use the shared vault
+# Lab 3: Use the shared vault
 
 **Goal:** store, read, version and delete secrets in the class's shared vault, and read the one policy that keeps everyone in their own folder.
 

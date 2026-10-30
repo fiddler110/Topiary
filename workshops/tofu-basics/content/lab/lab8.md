@@ -1,4 +1,4 @@
-# Lab 8 — Change types: in-place vs replace
+# Lab 8: Change types: in-place vs replace
 
 **Goal:** make three small edits and predict, before you run `plan`, whether each one is a quiet update (`~`) or a rebuild (`-/+`). Then try forcing a rebuild and meet `create_before_destroy`.
 

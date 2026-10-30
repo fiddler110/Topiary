@@ -1,6 +1,6 @@
-# Lab 3 — Stashing
+# Lab 3: Stashing
 
-Scenario: you're halfway through an edit, and you suddenly need to switch branches — check something on `main`, or help debug another branch — but you're not ready to commit what you have. `git stash` is the "set this aside for a minute" escape hatch.
+Scenario: you're halfway through an edit, and you suddenly need to switch branches (check something on `main`, or help debug another branch) but you're not ready to commit what you have. `git stash` is the "set this aside for a minute" escape hatch.
 
 Do this from your `sample-training-repo` clone. Lab 1 deleted your old branch, so you'll make a fresh one for this lab in step 1 and delete it again at the end.
 
@@ -117,7 +117,7 @@ git stash list
 
 ## 5. Switch branches and come back
 
-With a clean tree you can move freely between branches. This is the whole point of stashing — no throwaway commit needed just to context-switch.
+With a clean tree you can move freely between branches. This is the whole point of stashing: no throwaway commit needed just to context-switch.
 
 **Your turn:** try the switch again, look around, and come back. Predict: will git let you switch this time, and will your commit from step 1 be visible on `main`?
 
@@ -208,11 +208,11 @@ git branch -D stash-demo
 
 ## Recap
 
-- `git stash` — set aside uncommitted changes to tracked files, restoring a clean working tree. It's local, and belongs to the repo rather than a branch.
-- `git stash list` — see everything you've stashed.
-- `git stash pop` — restore the most recent stash and remove it from the stack.
-- `git stash apply` — restore the most recent stash but keep it on the stack too: for the same change on two branches, or as a safety net.
-- `git stash drop` — remove an entry by hand. A conflicted `pop` keeps its entry, so you drop it yourself once resolved.
-- Stashing is for short-term context switches, not long-term storage — if you're not coming back to it soon, commit it instead.
+- `git stash`: set aside uncommitted changes to tracked files, restoring a clean working tree. It's local, and belongs to the repo rather than a branch.
+- `git stash list`: see everything you've stashed.
+- `git stash pop`: restore the most recent stash and remove it from the stack.
+- `git stash apply`: restore the most recent stash but keep it on the stack too: for the same change on two branches, or as a safety net.
+- `git stash drop`: remove an entry by hand. A conflicted `pop` keeps its entry, so you drop it yourself once resolved.
+- Stashing is for short-term context switches, not long-term storage. If you're not coming back to it soon, commit it instead.
 
-**Next:** [lab4.md](lab4.md) — investigating history with `log`, `blame`, and `show`.
+**Next:** [lab4.md](lab4.md): investigating history with `log`, `blame`, and `show`.

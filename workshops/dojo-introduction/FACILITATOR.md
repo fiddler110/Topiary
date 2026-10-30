@@ -1,6 +1,6 @@
 # Facilitator run-of-show: Dojo Introduction
 
-About 35 minutes: a 10-minute look at the slides, then click around. Nothing here has to be completed.
+About 35 minutes: a talk of about 20 minutes, then about 15 minutes of clicking around. Nothing here has to be completed.
 
 ## Before you start (5 minutes, ahead of time)
 
@@ -22,7 +22,7 @@ About 35 minutes: a 10-minute look at the slides, then click around. Nothing her
 4. **Every request is checked.** Identity is set by the gateway, never by the client.
 5. **Three layers.** Engine, modules, workshops; a new workshop is mostly content.
 6. **One terminal with every tool.** No internet, no `docker.sock`, tools baked in.
-7. **What is in the box.** The five workshops; open the **Workshop library** from the link.
+7. **What is in the box.** All twelve workshops and the modules; open the **Workshop library** from the link.
 8. **What you can click through.** Your map for the rest of the session.
 9. **Running it.** `./dojo <workshop>`.
 
