@@ -21,7 +21,7 @@
 services:
   # PowerDNS. Map-form networks because dns-ui adds dns_admin_net to it.
   dns-server:
-    image: docker.io/powerdns/pdns-auth-49:4.9.17@sha256:b554df74bbde1afa7caedad4af9c91378be6d46d05807d089b3c7c443002e684
+    image: docker.io/powerdns/pdns-auth-49:4.9.18@sha256:b2088f8bd0099a27a56b84837ae21ebbb45f83345bef34c55f63890148288f93
     container_name: workshop_powerdns
     # `:-` not `:?`: ./dojo stop reads this file without workshop.env.
     environment:

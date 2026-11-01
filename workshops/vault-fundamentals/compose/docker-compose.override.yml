@@ -111,7 +111,7 @@ services:
     # /var/lib/postgresql/18/docker and refuses to start with a mount at the old
     # /var/lib/postgresql/data ("unused mount/volume"), so app_db_data is mounted
     # one level up, at /var/lib/postgresql.
-    image: docker.io/library/postgres:18-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
+    image: docker.io/library/postgres:18-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     container_name: workshop_app_db
     # Starts as root: /bootstrap is the postgres user's to write (init.sh),
     # then the image's entrypoint drops to that user. Mode 1777 as well as the chown: podman chowns a

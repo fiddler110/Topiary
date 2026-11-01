@@ -35,7 +35,7 @@ services:
   # PDNS_AUTH_API_KEY enables PowerDNS's built-in HTTP API + webserver on
   # :8081 (see https://github.com/PowerDNS/pdns/blob/master/Docker-README.md).
   dns-server:
-    image: docker.io/powerdns/pdns-auth-49:4.9.17@sha256:b554df74bbde1afa7caedad4af9c91378be6d46d05807d089b3c7c443002e684
+    image: docker.io/powerdns/pdns-auth-49:4.9.18@sha256:b2088f8bd0099a27a56b84837ae21ebbb45f83345bef34c55f63890148288f93
     container_name: workshop_powerdns
     # POWERDNS_API_KEY is derived in workshop.env from the install's
     # GATEWAY_TOKEN: only dns-api and the dns-ui module get it.
@@ -72,7 +72,7 @@ services:
   # (compose/gates/protect-main.sh). Same image and admin credentials as the
   # engine's bootstrap, after it has created and seeded the repo.
   dns-gates:
-    image: codeberg.org/forgejo/forgejo:17.0.0@sha256:06d38310de496a10186d952bdad5ca764c153c8023ede8dfa0944c79a1dc5412
+    image: codeberg.org/forgejo/forgejo:17.0.1@sha256:fcd19ff4ebc85fb098a67e8e1d0d5a84d07dd6e8a23edcfdfd5b71a6178953be
     container_name: workshop_dns_gates
     depends_on:
       bootstrap:
