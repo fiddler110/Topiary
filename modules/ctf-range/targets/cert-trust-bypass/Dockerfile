@@ -1,6 +1,6 @@
 # cert-trust-bypass — CTF target 3 (plan §7.3, CTF-1, ties cert-autorenewal).
 # See app.py's module docstring for the flaw and why this is plain HTTP.
-FROM docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+FROM docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt

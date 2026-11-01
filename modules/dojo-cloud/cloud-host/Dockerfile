@@ -8,12 +8,12 @@
 # imported at start, so nothing is pulled at lab time.
 
 # --- the hello app's filesystem: busybox + our entrypoint (a few MB) ---------
-FROM docker.io/library/busybox:1.38@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e AS hello
+FROM docker.io/library/busybox:1.38@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4 AS hello
 COPY hello/entrypoint.sh /entrypoint.sh
 RUN chmod 0755 /entrypoint.sh
 
 # --- the cloud host itself ----------------------------------------------------
-FROM docker.io/library/docker:29.9.0-dind@sha256:0b6d18a4a222e71c88be6034926b4f6cde2fc33c2218643d03ccfddc65995470
+FROM docker.io/library/docker:29.9.2-dind@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
 
 # docker:dind's entrypoint also opens an UNAUTHENTICATED tcp://0.0.0.0:2375
 # listener when TLS is off. We only ever want the unix socket (shared with

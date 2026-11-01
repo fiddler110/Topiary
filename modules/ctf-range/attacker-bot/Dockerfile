@@ -6,7 +6,7 @@
 #
 # Context is the module root (../modules/ctf-range) so this can COPY the exact exploit payload
 # target 14 uses, so the bot and the CI gate can never disagree about what "patched" means.
-FROM docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+FROM docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913
 
 COPY attacker-bot/bot.py attacker-bot/personas.py attacker-bot/probes.py attacker-bot/traffic.py attacker-bot/multi.py /app/
 COPY attacker-bot/_shared/ /app/_shared/

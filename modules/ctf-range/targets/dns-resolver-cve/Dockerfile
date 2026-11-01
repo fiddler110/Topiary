@@ -5,7 +5,7 @@
 # /opt/dns-resolver-cve-rootfs (ctf-host/Dockerfile), so this standalone
 # Dockerfile is dev-only — a straight `docker build .` to exercise the target
 # image on its own, mirroring targets/policy-bypass/Dockerfile et al.
-FROM --platform=linux/amd64 docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS agent-build
+FROM --platform=linux/amd64 docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913 AS agent-build
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TOOLCHAIN_URL=https://toolchains.bootlin.com/downloads/releases/toolchains/x86-64/tarballs/x86-64--uclibc--stable-2021.11-5.tar.bz2
 ARG TOOLCHAIN_SHA256=e68fd1b23f4a5c5132f2122e4012c17eb24e5179b2ff45bb793a27ac30dd454f
@@ -24,7 +24,7 @@ RUN set -eux; \
     -static -O2 -s -o /agent /tmp/agent.c; \
     test -s /agent && head -c 4 /agent | od -An -tx1 | grep -q '7f 45 4c 46'
 
-FROM docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+FROM docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt

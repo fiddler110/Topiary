@@ -11,7 +11,7 @@
 # to run it, so the runtime stage takes just the `node` binary and the
 # installed package. Both stages stay on the same Alpine release (3.24) so the
 # copied node binary sees the musl / libstdc++ it was built against.
-FROM docker.io/library/node:26-alpine3.24@sha256:6f08a523443ddedf52941874c203475b0ad503e859ad70cb26ab8be9a517dbd5 AS build
+FROM docker.io/library/node:26-alpine3.24@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS build
 WORKDIR /opt/marp
 # package.json names the same marp-cli release the upstream image was pinned
 # to (so slide rendering -- themes, directives -- doesn't change with this
@@ -28,7 +28,7 @@ RUN npm ci --omit=dev --no-audit --no-fund \
     && npm cache clean --force \
     && find node_modules \( -name '*.map' -o -name '*.d.ts' \) -type f -delete
 
-FROM docker.io/library/alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+FROM docker.io/library/alpine:3.24@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
 # libstdc++ / libgcc, and libatomic since node 26: the shared libraries node needs beyond musl.
 RUN apk add --no-cache libstdc++ libatomic
 COPY --from=build /usr/local/bin/node /usr/local/bin/node

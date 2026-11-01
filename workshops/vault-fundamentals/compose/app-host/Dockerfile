@@ -9,7 +9,7 @@
 ARG TOOLS_IMAGE=topiary/web-terminal:base
 FROM ${TOOLS_IMAGE} AS tools
 
-FROM docker.io/library/debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587
+FROM docker.io/library/debian:bookworm-slim@sha256:99c0b25c46d0214d5a2091092e7908907dcaecd6a962cde0ac700acee222b6f3
 
 # python3: the platform and the apps. openssl: the platform's signing key and
 # signature checks. tini: PID 1, reaping the processes of stopped apps.

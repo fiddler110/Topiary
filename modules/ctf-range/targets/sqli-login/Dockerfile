@@ -7,7 +7,7 @@
 # target (students here don't patch and redeploy, they only attack it), so
 # there's no offline-rebuild constraint (CTF-D24) to design around — a plain
 # pinned base plus this image's own tiny requirements.txt is enough.
-FROM docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+FROM docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt

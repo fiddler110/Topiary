@@ -4,7 +4,7 @@
 # module docstring). Shares ctf-host's docker socket exactly as ctf-controller
 # does: a named volume, granted only through compose's group_add of the
 # socket's group (CTF_GID).
-FROM docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+FROM docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \

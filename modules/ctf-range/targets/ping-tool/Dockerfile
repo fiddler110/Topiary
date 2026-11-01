@@ -1,7 +1,7 @@
 # ping-tool — CTF target 4 (plan §7.3, CTF-2 "Server-side trust and APIs").
 # See app.py's module docstring for the bug, the escalation stand-in, and
 # why `host` (DNS lookup) replaces real `ping` here.
-FROM docker.io/library/python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+FROM docker.io/library/python:3.15-slim@sha256:94d3426f1def7db4a106a232ac121bfd975393e5dfd40a619b955fae45fe7913
 
 RUN apt-get update && apt-get install -y --no-install-recommends dnsutils \
     && rm -rf /var/lib/apt/lists/*
