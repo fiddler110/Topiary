@@ -155,6 +155,16 @@ Each was found by a provider error or crash in the spike.
    `op` `assign` (to a site), `unassign` or `delete` (by MAC or serial). Profile `assign`/`unassign` must set
    `deviceprofile_id` on the device, because the assign resource refreshes from the inventory list.
 7. **An empty collection is `[]`, not 404.** A missing object is 404.
+8. **`POST` (create) bodies carry `-name` keys too** (e.g. `"-gateway": ""` on a network): strip them, do not store them.
+9. **Inventory errors**: on a 400/404 the provider indexes `reason[i]` for every `error[i]`, so the two lists must be the
+   same length (a mismatch panics). Deleting a device that is already gone is answered 200, so a destroy never fails on it.
+10. **Cluster create** (`POST .../devices/{id}/ha`): the provider recognises "already formed" by the text
+    `already belong to a ha cluster` in the 400 `detail`; keep that wording. Both nodes must already be assigned to the site.
+11. **`GET /sites/{site}/setting` never 404s** for a site that exists (an empty setting with `site_id`/`org_id`).
+12. **`deviceprofiles?type=`**: the list filters on `type`. Provider 0.11.0's `mist_org_deviceprofiles_gateway` data source
+    asks for `type=ap` (a provider bug), so it lists nothing for gateway profiles; labs should not use it.
+13. **Read every request body**, even on a refused or unknown path: Terraform keeps connections alive and an unread body
+    is parsed as the next request line.
 
 ### 9.2 Endpoints a basic SRX build uses
 
@@ -173,8 +183,13 @@ GET    /api/v1/sites/{site}/setting          PUT    /api/v1/sites/{site}/setting
 GET    /api/v1/sites/{site}/devices/{id}     PUT    /api/v1/sites/{site}/devices/{id}
 ```
 
-Not yet exercised: `PUT` on templates and policies from a config change (only a network `PUT` and a device `PUT`
-ran), `mist_org_vpn`, `mist_device_gateway_cluster`, `mist_org_sitegroup`, data sources. Phase 1 starts by recording those.
+Also exercised in Phase 1 by `modules/wan-cloud/wan-api/test_contract.py` (the real provider, apply/plan/update/drift/import/
+destroy): `PUT` on a gateway template, service policy, site group, VPN, site and device; `mist_org_vpn`,
+`mist_org_sitegroup`, `mist_device_gateway_cluster` (`POST`/`GET`/`DELETE /sites/{site}/devices/{id}/ha`, the cluster id
+is node 0's device id) and the data sources `mist_org_networks`, `services`, `servicepolicies`, `gatewaytemplates`,
+`deviceprofiles_gateway`, `sitegroups`, `vpns`, `mist_sites`, `mist_org_inventory` (all plain paged `GET` lists).
+`GET /sites/{site}/devices` (the site's claimed devices) is served for the terminal's `dojo wan`; the provider's
+`mist_device_gateway_stats` data source and everything under "Out of scope" are not.
 
 ## 10. Build contract
 
@@ -197,8 +212,8 @@ The interfaces the parts share, fixed before the build so they can be written in
   (`.../dojo/...`). Every call needs a valid token. `cap_add: NET_BIND_SERVICE` as `cloud-api` does.
 - Port **8080**: plain HTTP behind Caddy only: `/wan/` portal and `/wan/api/...` (needs `X-Gateway-Token`, identity from
   `X-Auth-User`), `/readyz`, `/_dojo/reset/{user}` (`RESET_TOKEN`).
-- At first start `wan-api` writes `/pki/ca.crt`, `/pki/ca.key` (0600) and a server cert for `api.mist.com`, `wan-api`.
-  The terminal mounts `wan_pki` at `/run/wan-pki:ro` and its start hook adds `ca.crt` to the system trust store, so
+- At first start `wan-api` creates the CA and a server cert for `api.mist.com`, `wan-api`. The keys stay in
+  `/data/pki` (`wan_data`, never mounted by the terminal); only `ca.crt` goes to `/pki`. The terminal mounts `wan_pki` at `/run/wan-pki:ro` and its start hook adds `ca.crt` to the system trust store, so
   Terraform needs no `SSL_CERT_FILE`.
 
 ### 10.3 Identity, tokens, orgs

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Dojo WAN</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="app.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" id="skip-link">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <img src="favicon.svg" alt="" width="26" height="26">
+      <span class="brand-text">Dojo WAN</span>
+      <span class="brand-sub">Gateways</span>
+    </a>
+    <div class="topbar-meta">
+      <label class="meta-item" id="org-pick-wrap" hidden>
+        <span class="meta-label">Org</span>
+        <select id="org-pick" aria-label="Organisation"></select>
+      </label>
+      <span class="meta-item" id="meta-org">Signing in&hellip;</span>
+      <span class="badge" id="meta-facilitator" hidden>Facilitator</span>
+    </div>
+  </header>
+  <div class="shell">
+    <nav class="sidenav" id="sidenav" aria-label="Main navigation">
+      <ul>
+        <li><a href="#/" data-nav="home">Overview</a></li>
+        <li><a href="#/sites" data-nav="sites">Sites</a></li>
+        <li><a href="#/gateways" data-nav="gateways">Gateways</a></li>
+        <li><a href="#/templates" data-nav="templates">Templates &amp; profiles</a></li>
+        <li><a href="#/networks" data-nav="networks">Networks</a></li>
+        <li><a href="#/services" data-nav="services">Services</a></li>
+        <li><a href="#/policies" data-nav="policies">Policies</a></li>
+        <li><a href="#/delivery" data-nav="delivery">Delivery</a></li>
+        <li><a href="#/events" data-nav="events">Events</a></li>
+        <li id="nav-progress" hidden><a href="#/progress" data-nav="progress">Class progress</a></li>
+      </ul>
+    </nav>
+    <main id="main" tabindex="-1">
+      <div class="statusbar">
+        <p class="updated" id="updated">Last updated: &mdash;</p>
+        <button type="button" class="btn btn-small" id="refresh-btn">Refresh now</button>
+      </div>
+      <div class="banner" id="banner" role="alert" hidden>
+        <p id="banner-msg"></p>
+        <button type="button" class="btn btn-small" id="banner-retry">Retry</button>
+      </div>
+      <div id="view"></div>
+    </main>
+  </div>
+  <footer class="footer"><p>Mist-inspired training simulator &mdash; no real devices, no real cloud.</p></footer>
+  <noscript><p class="noscript">Dojo WAN needs JavaScript enabled.</p></noscript>
+</body>
+</html>

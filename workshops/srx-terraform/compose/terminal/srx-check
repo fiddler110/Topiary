@@ -1,0 +1,319 @@
+#!/usr/bin/env python3
+# dojo-summary: check a lab against your Dojo WAN org: dojo check N (0-9)
+"""dojo check N: asks the Dojo WAN API what your org looks like now and says what matches.
+
+It reads the result (the objects in your org and the Junos config each gateway would get), not your
+files, using your own token, the same calls `curl` makes. Lab 6 also reads Terraform's state list, and
+labs 8 and 9 run `terraform plan` to prove the code and the org agree.
+
+    dojo check           list the labs
+    dojo check 4         check lab 4   (lab4 and c4 mean the same)
+"""
+import base64
+import json
+import os
+import re
+import subprocess
+import sys
+import urllib.error
+import urllib.request
+
+HOST = os.environ.get("MIST_HOST", "api.mist.com")
+TOKEN = os.environ.get("MIST_API_TOKEN", "")
+ORG = os.environ.get("MIST_ORG_ID", "")
+REPO = os.path.expanduser("~/lab/srx-terraform")
+STATE_NAME = "srx-estate"
+BASE = f"https://{HOST}/api/v1"
+
+SITES = {  # the values labs 3 and 6 give each site
+    "ottawa-01": {"wan": "198.51.100.2", "gw": "198.51.100.1", "lan": "10.10.0.1", "net": "10.10.0.0/24"},
+    "toronto-01": {"wan": "203.0.113.2", "gw": "203.0.113.1", "lan": "10.20.0.1", "net": "10.20.0.0/24"},
+    "montreal-01": {"wan": "192.0.2.2", "gw": "192.0.2.1", "lan": "10.30.0.1", "net": "10.30.0.0/24"},
+}
+HALIFAX = {"wan": "198.51.100.10", "gw": "198.51.100.9", "lan": "10.40.0.1", "net": "10.40.0.0/24"}
+TEMPLATE_DNS, TEMPLATE_NTP = "192.0.2.53", "192.0.2.123"
+PROFILE_DNS, OTTAWA_NTP = "10.99.0.53", "10.10.0.123"
+
+TITLES = {
+    0: "Tour", 1: "First objects", 2: "The gateway template", 3: "Sites and variables",
+    4: "Claim and assign", 5: "Layers", 6: "Structure", 7: "Team workflow",
+    8: "Drift and import", 9: "Capstone",
+}
+
+
+class Api(Exception):
+    pass
+
+
+def call(path, text=False, auth=None):
+    headers = {"Authorization": "Token " + TOKEN} if auth is None else {"Authorization": auth}
+    req = urllib.request.Request(path if path.startswith("https://") else BASE + path, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            body = r.read().decode()
+    except urllib.error.HTTPError as e:
+        raise Api(f"the API said {e.code} for {path}")
+    except (OSError, ValueError) as e:
+        raise Api(f"could not reach {HOST} ({e}). Open a new terminal tab if Dojo WAN just started.")
+    return body if text else json.loads(body or "null")
+
+
+def lst(path):
+    return call(path) or []
+
+
+def by_name(items):
+    return {i.get("name"): i for i in items}
+
+
+def terraform(*args, timeout=180):
+    try:
+        p = subprocess.run(["terraform", f"-chdir={REPO}", *args], capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError) as e:
+        return 99, str(e)
+    return p.returncode, p.stdout + p.stderr
+
+
+class Report:
+    def __init__(self):
+        self.fails = 0
+
+    def ok(self, cond, good, bad):
+        print(("  ok    " if cond else "  FAIL  ") + (good if cond else bad))
+        if not cond:
+            self.fails += 1
+        return cond
+
+    def note(self, msg):
+        print("  note  " + msg)
+
+
+def gateways():
+    """site name -> {id, mac, site_id, deviceprofile_id, name} for the gateways in a site."""
+    sites = {s["id"]: s["name"] for s in lst(f"/orgs/{ORG}/sites")}
+    out = {}
+    for d in lst(f"/orgs/{ORG}/inventory?type=gateway"):
+        sid = d.get("site_id")
+        if sid in sites:
+            dev = call(f"/sites/{sid}/devices/{d['id']}") or {}
+            out[sites[sid]] = {**d, "name": dev.get("name", ""), "site_id": sid}
+    return out
+
+
+def config_of(gw):
+    return call(f"/sites/{gw['site_id']}/devices/{gw['id']}/dojo/config", text=True)
+
+
+def has_line(cfg, line):
+    return line in cfg.splitlines()
+
+
+# ---- the labs -------------------------------------------------------------------------------
+
+def lab0(r):
+    me = call("/self")
+    r.ok(bool(me), "your token works (GET /self)", "the API did not accept your token")
+    r.ok(bool(ORG), f"MIST_ORG_ID is set ({ORG})", "MIST_ORG_ID is empty: open a new terminal tab")
+    d = lst(f"/orgs/{ORG}/dojo/delivery")
+    r.ok(len(d) == 4, "the delivery lists four gateways", f"expected 4 gateways in the delivery, found {len(d)}")
+    r.ok(os.path.isdir(os.path.join(REPO, ".terraform")), "terraform init has run in ~/lab/srx-terraform",
+         "no .terraform in ~/lab/srx-terraform: clone your fork there (step 1) and run terraform init")
+
+
+def lab1(r):
+    nets = by_name(lst(f"/orgs/{ORG}/networks"))
+    corp = nets.get("corp")
+    r.ok(bool(corp), "network corp exists", "no network named corp")
+    if corp:
+        r.ok(str(corp.get("vlan_id")) == "10", "corp is on VLAN 10", f"corp vlan_id is {corp.get('vlan_id')!r}, expected '10'")
+        r.ok(corp.get("subnet") == "{{site_subnet}}", "corp's subnet is the variable {{site_subnet}}",
+             f"corp subnet is {corp.get('subnet')!r}, expected '{{{{site_subnet}}}}'")
+    svcs = by_name(lst(f"/orgs/{ORG}/services"))
+    web = svcs.get("web")
+    r.ok(bool(web), "service web exists", "no service named web")
+    if web:
+        specs = web.get("specs") or []
+        r.ok(any(s.get("protocol") == "tcp" and str(s.get("port_range")) == "443" for s in specs),
+             "web is tcp 443", f"web specs are {specs}: expected tcp 443 (did you leave it on 8443?)")
+    r.ok("dns" in svcs, "service dns exists", "no service named dns")
+
+
+def lab2(r):
+    pols = by_name(lst(f"/orgs/{ORG}/servicepolicies"))
+    pol = pols.get("corp-to-web")
+    r.ok(bool(pol), "service policy corp-to-web exists", "no service policy named corp-to-web")
+    if pol:
+        r.ok(pol.get("action") == "allow", "corp-to-web allows", f"corp-to-web action is {pol.get('action')!r}")
+    tmpl = by_name(lst(f"/orgs/{ORG}/gatewaytemplates")).get("branch-srx")
+    r.ok(bool(tmpl), "gateway template branch-srx exists", "no gateway template named branch-srx")
+    if tmpl:
+        pc = tmpl.get("port_config") or {}
+        r.ok((pc.get("ge-0/0/0") or {}).get("usage") == "wan", "ge-0/0/0 is the WAN", "ge-0/0/0 is not usage wan")
+        lan = pc.get("ge-0/0/1") or {}
+        r.ok(lan.get("usage") == "lan" and "corp" in (lan.get("networks") or []),
+             "ge-0/0/1 is a LAN carrying corp", "ge-0/0/1 is not a LAN carrying the corp network")
+        used = [p.get("servicepolicy_id") for p in tmpl.get("service_policies") or []]
+        r.ok(bool(pol) and pol.get("id") in used, "the template uses corp-to-web", "the template doesn't use corp-to-web")
+
+
+def sites_by_name():
+    return by_name(lst(f"/orgs/{ORG}/sites"))
+
+
+def lab3(r, names=SITES):
+    tmpl = by_name(lst(f"/orgs/{ORG}/gatewaytemplates")).get("branch-srx") or {}
+    sites = sites_by_name()
+    for name, v in names.items():
+        s = sites.get(name)
+        if not r.ok(bool(s), f"site {name} exists", f"no site named {name}"):
+            continue
+        r.ok(bool(tmpl) and s.get("gatewaytemplate_id") == tmpl.get("id"), f"{name} uses branch-srx",
+             f"{name} doesn't use the branch-srx template")
+        got = (call(f"/sites/{s['id']}/setting") or {}).get("vars") or {}
+        want = {"site_subnet": v["net"], "lan_ip": v["lan"], "wan_ip": v["wan"], "wan_gw": v["gw"]}
+        missing = sorted(k for k in want if k not in got)
+        wrong = sorted(k for k in want if k in got and got[k] != want[k])
+        r.ok(not missing and not wrong, f"{name} has its four variables",
+             f"{name} variables: missing {missing or 'none'}, different from the lab {wrong or 'none'}")
+
+
+def lab4(r):
+    gws = gateways()
+    for name, v in SITES.items():
+        gw = gws.get(name)
+        if not r.ok(bool(gw), f"a gateway is assigned to {name}", f"no gateway is assigned to {name}"):
+            continue
+        cfg = config_of(gw)
+        r.ok(has_line(cfg, f"set interfaces ge-0/0/0 unit 0 family inet address {v['wan']}/29"),
+             f"{name}'s config has its WAN address {v['wan']}/29", f"{name}'s config doesn't have WAN address {v['wan']}/29")
+        r.ok("{{" not in cfg, f"{name}'s config has no unreplaced variable",
+             f"{name}'s config still has a {{{{variable}}}}: a name in sites.tf is missing or misspelled")
+
+
+def lab5(r):
+    prof = by_name(lst(f"/orgs/{ORG}/deviceprofiles")).get("edge-profile")
+    r.ok(bool(prof), "device profile edge-profile exists", "no device profile named edge-profile")
+    gws = gateways()
+    for name in SITES:
+        gw = gws.get(name)
+        if not gw:
+            r.ok(False, "", f"no gateway in {name}")
+            continue
+        r.ok(bool(prof) and gw.get("deviceprofile_id") == prof.get("id"), f"{name}'s gateway has the edge profile",
+             f"{name}'s gateway doesn't have the edge profile assigned")
+        cfg = config_of(gw)
+        r.ok(has_line(cfg, f"set system name-server {PROFILE_DNS}"), f"{name}: DNS comes from the profile",
+             f"{name}: expected 'set system name-server {PROFILE_DNS}' (profile beats template)")
+        if name == "ottawa-01":
+            r.ok(gw.get("name") == "ottawa-01-gw" and has_line(cfg, "set system host-name ottawa-01-gw"),
+                 "ottawa's gateway is named ottawa-01-gw", "ottawa's gateway should be named ottawa-01-gw")
+            r.ok(has_line(cfg, f"set system ntp server {OTTAWA_NTP}") and not has_line(cfg, f"set system ntp server {TEMPLATE_NTP}"),
+                 f"ottawa: NTP comes from the device ({OTTAWA_NTP})", f"ottawa: expected only 'set system ntp server {OTTAWA_NTP}'")
+        else:
+            r.ok(has_line(cfg, f"set system ntp server {TEMPLATE_NTP}"), f"{name}: NTP comes from the template",
+                 f"{name}: expected 'set system ntp server {TEMPLATE_NTP}' (no override here)")
+
+
+def lab6(r):
+    sites = sites_by_name()
+    r.ok(len(sites) == 3 and set(sites) == set(SITES), "exactly the three sites exist",
+         f"expected the three sites, found {sorted(sites)}")
+    before = os.path.expanduser("~/lab/site-ids.before")
+    if os.path.exists(before):
+        old = dict(line.split() for line in open(before) if line.strip())
+        same = all(sites.get(n, {}).get("id") == i for n, i in old.items())
+        r.ok(same, "the site ids did not change (nothing was destroyed and rebuilt)",
+             "a site id changed: a site was destroyed and recreated. Did you apply before adding the moved blocks?")
+    else:
+        r.note("~/lab/site-ids.before not found; skipping the same-ids test")
+    gws = gateways()
+    for name in SITES:
+        r.ok(name in gws and gws[name].get("name") == f"{name}-gw", f"gateway {name}-gw exists",
+             f"no gateway named {name}-gw in {name}")
+    rc, out = terraform("state", "list")
+    r.ok(rc == 0 and 'module.site["ottawa-01"]' in out and 'module.gateway["toronto-01"]' in out,
+         "Terraform state lists the modules", "state doesn't list module.site[...] and module.gateway[...]: not refactored yet")
+    r.ok(rc == 0 and "mist_site.ottawa" not in out, "the old resource addresses are gone from state",
+         "state still holds mist_site.ottawa")
+
+
+def lab7(r):
+    auth = "Basic " + base64.b64encode(f"{os.environ.get('TF_HTTP_USERNAME', '')}:{os.environ.get('TF_HTTP_PASSWORD', '')}".encode()).decode()
+    try:
+        st = call(f"https://{HOST}/dojo-state/{STATE_NAME}", auth=auth)
+    except Api as e:
+        st = None
+        r.ok(False, "", f"could not read the shared state: {e}")
+    if st:
+        res = st.get("resources") or []
+        r.ok(len(res) > 0, f"the shared state for {STATE_NAME} holds {len(res)} resource blocks",
+             "the shared state is empty: run terraform init -migrate-state")
+        text = json.dumps(res)
+        r.ok("juniper/mist" in text and "mist_site" in text, "the shared state holds your sites",
+             "the shared state doesn't hold your sites")
+    r.ok("ntp" in by_name(lst(f"/orgs/{ORG}/services")), "the ntp service from the pull request exists",
+         "no service named ntp: merge the pull request and apply from main")
+    rc, out = terraform("state", "list")
+    r.ok(rc == 0, "terraform reads state through the backend", "terraform couldn't read state: " + out.strip()[:200])
+
+
+def lab8(r):
+    nets = lst(f"/orgs/{ORG}/networks")
+    corp = [n for n in nets if n.get("name") == "corp"]
+    r.ok(len(corp) == 1 and str(corp[0].get("vlan_id")) == "10", "corp is back on VLAN 10",
+         "corp is not on VLAN 10 (revert the drift with terraform apply)")
+    r.ok(sum(1 for n in nets if n.get("name") == "guest") == 1, "exactly one guest network exists",
+         "expected exactly one network named guest (did you apply without importing?)")
+    rc, out = terraform("state", "list")
+    r.ok(rc == 0 and "mist_org_network.guest" in out, "guest is in Terraform's state", "guest isn't in state: import it")
+    rc, out = terraform("plan", "-detailed-exitcode", "-input=false", "-no-color", "-lock=false")
+    r.ok(rc == 0, "terraform plan is empty", "terraform plan is not clean:\n" + "\n".join(out.strip().splitlines()[-12:]))
+
+
+def lab9(r):
+    lab3(r, {"halifax-01": HALIFAX})
+    gw = gateways().get("halifax-01")
+    if r.ok(bool(gw), "a gateway is assigned to halifax-01", "no gateway is assigned to halifax-01"):
+        prof = by_name(lst(f"/orgs/{ORG}/deviceprofiles")).get("edge-profile") or {}
+        r.ok(gw.get("deviceprofile_id") == prof.get("id"), "it has the edge profile", "it doesn't have the edge profile")
+        cfg = config_of(gw)
+        for what, line in (("WAN address", f"set interfaces ge-0/0/0 unit 0 family inet address {HALIFAX['wan']}/29"),
+                           ("LAN address", f"set interfaces ge-0/0/1 unit 10 family inet address {HALIFAX['lan']}/24"),
+                           ("default route", f"set routing-options static route 0.0.0.0/0 next-hop {HALIFAX['gw']}"),
+                           ("edge DNS", f"set system name-server {PROFILE_DNS}"),
+                           ("standard NTP", f"set system ntp server {TEMPLATE_NTP}")):
+            r.ok(has_line(cfg, line), f"halifax-01 has its {what}", f"halifax-01 is missing: {line}")
+    rc, out = terraform("plan", "-detailed-exitcode", "-input=false", "-no-color", "-lock=false")
+    r.ok(rc == 0, "terraform plan is empty", "terraform plan is not clean:\n" + "\n".join(out.strip().splitlines()[-12:]))
+
+
+LABS = [lab0, lab1, lab2, lab3, lab4, lab5, lab6, lab7, lab8, lab9]
+
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        print(__doc__.strip(), "\n")
+        for n, t in TITLES.items():
+            print(f"  {n}  {t}")
+        return 0
+    m = re.fullmatch(r"(?:lab|c)?(\d+)", argv[0].lower())
+    if not m or int(m.group(1)) >= len(LABS):
+        print(f"dojo check: no lab '{argv[0]}'. Try: dojo check 3", file=sys.stderr)
+        return 2
+    n = int(m.group(1))
+    if not TOKEN or not ORG:
+        print("dojo check: no Dojo WAN login in this shell. Open a new terminal tab.", file=sys.stderr)
+        return 2
+    r = Report()
+    print(f"Lab {n}: {TITLES[n]}")
+    try:
+        LABS[n](r)
+    except Api as e:
+        print(f"dojo check: {e}", file=sys.stderr)
+        return 2
+    print("\nAll good." if not r.fails else f"\n{r.fails} thing(s) to fix. Read the FAIL lines, change your code, apply, and run it again.")
+    return 1 if r.fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

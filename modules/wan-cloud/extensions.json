@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "cards": [
+    { "id": "wan", "label": "Dojo WAN", "desc": "The portal for the gateways and sites you manage.",
+      "href": "/wan/", "icon": "cloud" }
+  ],
+  "admin_tabs": [
+    { "id": "wan", "label": "Dojo WAN", "src": "/wan/#/progress" }
+  ],
+  "routes": [
+    { "id": "wan", "path": "/wan", "upstream": "wan-api:8080", "gate": "identity" }
+  ],
+  "resets": [
+    {
+      "id": "wan-cloud",
+      "label": "Dojo WAN: their org",
+      "upstream": "wan-api:8080",
+      "path": "/_dojo/reset/{user}",
+      "timeout": 60
+    }
+  ],
+  "status_checks": [
+    { "label": "Dojo WAN", "url": "http://wan-api:8080/readyz" }
+  ]
+}

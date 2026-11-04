@@ -1,0 +1,141 @@
+# Lab 9: Capstone: a new branch office from a ticket
+
+**Goal:** open a new branch the way the team will on the real estate: read a ticket, make a one-entry change, put the plan in a pull request, get it reviewed, apply from `main`, and check the gateway's configuration. All commands run in `~/lab/srx-terraform`.
+
+> **Starting here?** Run `dojo prep 9`. It also leaves you on `main`, up to date.
+
+There are fewer steps this time. You have done every part of this before.
+
+---
+
+## The ticket
+
+```text
+NET-142   Open the Halifax branch
+
+Site name    halifax-01
+Address      Halifax, NS, Canada   (time zone America/Halifax)
+Gateway      the second SRX345 from our delivery (see `dojo wan delivery`)
+WAN          198.51.100.10/29, next hop 198.51.100.9
+LAN          10.40.0.0/24, the gateway is 10.40.0.1
+Design       the standard branch design: template and edge profile, no local overrides
+Done when    the gateway has the Halifax addresses, the edge DNS server, and the
+             standard NTP server, and `terraform plan` is empty.
+```
+
+## 1. Branch and add one entry
+
+```sh
+git checkout main
+git pull origin main
+git checkout -b open-halifax-01
+```
+
+You already have the pieces. Add one entry to the `sites` map in `terraform.tfvars`, with the claim code of your second `SRX345`:
+
+```hcl
+  "halifax-01" = {
+    address      = "Halifax, NS, Canada"
+    country_code = "CA"
+    timezone     = "America/Halifax"
+    claim_code   = "SRX345YYYYYYYYY"
+    wan_ip       = "198.51.100.10"
+    wan_gw       = "198.51.100.9"
+    lan_subnet   = "10.40.0.0/24"
+    lan_ip       = "10.40.0.1"
+  }
+```
+
+Paste it inside the closing `}` of `sites = { ... }`, after the Montreal entry. No other file changes.
+
+```sh
+terraform fmt
+terraform validate
+terraform plan -no-color | tee plan.txt
+```
+
+**Your turn:** before you look, predict the summary line.
+
+<!-- dojo-reveal: Result -->
+
+```text
+Plan: 3 to add, 2 to change, 0 to destroy.
+```
+
+Three to add: the site, its settings, the gateway. Two to change: the inventory (one more device) and the profile assignment (one more MAC). **Zero destroy.** If your plan shows any destroy, stop: something else changed.
+
+<!-- /dojo-reveal -->
+
+## 2. Pull request, review, merge
+
+Commit and push the branch, then open a pull request in your fork with the plan in its description, exactly as in Lab 7:
+
+```sh
+git add terraform.tfvars
+git commit -m "Open halifax-01 (NET-142)"
+git push -u origin open-halifax-01
+```
+
+Ask a neighbour or the facilitator to review. A good review reads the plan first: the counts, then the resource names, then the values.
+
+Merge it in Forgejo, then update and apply from `main`:
+
+```sh
+git checkout main
+git pull origin main
+terraform plan
+terraform apply
+```
+
+## 3. Check the result
+
+```sh
+dojo wan config halifax-01-gw
+```
+
+<!-- dojo-reveal: What to look for -->
+
+```text
+# site: halifax-01
+set system host-name halifax-01-gw
+set system name-server 10.99.0.53
+set system ntp server 192.0.2.123
+set interfaces ge-0/0/0 unit 0 family inet address 198.51.100.10/29
+set interfaces ge-0/0/1 unit 10 family inet address 10.40.0.1/24
+set routing-options static route 0.0.0.0/0 next-hop 198.51.100.9
+```
+
+The Halifax addresses come from the site variables, DNS from the edge profile, NTP from the template. Nothing is overridden on the box.
+
+<!-- /dojo-reveal -->
+
+```sh
+terraform plan
+dojo check 9
+```
+
+<!-- dojo-reveal: What it checks -->
+
+Through the API: a `halifax-01` site using the template with its four variables; its gateway claimed, in that site, with the edge profile, and rendered with the Halifax WAN address, the profile's DNS and the template's NTP; and `terraform plan` clean.
+
+<!-- /dojo-reveal -->
+
+## Stretch
+
+- Add the next ticket yourself: a fifth site with a local NTP server (`ntp_servers = [...]` in its map entry). Which layer does that land in?
+- Run `dojo wan events` and read your whole week: every create, update and delete, and who did it.
+- Pretend `halifax-01` closes. What is the smallest change, and what would the plan say?
+
+## What you built
+
+A greenfield estate, from empty org to four branch offices: shared org objects, one gateway template, a profile for the edge role, sites with variables, gateways claimed and assigned from a delivery, state in a shared locked backend, and a change process with the plan in front of the reviewer. That is the real job.
+
+## Common mistakes
+
+| You see | Cause / fix |
+| ------- | ----------- |
+| `Invalid value for input variable` | A field is missing from the new map entry, or a comma or brace is misplaced. The error names the file and line. |
+| The plan shows a destroy | You edited an existing entry. Revert and change only the new one. |
+| `claim code ... already claimed` | You used a code from a site you already have. Take the second `SRX345` from `dojo wan delivery`. |
+| `Error acquiring the state lock` | Another run holds it. Wait, or look for a Terraform you left open in another pane. |
+| Merge conflict in `terraform.tfvars` | Someone else's entry landed first. Pull `main`, keep both entries. Conflicts in one shared map are normal. |

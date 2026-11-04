@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+# dojo-summary: look at your Dojo WAN org: dojo wan delivery|config|events|whoami
+"""dojo wan <sub>: read-only views of your Dojo WAN org, using your own token.
+
+    dojo wan delivery            the packing slip: the gateways shipped to you
+    dojo wan config <device>     the Junos config a gateway would get (name or MAC)
+    dojo wan events              the latest changes in your org
+    dojo wan whoami              your org id and the API host
+
+Exits 0 on success, 1 if the device is not found, 2 if the API could not be asked.
+"""
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+HOST = os.environ.get("MIST_HOST", "api.mist.com")
+TOKEN = os.environ.get("MIST_API_TOKEN", "")
+ORG = os.environ.get("MIST_ORG_ID", "")
+
+
+def get(path, text=False):
+    req = urllib.request.Request(f"https://{HOST}/api/v1{path}", headers={"Authorization": "Token " + TOKEN})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            body = r.read().decode()
+    except urllib.error.HTTPError as e:
+        sys.exit(f"dojo wan: the API said {e.code} for {path}")
+    except (OSError, ValueError) as e:
+        sys.exit(f"dojo wan: could not reach {HOST} ({e}). Open a new terminal tab if Dojo WAN just started.")
+    return body if text else json.loads(body or "null")
+
+
+def table(rows, cols):
+    rows = [[str(r.get(c, "")) for c in cols] for r in rows]
+    widths = [max(len(c), *(len(r[i]) for r in rows)) if rows else len(c) for i, c in enumerate(cols)]
+    for line in [cols] + rows:
+        print("  ".join(v.ljust(widths[i]) for i, v in enumerate(line)).rstrip())
+
+
+def need_login():
+    if not TOKEN or not ORG:
+        sys.exit("dojo wan: no Dojo WAN login in this shell. Open a new terminal tab.")
+
+
+def delivery():
+    table(get(f"/orgs/{ORG}/dojo/delivery") or [], ["model", "serial", "mac", "magic"])
+
+
+def find_device(wanted):
+    wanted = wanted.lower()
+    for site in get(f"/orgs/{ORG}/sites") or []:
+        for dev in get(f"/sites/{site['id']}/devices") or []:
+            if wanted in (str(dev.get("name", "")).lower(), str(dev.get("mac", "")).lower(),
+                          str(dev.get("serial", "")).lower()):
+                return site["id"], dev["id"]
+    return None
+
+
+def config(wanted):
+    hit = find_device(wanted)
+    if not hit:
+        print(f"dojo wan: no device named {wanted} in a site of your org (claim and assign it first).")
+        sys.exit(1)
+    print(get(f"/sites/{hit[0]}/devices/{hit[1]}/dojo/config", text=True), end="")
+
+
+def events():
+    evs = get(f"/orgs/{ORG}/dojo/events") or []
+    for e in evs[-15:]:
+        print(f"{e.get('ts', '')}  {e.get('actor', '')}  {e.get('action', '')}  {e.get('path', '')}")
+
+
+def whoami():
+    print(f"org id: {ORG}")
+    print(f"host:   {HOST}")
+
+
+def main(argv):
+    sub = argv[0] if argv else ""
+    if sub == "whoami":
+        need_login()
+        return whoami()
+    if sub in ("delivery", "events") and len(argv) == 1:
+        need_login()
+        return delivery() if sub == "delivery" else events()
+    if sub == "config" and len(argv) == 2:
+        need_login()
+        return config(argv[1])
+    print(__doc__.strip())
+    sys.exit(0 if sub in ("", "-h", "--help", "help") else 2)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
