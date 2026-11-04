@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple
 
 from . import paths
 from .envfiles import parse_literal
-from .workshops import NAME_RE, Workshop, read_var, workshops
+from .workshops import NAME_RE, TRACKS, Workshop, read_var, workshops
 
 
 def _services_of(compose: Path) -> List[str]:
@@ -37,6 +37,8 @@ def _check_env(ws: Workshop) -> List[str]:
         probs.append(f"folder name '{ws.name}' is not lowercase letters, digits and '-'")
     if not read_var(ws.env_file, "WORKSHOP_NAME"):
         probs.append("workshop.env has no WORKSHOP_NAME")
+    if ws.track and ws.track not in TRACKS:
+        probs.append(f"WORKSHOP_TRACK '{ws.track}' is not one of {', '.join(TRACKS)}")
     if shutil.which("bash"):
         r = subprocess.run(["bash", "-n", str(ws.env_file)], capture_output=True, text=True)
         if r.returncode != 0:

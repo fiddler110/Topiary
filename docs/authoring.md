@@ -53,7 +53,8 @@ already wired to the shared themes in `workshops/assets/themes/`.
 ```sh
 WORKSHOP_NAME="My Lab"                      # shown on the login page
 WORKSHOP_DESCRIPTION="One sentence."        # shown on the login page
-WORKSHOP_ORDER=8                            # place in the learning path (0 = showcase)
+WORKSHOP_TRACK=education                    # education, offensive or technology; ./dojo list groups by it
+WORKSHOP_ORDER=8                            # place in the track's learning path
 WORKSHOP_DURATION="~2 h"                    # keep in step with FACILITATOR.md
 WORKSHOP_CONTENT_DIR=../workshops/my-lab/content   # relative to engine/, NOT the pack
 FORGEJO_ORG=my-team

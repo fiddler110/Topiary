@@ -11,6 +11,10 @@ from . import paths
 # Workshop and module names identify config files and raw-Compose fallback tags.
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
+# WORKSHOP_TRACK: the bucket a pack is listed under, in this order. No track (the showcase) lists above them all.
+TRACKS = {"education": "Education workshops", "offensive": "Offensive security labs",
+          "technology": "Technology tracks"}
+
 
 def read_var(env_file: Path, key: str) -> str:
     """A plain KEY=value from a workshop.env without running it (first match,
@@ -29,6 +33,7 @@ class Workshop:
     title: str
     order: Optional[int]   # WORKSHOP_ORDER: 0 = showcase, 1.. = the learning path
     duration: str = ""     # WORKSHOP_DURATION: how long a session takes, free text ("~2 h"); "" = unset
+    track: str = ""        # WORKSHOP_TRACK: a TRACKS key; "" = no bucket (the showcase)
 
     @property
     def env_file(self) -> Path:
@@ -40,8 +45,8 @@ class Workshop:
 
 
 def workshops() -> List[Workshop]:
-    """Every folder with a workshop.env, in learning-path order (WORKSHOP_ORDER),
-    then the rest alphabetically."""
+    """Every folder with a workshop.env: untracked first, then by track (TRACKS order),
+    within each in learning-path order (WORKSHOP_ORDER), then the rest alphabetically."""
     found = []
     for d in sorted(paths.WORKSHOPS.iterdir()) if paths.WORKSHOPS.is_dir() else []:
         env = d / "workshop.env"
@@ -49,8 +54,11 @@ def workshops() -> List[Workshop]:
             continue
         order = read_var(env, "WORKSHOP_ORDER")
         found.append(Workshop(d.name, d, read_var(env, "WORKSHOP_NAME"),
-                              int(order) if order.isdigit() else None, read_var(env, "WORKSHOP_DURATION")))
-    return sorted(found, key=lambda w: (w.order is None, w.order or 0, w.name))
+                              int(order) if order.isdigit() else None, read_var(env, "WORKSHOP_DURATION"),
+                              read_var(env, "WORKSHOP_TRACK")))
+    rank = {t: n for n, t in enumerate(TRACKS, 1)}
+    return sorted(found, key=lambda w: (rank.get(w.track, 0 if not w.track else len(rank) + 1),
+                                        w.order is None, w.order or 0, w.name))
 
 
 def find(name: str) -> Optional[Workshop]:
