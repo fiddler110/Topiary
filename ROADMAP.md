@@ -103,6 +103,20 @@ idempotent, a bot restarts from round 1, the optional score clear clears only th
 
 ## Next
 
+### Technology track: SRX with Terraform and Mist (`srx-terraform`)
+
+Plan and spike results: [`docs/SRX-MIST-PLAN.md`](docs/SRX-MIST-PLAN.md). Workshop buckets (`WORKSHOP_TRACK`) are on
+`feat/workshop-tracks` (2026-11-04). The spike showed the real `Juniper/mist` provider 0.11.0 running a full SRX build
+(apply, empty re-plan, drift, import, destroy) against a fake API answering as `api.mist.com`, offline.
+
+| # | Work | Effort |
+|---|---|---|
+| T1 | `wan-api` simulator: per-org store, token auth, the plan's section 9.1 rules, spec validation, contract tests; record the untested endpoints (template/policy `PUT`, VPN, cluster, site groups, data sources) | L |
+| T2 | `wan-cloud` module: Terraform 1.17.1 and provider mirror in a terminal layer, token broker, `api.mist.com` alias plus stack-CA cert (check the alias under aardvark-dns), manifest, `/admin` tab | M |
+| T3 | Junos config renderer and the Dojo WAN portal | M |
+| T4 | `srx-terraform` pack: slides, labs 0 to 9, `dojo check`, sample repo, facilitator guide | L |
+| T5 | `--fast` bots, drift bot, live checks | M |
+
 ### Review 2026-10-18 follow-ups
 
 The whole-repo review lives in [`docs/reviews/2026-10-18.md`](docs/reviews/2026-10-18.md) (code comments cite it as
