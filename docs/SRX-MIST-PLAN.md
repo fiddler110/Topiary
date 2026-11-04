@@ -236,7 +236,7 @@ The interfaces the parts share, fixed before the build so they can be written in
 
 ### 10.4 Seed per org
 
-Org name `Dojo Org <user>`. A **delivery** of four unclaimed gateways: two `SRX300`, two `SRX345`, serials and MACs
+Org name `Dojo Org <user>`. A **delivery** of five unclaimed gateways: two `SRX300`, two `SRX345`, one `SRX1500`, serials and MACs
 derived from the user (MAC 12 lowercase hex, locally administered), claim codes from `claim_code`. Unclaimed devices are
 not in the inventory until claimed (as in Mist). `GET /api/v1/orgs/{org}/dojo/delivery` (token auth) returns the packing
 slip; the portal shows it too.

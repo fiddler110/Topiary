@@ -464,7 +464,7 @@ class TerraformLifecycle(ContractBase):
                      "vpns", "sites", "site_settings", "devices", "clusters"):
             self.assertEqual(store[name], {}, name)
         self.assertEqual(store["inventory"], [])
-        self.assertEqual(len(store["delivery"]), 4)
+        self.assertEqual(len(store["delivery"]), 5)
 
     def portal_post(self, path, user, extra):
         conn = http.client.HTTPConnection("127.0.0.1", self.portal_port, timeout=10)

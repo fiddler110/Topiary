@@ -46,7 +46,7 @@ Preinstalled: `terraform` with the `juniper/mist` provider, and `git`. Your logi
 | **2** | The gateway template and a service policy | ~12 min |
 | **3** | Sites and variables: one template, three sites | ~12 min |
 | **4** | **Claim and assign** the delivered gateways, read their config | ~12 min |
-| **5** | Layers: profile and device override, where settings go | ~12 min |
+| **5** | Layers: hub profile and device override, where settings go | ~12 min |
 | **6** | Modules, `for_each` and `moved`: refactor, destroy nothing | ~15 min |
 | **7** | Shared state, the lock, a pull request with the plan | ~15 min |
 | **8** | Drift and import | ~15 min |
@@ -58,7 +58,7 @@ Preinstalled: `terraform` with the `juniper/mist` provider, and `git`. Your logi
 
 - **Labs 1-3:** objects have references; the second `plan` is empty; one template, many sites, with variables
 - **Lab 4:** a claim code, a site and a template turn a box into a configured gateway
-- **Lab 5:** the last layer to speak wins. Put each setting as high as it fits
+- **Lab 5:** a spoke takes the template, a hub takes a profile, one box takes an override. DNS/NTP need the override flags
 - **Lab 6:** read the destroy count before every `apply`; `moved` keeps objects alive
 - **Lab 7:** state is shared and locked; changes go through a pull request with the plan
 - **Lab 8:** `plan` finds drift; you revert or adopt; `import` takes on what was made by hand

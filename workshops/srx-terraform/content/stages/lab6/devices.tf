@@ -1,12 +1,20 @@
 resource "mist_org_inventory" "delivery" {
   org_id = var.org_id
 
-  inventory = {
-    for name, s in var.sites : s.claim_code => {
-      site_id                = module.site[name].site_id
-      unclaim_when_destroyed = true
-    }
-  }
+  inventory = merge(
+    {
+      for name, s in var.sites : s.claim_code => {
+        site_id                = module.site[name].site_id
+        unclaim_when_destroyed = true
+      }
+    },
+    {
+      (var.hub_claim_code) = {
+        site_id                = mist_site.dc01.id
+        unclaim_when_destroyed = true
+      }
+    },
+  )
 }
 
 module "gateway" {

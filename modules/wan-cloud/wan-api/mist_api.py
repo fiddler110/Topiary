@@ -276,6 +276,8 @@ class MistApi:
             obj.setdefault("timezone", "UTC")
         if kind == "deviceprofiles":
             obj.setdefault("type", "gateway")
+        if kind == "networks":
+            obj.setdefault("disallow_mist_services", False)   # Mist returns the default, so an import plans clean
         with org.lock:
             org.data[kind][obj_id] = obj
             org.event(user, f"create {KINDS[kind][0]} '{obj.get('name', '')}'", path + "/" + obj_id)

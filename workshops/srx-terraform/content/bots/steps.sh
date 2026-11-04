@@ -9,7 +9,7 @@
 # own fork are closed again at the end of the round.
 #
 # Round-1 mistakes (every round for the intermediate and novice bots under --fast, see MISTAKE_MOD): a typo in a
-# reference (Lab 1), a claim code with 14 characters (Lab 4), a setting put in the wrong layer (Lab 5), a refactor
+# reference (Lab 1), a claim code with 14 characters (Lab 4), a hub profile without dns_override (Lab 5), a refactor
 # without `moved` (Lab 6, plan only: it is never applied) and a second run while the state lock is held (Lab 7).
 
 STAGES=/opt/workshop-content/stages
@@ -26,21 +26,21 @@ ensure_wan_creds() {
 
 srx_api() { curl -s -H "Authorization: Token $MIST_API_TOKEN" -H 'Content-Type: application/json' "$@"; }
 
-# Claim codes in the order the labs use them: SRX300 #1 Ottawa, SRX300 #2 Toronto, SRX345 #1 Montreal, SRX345 #2 Halifax.
+# Claim codes in the order the labs use them: SRX300 #1 Ottawa, SRX300 #2 Toronto, SRX345 #1 Montreal, SRX345 #2 Halifax, SRX1500 #1 the dc-01 hub.
 srx_code() { # model index (1-based)
   dojo wan delivery | awk -v m="$1" 'NR>1 && $1==m {print $4}' | sed -n "${2}p"
 }
 
 # Put the end-of-lab files for lab $1 into the clone, with this bot's claim codes in terraform.tfvars.
 srx_stage() {
-  local dir="$STAGES/lab$1" f rel ott tor mon hal
-  ott="$(srx_code SRX300 1)"; tor="$(srx_code SRX300 2)"; mon="$(srx_code SRX345 1)"; hal="$(srx_code SRX345 2)"
+  local dir="$STAGES/lab$1" f rel ott tor mon hal dc
+  ott="$(srx_code SRX300 1)"; tor="$(srx_code SRX300 2)"; mon="$(srx_code SRX345 1)"; hal="$(srx_code SRX345 2)"; dc="$(srx_code SRX1500 1)"
   [ -n "$ott" ] && [ -n "$hal" ] || { narrate "could not read the delivery yet"; return 1; }
   (cd "$dir" && find . -type f | sort) | while read -r f; do
     rel="${f#./}"
     mkdir -p "$(dirname "$rel")"
     case "$rel" in
-      *.tmpl) sed -e "s/@OTTAWA@/$ott/" -e "s/@TORONTO@/$tor/" -e "s/@MONTREAL@/$mon/" -e "s/@HALIFAX@/$hal/" \
+      *.tmpl) sed -e "s/@OTTAWA@/$ott/" -e "s/@TORONTO@/$tor/" -e "s/@MONTREAL@/$mon/" -e "s/@HALIFAX@/$hal/" -e "s/@DC@/$dc/" \
                 "$dir/$rel" > "${rel%.tmpl}" ;;
       *) cp "$dir/$rel" "$rel" ;;
     esac
@@ -113,16 +113,16 @@ step_srx_devices() {
   run_cmd "dojo wan config \"\$(dojo wan delivery | awk 'NR==2{print \$3}')\" | grep -E 'host-name|name-server|ntp|address'"
 
   if [ $(( ROUND % MISTAKE_MOD )) -eq "$MISTAKE_REM" ]; then
-    narrate "(demo) NTP in the wrong layer: the profile reaches every gateway, not just Ottawa"
+    narrate "(demo) forgot dns_override on the hub profile: the profile's DNS is ignored"
     run_cmd "srx_stage 5"
-    run_cmd "sed -i 's/dns_servers = \\[\"10.99.0.53\"\\]/&\\n  ntp_servers = [\"10.10.0.123\"]/' profile.tf"
+    run_cmd "sed -i '/dns_override = true/d' profile.tf"
     run_cmd "terraform apply -auto-approve -no-color -input=false | tail -2"
-    run_cmd "dojo check 5"
-    narrate "right -- every gateway got Ottawa's time server. The device is the layer for one box. Moving it."
+    run_cmd "dojo check 5 | grep -E 'FAIL|thing' | head -3; true"
+    narrate "right -- the hub kept no DNS: without dns_override the profile's dns_servers are not applied. Putting it back."
   fi
-  srx_lab 5 "layers: an edge profile and a device override"
+  srx_lab 5 "layers: a hub profile on dc-01 and a device override"
   run_cmd "dojo wan config ottawa-01-gw | grep -E 'host-name|name-server|ntp'"
-  run_cmd "dojo wan config toronto-01 2>/dev/null | head -2; true"
+  run_cmd "dojo wan config \"\$(dojo wan delivery | awk '\$1==\"SRX1500\"{print \$3}')\" | grep -E 'host-name|name-server'; true"
   return 0
 }
 

@@ -127,10 +127,22 @@ variable "sites" {
 }
 ```
 
+Keep the `dc-01` hub **out** of this map: it is not a branch (it has no template), and `hub.tf` stays as it is. Its claim code moves from the old `claim_codes` map to its own variable. Add it to `variables.tf`:
+
+```hcl
+# variables.tf (add)
+variable "hub_claim_code" {
+  description = "Claim code of the dc-01 hub gateway (not one of the branch sites)"
+  type        = string
+}
+```
+
 Replace `terraform.tfvars` (your claim codes go in `claim_code`; the placeholders are the same ones as in Lab 4):
 
 ```hcl
 # terraform.tfvars
+hub_claim_code = "SRX1500ZZZZZZZZ"
+
 sites = {
   "ottawa-01" = {
     address      = "Ottawa, ON, Canada"
@@ -195,12 +207,20 @@ module "site" {
 resource "mist_org_inventory" "delivery" {
   org_id = var.org_id
 
-  inventory = {
-    for name, s in var.sites : s.claim_code => {
-      site_id                = module.site[name].site_id
-      unclaim_when_destroyed = true
-    }
-  }
+  inventory = merge(
+    {
+      for name, s in var.sites : s.claim_code => {
+        site_id                = module.site[name].site_id
+        unclaim_when_destroyed = true
+      }
+    },
+    {
+      (var.hub_claim_code) = {
+        site_id                = mist_site.dc01.id
+        unclaim_when_destroyed = true
+      }
+    },
+  )
 }
 
 module "gateway" {
@@ -214,7 +234,7 @@ module "gateway" {
 }
 ```
 
-Every gateway now gets a name and the Ottawa one keeps its local NTP server, from the map.
+In `profile.tf`, change the assignment to read the hub's claim code from the new variable: `macs = [mist_org_inventory.delivery.inventory[var.hub_claim_code].mac]`. Every branch gateway now gets a name and the Ottawa one keeps its local NTP server, from the map.
 
 ```sh
 terraform fmt -recursive
@@ -322,12 +342,12 @@ dojo check 6
 
 <!-- dojo-reveal: What it checks -->
 
-Through the API: three sites with the same ids as `~/lab/site-ids.before`, all three gateways named `<site>-gw`, and Terraform's state lists modules (`module.site["ottawa-01"]` and so on). A site that was destroyed and recreated would have a new id.
+Through the API: the three branches and the `dc-01` hub, with the same ids as `~/lab/site-ids.before`, all three gateways named `<site>-gw`, and Terraform's state lists modules (`module.site["ottawa-01"]` and so on). A site that was destroyed and recreated would have a new id.
 
 <!-- /dojo-reveal -->
 
 ```sh
-git add -A modules sites.tf devices.tf moved.tf variables.tf terraform.tfvars
+git add -A modules sites.tf devices.tf profile.tf moved.tf variables.tf terraform.tfvars
 git commit -m "Move sites and gateways into modules driven by one sites map"
 ```
 

@@ -8,7 +8,7 @@ For the person running the session. The technical reference is [`README.md`](REA
 
 | Block | Minutes | What |
 | ----- | ------- | ---- |
-| Talk, Parts 1-5 | ~30 | Why Mist and Terraform, the layers, variables and claim flow, state and workflow, drift and import. *A guess until a dry run.* |
+| Talk, Parts 1-5 | ~30 | Why Mist and Terraform, the roles (spoke template, hub profile, device override), variables and claim flow, state and workflow, drift and import. *A guess until a dry run.* |
 | Labs 0-5 | ~70 | 10 + 12 + 12 + 12 + 12 + 12. Objects, template, sites, claim, layers |
 | Labs 6-9 | ~60 | 15 + 15 + 15 + 15. Modules, team workflow, drift and import, capstone |
 | Recap and questions | ~5 | Ask each table what surprised them |
@@ -25,7 +25,7 @@ Keep the order. Nobody destroys anything: every lab builds on the last.
 2. `./dojo srx-terraform` (the first build downloads Terraform and the 96 MB provider). In `/admin` check the status strip: Forgejo, Terminals, Slides and Dojo WAN green.
 3. Size the machine: `./dojo capacity srx-terraform --students 30`. A full apply is about 100 MB of memory for a moment; 15 students applying at once is about 1.5 GB in the terminal.
 4. **Rehearse as a student**: private window, then Labs 0 to 9, using `dojo check N` at the end of each. Then `./dojo stop` and start clean.
-5. **Check the Junos preview against a real SRX.** The rendered config is invented from the parts the team can confirm (interfaces, zones, policies, NAT). Have someone who knows SRX read `dojo wan config` for one site before the class and fix any line that would mislead. Also confirm the layer order (template, then profile, then device) against the Mist documentation: Lab 5 teaches it.
+5. **Check the Junos preview against a real SRX.** The rendered config is invented from the parts the team can confirm (interfaces, zones, policies, NAT). Have someone who knows SRX read `dojo wan config` for one site before the class and fix any line that would mislead. Also confirm Lab 5 against the Mist documentation: a template for spoke sites, a hub profile for a hub gateway (never both on one gateway), the `dns_override`/`ntp_override` flags, and site vars overridden by device `vars`.
 6. Skim the deck with its speaker notes on.
 
 **On the day, 15 minutes before:** start the stack, confirm the landing page shows a **Dojo WAN** card, `/slides` and `/admin`. Open the **Dojo WAN** tab in `/admin`: it shows every org, and the drift button for Lab 8.
@@ -54,7 +54,7 @@ Keep the order. Nobody destroys anything: every lab builds on the last.
 
 ## Known issues and limits
 
-- The **Junos config is a preview**, not a real commit, and the layer order is the simulator's reading of Mist's behaviour. Say so in the room.
+- The **Junos config is a preview**, not a real commit, and the role model follows Mist's documentation as the simulator reads it. Say so in the room.
 - `dojo check` is provided by this pack (`compose/terminal/srx-check`). If the achievements module is added later, its `check` link and this one collide: fold these checks into the achievements catalog instead.
 - The token is never moved to a secrets manager in this version (Lab 7 explains it; it does not do it). The plan's `openbao` step and the runner-pool `plan on pull request` are future work.
 - The state name `srx-estate` and the checks' wording follow the simulator contract (`docs/SRX-MIST-PLAN.md` section 10). Changing the state path means editing Lab 7, `srx-check` and `stages/lab7`.

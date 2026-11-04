@@ -68,7 +68,7 @@ Your org id differs. Settings that differ per person or per environment, and sec
 
 Open the landing page and click the **Dojo WAN** card. This is a practice Mist cloud. It answers at `api.mist.com` inside the lab and nothing here can reach the real one. The provider and the resource types are the real ones.
 
-In the portal find your organization, **Dojo Org studentNN**. It is empty: no networks, no sites, no templates. It has a **delivery**, the packing slip for four gateways that just arrived, still in their boxes:
+In the portal find your organization, **Dojo Org studentNN**. It is empty: no networks, no sites, no templates. It has a **delivery**, the packing slip for five gateways that just arrived, still in their boxes:
 
 ```sh
 dojo wan delivery
@@ -141,7 +141,7 @@ dojo check 0
 
 <!-- dojo-reveal: What it checks -->
 
-The check calls the API with your own token. It confirms the token is valid, the org it names is the one in `MIST_ORG_ID`, the delivery lists four gateways, and `terraform init` has run in your clone.
+The check calls the API with your own token. It confirms the token is valid, the org it names is the one in `MIST_ORG_ID`, the delivery lists five gateways, and `terraform init` has run in your clone.
 
 <!-- /dojo-reveal -->
 

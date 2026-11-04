@@ -32,7 +32,8 @@ SITES = {  # the values labs 3 and 6 give each site
 }
 HALIFAX = {"wan": "198.51.100.10", "gw": "198.51.100.9", "lan": "10.40.0.1", "net": "10.40.0.0/24"}
 TEMPLATE_DNS, TEMPLATE_NTP = "192.0.2.53", "192.0.2.123"
-PROFILE_DNS, OTTAWA_NTP = "10.99.0.53", "10.10.0.123"
+HUB_DNS, OTTAWA_NTP = "10.99.0.53", "10.10.0.123"
+HUB = "dc-01"
 
 TITLES = {
     0: "Tour", 1: "First objects", 2: "The gateway template", 3: "Sites and variables",
@@ -115,7 +116,7 @@ def lab0(r):
     r.ok(bool(me), "your token works (GET /self)", "the API did not accept your token")
     r.ok(bool(ORG), f"MIST_ORG_ID is set ({ORG})", "MIST_ORG_ID is empty: open a new terminal tab")
     d = lst(f"/orgs/{ORG}/dojo/delivery")
-    r.ok(len(d) == 4, "the delivery lists four gateways", f"expected 4 gateways in the delivery, found {len(d)}")
+    r.ok(len(d) == 5, "the delivery lists five gateways", f"expected 5 gateways in the delivery, found {len(d)}")
     r.ok(os.path.isdir(os.path.join(REPO, ".terraform")), "terraform init has run in ~/lab/srx-terraform",
          "no .terraform in ~/lab/srx-terraform: clone your fork there (step 1) and run terraform init")
 
@@ -191,19 +192,29 @@ def lab4(r):
 
 
 def lab5(r):
-    prof = by_name(lst(f"/orgs/{ORG}/deviceprofiles")).get("edge-profile")
-    r.ok(bool(prof), "device profile edge-profile exists", "no device profile named edge-profile")
+    prof = by_name(lst(f"/orgs/{ORG}/deviceprofiles")).get("hub-profile")
+    r.ok(bool(prof), "device profile hub-profile exists", "no device profile named hub-profile")
     gws = gateways()
+    hub = gws.get(HUB)
+    if r.ok(bool(hub), f"a gateway is assigned to {HUB}", f"no gateway is assigned to {HUB}"):
+        r.ok(bool(prof) and hub.get("deviceprofile_id") == prof.get("id"), f"the {HUB} gateway has hub-profile",
+             f"the {HUB} gateway doesn't have hub-profile assigned")
+        cfg = config_of(hub)
+        r.ok(has_line(cfg, f"set system name-server {HUB_DNS}"), f"{HUB}: DNS comes from the profile",
+             f"{HUB}: expected 'set system name-server {HUB_DNS}' (is dns_override = true on the profile?)")
+        r.ok("both apply" not in cfg, f"{HUB} has a profile and no template (no 'both apply' note)",
+             f"{HUB} has a template and a profile: the hub site must not use a gateway template")
+    site = sites_by_name().get(HUB) or {}
+    r.ok(bool(site) and not site.get("gatewaytemplate_id"), f"site {HUB} has no gateway template",
+         f"site {HUB} must have no gatewaytemplate_id: a hub takes a profile")
     for name in SITES:
         gw = gws.get(name)
         if not gw:
             r.ok(False, "", f"no gateway in {name}")
             continue
-        r.ok(bool(prof) and gw.get("deviceprofile_id") == prof.get("id"), f"{name}'s gateway has the edge profile",
-             f"{name}'s gateway doesn't have the edge profile assigned")
+        r.ok(not gw.get("deviceprofile_id"), f"{name}'s gateway has no profile (it is a spoke)",
+             f"{name}'s gateway has a profile assigned: spokes use the template")
         cfg = config_of(gw)
-        r.ok(has_line(cfg, f"set system name-server {PROFILE_DNS}"), f"{name}: DNS comes from the profile",
-             f"{name}: expected 'set system name-server {PROFILE_DNS}' (profile beats template)")
         if name == "ottawa-01":
             r.ok(gw.get("name") == "ottawa-01-gw" and has_line(cfg, "set system host-name ottawa-01-gw"),
                  "ottawa's gateway is named ottawa-01-gw", "ottawa's gateway should be named ottawa-01-gw")
@@ -212,12 +223,14 @@ def lab5(r):
         else:
             r.ok(has_line(cfg, f"set system ntp server {TEMPLATE_NTP}"), f"{name}: NTP comes from the template",
                  f"{name}: expected 'set system ntp server {TEMPLATE_NTP}' (no override here)")
+        r.ok(has_line(cfg, f"set system name-server {TEMPLATE_DNS}"), f"{name}: DNS comes from the template",
+             f"{name}: expected 'set system name-server {TEMPLATE_DNS}'")
 
 
 def lab6(r):
     sites = sites_by_name()
-    r.ok(len(sites) == 3 and set(sites) == set(SITES), "exactly the three sites exist",
-         f"expected the three sites, found {sorted(sites)}")
+    r.ok(set(sites) == set(SITES) | {HUB}, "the three branch sites and the dc-01 hub exist",
+         f"expected the three branches and dc-01, found {sorted(sites)}")
     before = os.path.expanduser("~/lab/site-ids.before")
     if os.path.exists(before):
         old = dict(line.split() for line in open(before) if line.strip())
@@ -274,13 +287,13 @@ def lab9(r):
     lab3(r, {"halifax-01": HALIFAX})
     gw = gateways().get("halifax-01")
     if r.ok(bool(gw), "a gateway is assigned to halifax-01", "no gateway is assigned to halifax-01"):
-        prof = by_name(lst(f"/orgs/{ORG}/deviceprofiles")).get("edge-profile") or {}
-        r.ok(gw.get("deviceprofile_id") == prof.get("id"), "it has the edge profile", "it doesn't have the edge profile")
+        r.ok(not gw.get("deviceprofile_id"), "it has no profile (a spoke uses the template)",
+             "halifax-01 has a profile assigned: a branch takes only the template")
         cfg = config_of(gw)
         for what, line in (("WAN address", f"set interfaces ge-0/0/0 unit 0 family inet address {HALIFAX['wan']}/29"),
                            ("LAN address", f"set interfaces ge-0/0/1 unit 10 family inet address {HALIFAX['lan']}/24"),
                            ("default route", f"set routing-options static route 0.0.0.0/0 next-hop {HALIFAX['gw']}"),
-                           ("edge DNS", f"set system name-server {PROFILE_DNS}"),
+                           ("template DNS", f"set system name-server {TEMPLATE_DNS}"),
                            ("standard NTP", f"set system ntp server {TEMPLATE_NTP}")):
             r.ok(has_line(cfg, line), f"halifax-01 has its {what}", f"halifax-01 is missing: {line}")
     rc, out = terraform("plan", "-detailed-exitcode", "-input=false", "-no-color", "-lock=false")

@@ -19,7 +19,7 @@ EVENTS_KEPT = 1000
 
 
 def seed(key, user, org_id):
-    """A fresh org: no objects, nothing claimed, the delivery of four gateways on the packing slip."""
+    """A fresh org: no objects, nothing claimed, the delivery of five gateways on the packing slip."""
     now = int(time.time())
     data = {"org": {"id": org_id, "name": f"Dojo Org {user}", "created_time": now, "modified_time": now}}
     for name in COLLECTIONS:

@@ -14,7 +14,7 @@ On a real greenfield build, a box arrives with a **claim code** (the `magic`). C
 dojo wan delivery
 ```
 
-You have four boxes. Use three now and keep one for the capstone:
+You have five boxes. Use three now, keep one for the hub in Lab 5, and one for the capstone:
 
 | Box | Site |
 | --- | ---- |
@@ -22,6 +22,7 @@ You have four boxes. Use three now and keep one for the capstone:
 | second `SRX300` | `toronto-01` |
 | first `SRX345` | `montreal-01` |
 | second `SRX345` | kept for Lab 9 |
+| the `SRX1500` | the `dc-01` hub in Lab 5 |
 
 A claim code is 15 characters of `0-9A-Z`, such as `SRX300ABC123XYZ`. The provider checks the format before it calls the API.
 

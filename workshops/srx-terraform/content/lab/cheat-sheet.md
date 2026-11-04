@@ -52,20 +52,22 @@ Plan symbols: `+` create, `~` change in place, `-` destroy, `-/+` replace. **Rea
 | `mist_org_service` | something to allow: protocol and port |
 | `mist_org_servicepolicy` | allow or deny services for tenants (networks) |
 | `mist_org_gatewaytemplate` | the shared branch design: ports, networks, policies |
-| `mist_org_deviceprofile_gateway` | a role layered over the template |
+| `mist_org_deviceprofile_gateway` | a hub role: its own ports and DNS, on a site with no template |
 | `mist_org_deviceprofile_assign` | which devices (by MAC) have a profile |
 | `mist_site` | a branch: name, address, time zone, template |
 | `mist_site_setting` | the site's `vars` |
 | `mist_org_inventory` | claim devices by code and assign them to a site |
 | `mist_device_gateway` | one gateway's own settings (an override) |
 
-## Layers (last one wins, setting by setting)
+## Roles
 
 ```text
-org objects  →  gateway template  →  (site variables fill the blanks)  →  device profile  →  device override
+spoke (branch site):  gateway template     hub (no template):  hub profile     one box:  device override
+site variables fill the blanks; a device's own vars win
+DNS/NTP in a template or profile apply only with dns_override / ntp_override = true
 ```
 
-House rule: same everywhere, template. Differs per site, a site variable. Same for a role, a profile. One box only, an override (last resort).
+House rule: same everywhere, org objects. Same for every branch, the template. Same for a hub, a hub profile. Differs per site, a site variable. One box only, an override (last resort). Never a template and a profile on one gateway.
 
 ## Import ids
 

@@ -29,7 +29,7 @@ A ~2¾ hour technology-track session: build a greenfield Juniper SRX estate mana
 | 2 | Gateway template | `mist_org_servicepolicy`, `mist_org_gatewaytemplate` |
 | 3 | Sites and variables | `mist_site`, `mist_site_setting` |
 | 4 | Claim and assign | `mist_org_inventory` |
-| 5 | Layers | `mist_org_deviceprofile_gateway`, `_assign`, `mist_device_gateway` |
+| 5 | Layers: spoke template, hub profile, device override | `mist_org_deviceprofile_gateway`, `_assign`, `mist_device_gateway` |
 | 6 | Structure | modules, `for_each`, `moved` |
 | 7 | Team workflow | `http` backend with lock, pull request with the plan |
 | 8 | Drift and import | `terraform import` of a network and a device |

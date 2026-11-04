@@ -17,3 +17,8 @@ variable "sites" {
     ntp_servers  = optional(list(string))
   }))
 }
+
+variable "hub_claim_code" {
+  description = "Claim code of the dc-01 hub gateway (not one of the branch sites)"
+  type        = string
+}

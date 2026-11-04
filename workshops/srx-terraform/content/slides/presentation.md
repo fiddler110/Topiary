@@ -134,22 +134,23 @@ About 1 minute. The provider only accepts the real Mist cloud hostnames, so the 
 
 ---
 
-## Layers: who gets the last word
+## Roles: spoke, hub, one box
 
 <div class="mermaid">
 flowchart TD
-  o["Org objects<br/>networks, services, policies"] --> t["Gateway template<br/>the branch design"]
-  t --> v["Site variables<br/>fill the blanks"]
-  v --> p["Device profile<br/>a role"]
-  p --> d["Device override<br/>one box"]
-  d --> j["Final config on the SRX"]
+  o["Org objects<br/>networks, services, policies"] --> t["Spoke: gateway template<br/>assigned to branch sites"]
+  o --> p["Hub: hub profile<br/>on a gateway at a hub site"]
+  t --> j["Final config on the SRX"]
+  p --> j
+  d["Device override<br/>one box, last resort"] --> j
 </div>
 
-- Each layer overrides the one before, **setting by setting**
-- A layer that says nothing about a setting leaves it alone
+- **Site variables** fill the blanks; a device's own `vars` win
+- Template or profile **DNS/NTP** only apply with `dns_override` / `ntp_override`
+- Mist documents one or the other on a gateway, never both
 
 <!--
-About 3 minutes. This is the slide to come back to all day. Lab 5 shows it with real output: DNS from the profile, NTP from the device. Draw the arrow from the bottom to the top and say "the last layer to speak wins".
+About 3 minutes. This is the slide to come back to all day. Lab 5 shows it: the dc-01 hub takes its DNS from a hub profile (and loses it if dns_override is removed), branches take theirs from the template, Ottawa's NTP comes from the device. Say plainly that Mist does not document a template and a profile on the same gateway, so we do not do it.
 -->
 
 ---
@@ -158,9 +159,10 @@ About 3 minutes. This is the slide to come back to all day. Lab 5 shows it with 
 
 | The setting is... | Put it in |
 | ----------------- | --------- |
-| the same everywhere | org objects or the **template** |
+| the same everywhere | org objects |
+| the same for every branch | the **template** |
+| the same for a hub | a **hub profile** |
 | different per site | a **site variable** |
-| the same for a role | a **device profile** |
 | true for exactly one box | a **device override** (last resort) |
 
 > Every override is a box that no longer looks like its neighbours.
@@ -256,7 +258,7 @@ flowchart LR
 - Nobody logs in to the SRX
 
 <!--
-About 2 minutes. This is zero touch provisioning. In the lab the delivery is four boxes with claim codes; dojo wan delivery prints them. Mention unclaim_when_destroyed: without it a destroy leaves the box claimed and a rebuild fails.
+About 2 minutes. This is zero touch provisioning. In the lab the delivery is five boxes with claim codes; dojo wan delivery prints them. Mention unclaim_when_destroyed: without it a destroy leaves the box claimed and a rebuild fails.
 -->
 
 ---
@@ -420,7 +422,7 @@ About 1 minute. The id formats are the part people cannot guess, so they are on 
 | --- | -------- |
 | **0-1** | tour, then create your first objects |
 | **2-3** | the gateway template, three sites with variables |
-| **4-5** | claim the delivery; layers: profile and override |
+| **4-5** | claim the delivery; layers: hub profile and override |
 | **6** | modules, `for_each`, `moved` |
 | **7** | shared state, lock, pull request with the plan |
 | **8** | drift and import |
@@ -435,7 +437,7 @@ About 1 minute. Keep the order. Each lab builds on the one before and nothing is
 ## Recap
 
 - **Mist holds the config, git decides it**: the portal shows, Terraform changes
-- **Layers**: org, template, variables, profile, device. The last to speak wins, so put each setting at the **highest** layer that fits
+- **Roles**: spoke template, hub profile, device override. Template/profile DNS and NTP need the override flags; put each setting at the **broadest** place that fits
 - **Claim and assign** from a delivery: no one logs in to the box
 - **State is shared and locked**; the token is never in the repo
 - **Pull request with the plan**, read the destroy count, apply from `main`

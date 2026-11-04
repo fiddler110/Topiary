@@ -18,9 +18,9 @@ Address      Halifax, NS, Canada   (time zone America/Halifax)
 Gateway      the second SRX345 from our delivery (see `dojo wan delivery`)
 WAN          198.51.100.10/29, next hop 198.51.100.9
 LAN          10.40.0.0/24, the gateway is 10.40.0.1
-Design       the standard branch design: template and edge profile, no local overrides
-Done when    the gateway has the Halifax addresses, the edge DNS server, and the
-             standard NTP server, and `terraform plan` is empty.
+Design       the standard branch design: the template, no profile, no local overrides
+Done when    the gateway has the Halifax addresses, the standard DNS and NTP
+             servers from the template, and `terraform plan` is empty.
 ```
 
 ## 1. Branch and add one entry
@@ -59,10 +59,10 @@ terraform plan -no-color | tee plan.txt
 <!-- dojo-reveal: Result -->
 
 ```text
-Plan: 3 to add, 2 to change, 0 to destroy.
+Plan: 3 to add, 1 to change, 0 to destroy.
 ```
 
-Three to add: the site, its settings, the gateway. Two to change: the inventory (one more device) and the profile assignment (one more MAC). **Zero destroy.** If your plan shows any destroy, stop: something else changed.
+Three to add: the site, its settings, the gateway. One to change: the inventory (one more device). A branch is a spoke, so there is no profile assignment to touch. **Zero destroy.** If your plan shows any destroy, stop: something else changed.
 
 <!-- /dojo-reveal -->
 
@@ -98,14 +98,14 @@ dojo wan config halifax-01-gw
 ```text
 # site: halifax-01
 set system host-name halifax-01-gw
-set system name-server 10.99.0.53
+set system name-server 192.0.2.53
 set system ntp server 192.0.2.123
 set interfaces ge-0/0/0 unit 0 family inet address 198.51.100.10/29
 set interfaces ge-0/0/1 unit 10 family inet address 10.40.0.1/24
 set routing-options static route 0.0.0.0/0 next-hop 198.51.100.9
 ```
 
-The Halifax addresses come from the site variables, DNS from the edge profile, NTP from the template. Nothing is overridden on the box.
+The Halifax addresses come from the site variables, DNS and NTP from the template. Nothing is overridden on the box.
 
 <!-- /dojo-reveal -->
 
@@ -116,7 +116,7 @@ dojo check 9
 
 <!-- dojo-reveal: What it checks -->
 
-Through the API: a `halifax-01` site using the template with its four variables; its gateway claimed, in that site, with the edge profile, and rendered with the Halifax WAN address, the profile's DNS and the template's NTP; and `terraform plan` clean.
+Through the API: a `halifax-01` site using the template with its four variables; its gateway claimed, in that site, with no profile, and rendered with the Halifax WAN address and the template's DNS and NTP; and `terraform plan` clean.
 
 <!-- /dojo-reveal -->
 
@@ -128,7 +128,7 @@ Through the API: a `halifax-01` site using the template with its four variables;
 
 ## What you built
 
-A greenfield estate, from empty org to four branch offices: shared org objects, one gateway template, a profile for the edge role, sites with variables, gateways claimed and assigned from a delivery, state in a shared locked backend, and a change process with the plan in front of the reviewer. That is the real job.
+A greenfield estate, from empty org to four branch offices and a hub: shared org objects, one gateway template, a hub profile for the data-centre gateway, sites with variables, gateways claimed and assigned from a delivery, state in a shared locked backend, and a change process with the plan in front of the reviewer. That is the real job.
 
 ## Common mistakes
 

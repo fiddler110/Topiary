@@ -22,7 +22,7 @@ class StoreTest(unittest.TestCase):
         d = org.data
         self.assertEqual(d["org"]["name"], "Dojo Org student01")
         self.assertEqual(d["org"]["id"], self.org_id)
-        self.assertEqual([x["model"] for x in d["delivery"]], ["SRX300", "SRX300", "SRX345", "SRX345"])
+        self.assertEqual([x["model"] for x in d["delivery"]], ["SRX300", "SRX300", "SRX345", "SRX345", "SRX1500"])
         self.assertEqual(d["inventory"], [])     # unclaimed devices are not in the inventory
         for name in store.COLLECTIONS + ("site_settings", "devices"):
             self.assertEqual(d[name], {})

@@ -14,6 +14,10 @@ resource "mist_org_inventory" "delivery" {
       site_id                = mist_site.montreal.id
       unclaim_when_destroyed = true
     }
+    (var.claim_codes["dc-01"]) = {
+      site_id                = mist_site.dc01.id
+      unclaim_when_destroyed = true
+    }
   }
 }
 

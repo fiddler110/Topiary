@@ -8,7 +8,7 @@ import hashlib
 import hmac
 import uuid
 
-MODELS = ("SRX300", "SRX300", "SRX345", "SRX345")   # the delivery: four gateways per org
+MODELS = ("SRX300", "SRX300", "SRX345", "SRX345", "SRX1500")   # the delivery: five gateways per org
 
 
 def _mac(key: bytes, label: str) -> bytes:

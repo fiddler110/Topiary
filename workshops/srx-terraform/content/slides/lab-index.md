@@ -40,7 +40,7 @@ cd ~/lab && git clone http://git-server:3000/$USER/srx-terraform.git
 <li><a href="assets/lab-reader.html?file=lab2.md.txt">Lab 2</a><span class="topic">The gateway template</span></li>
 <li><a href="assets/lab-reader.html?file=lab3.md.txt">Lab 3</a><span class="topic">Sites and variables</span></li>
 <li><a href="assets/lab-reader.html?file=lab4.md.txt">Lab 4</a><span class="topic">Claim and assign</span></li>
-<li><a href="assets/lab-reader.html?file=lab5.md.txt">Lab 5</a><span class="topic">Layers: profile and override</span></li>
+<li><a href="assets/lab-reader.html?file=lab5.md.txt">Lab 5</a><span class="topic">Layers: hub profile and override</span></li>
 <li><a href="assets/lab-reader.html?file=lab6.md.txt">Lab 6</a><span class="topic">Modules, for_each, moved</span></li>
 <li><a href="assets/lab-reader.html?file=lab7.md.txt">Lab 7</a><span class="topic">Shared state and a reviewed pull request</span></li>
 <li><a href="assets/lab-reader.html?file=lab8.md.txt">Lab 8</a><span class="topic">Drift and import</span></li>

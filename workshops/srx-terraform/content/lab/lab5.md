@@ -1,32 +1,33 @@
 # Lab 5: Layers
 
-**Goal:** learn the layers a gateway's configuration is built from, see which one wins, and decide where each kind of setting belongs. All commands run in `~/lab/srx-terraform`.
+**Goal:** learn the roles Mist builds a gateway's configuration from (spoke template, hub profile, device override), and decide where each kind of setting belongs. All commands run in `~/lab/srx-terraform`.
 
 > **Starting here?** Run `dojo prep 5`.
 
 ---
 
-## 1. Who gets the last word
+## 1. The model: roles, not a stack
 
-A gateway's final configuration is merged from layers. Each layer overrides the one before it, setting by setting:
+A gateway gets its configuration from one of these, by role:
 
 ```text
-org objects      networks, services, service policies   (shared by everything)
-   |
-gateway template   the branch design                    (all sites that use it)
-   |  + site variables ({{wan_ip}} ...)                  (per site, fills the blanks)
-device profile     a role: "edge", "lab", "hub"         (every device assigned to it)
-   |
-device override    this one box                         (one device)
+spoke   a branch site        gateway TEMPLATE, assigned to the site        (every branch that uses it)
+hub     a hub/DC gateway     HUB PROFILE (a device profile), assigned      (the hub gateways you assign it to)
+                             to the device, at a site with no template
+one box a single device      DEVICE OVERRIDE (mist_device_gateway)         (that device: the last resort)
 ```
 
-Dojo WAN renders the config in exactly this order: **template, then profile, then device**. The last layer that sets a value wins. A layer that does not mention a setting leaves the earlier one alone.
+Three more pieces:
 
-You will set `dns_servers` and `ntp_servers` at three layers and watch the result change.
+- **Site variables** (`{{wan_ip}}` ...) fill the blanks in whichever of the above applies. A device's own `vars` override the site's, key by key.
+- **DNS and NTP** set in a template or a profile only apply when `dns_override = true` / `ntp_override = true` is set next to them. Without the flag the gateway inherits the site's values.
+- A device override always applies to its box.
+
+Mist does not document putting a template **and** a profile on the same gateway, so we don't. Branches get the template; the hub gets a profile and sits at a site with no template. (Dojo WAN will render both if you try, and leave a `# note:` in the config to tell you.)
 
 ## 2. See what you have
 
-The template (Lab 2) says DNS `192.0.2.53` and NTP `192.0.2.123`. Look at a gateway:
+The template (Lab 2) says DNS `192.0.2.53` and NTP `192.0.2.123`, and both set the override flags. Look at a branch gateway:
 
 ```sh
 dojo wan config <mac of your Toronto gateway> | grep -E 'name-server|ntp'
@@ -37,50 +38,129 @@ set system name-server 192.0.2.53
 set system ntp server 192.0.2.123
 ```
 
-## 3. A device profile
+## 3. A hub profile and a hub site
 
-A **device profile** is a role. Create `profile.tf`:
+Your delivery has a fifth box, an `SRX1500`. It goes to a hub: a data-centre site, `dc-01`. A hub is not a copy of a branch, so it gets a **hub profile** (the Mist UI calls them *Hub Profiles*) instead of the template. Three new files.
+
+The site has **no** `gatewaytemplate_id`. Create `hub.tf` (the hub's addresses are variables, like any site's; pick values that do not clash with the branches):
 
 ```hcl
-# profile.tf
-resource "mist_org_deviceprofile_gateway" "edge" {
-  org_id      = var.org_id
-  name        = "edge-profile"
-  dns_servers = ["10.99.0.53"]
+# hub.tf
+resource "mist_site" "dc01" {
+  org_id       = var.org_id
+  name         = "dc-01"
+  address      = "Mississauga, ON, Canada"
+  country_code = "CA"
+  timezone     = "America/Toronto"
 }
 
-resource "mist_org_deviceprofile_assign" "edge" {
-  org_id           = var.org_id
-  deviceprofile_id = mist_org_deviceprofile_gateway.edge.id
-  macs             = [for d in mist_org_inventory.delivery.inventory : d.mac]
+resource "mist_site_setting" "dc01" {
+  site_id = mist_site.dc01.id
+  vars = {
+    site_subnet = "10.99.0.0/24"
+    lan_ip      = "10.99.0.1"
+    wan_ip      = "198.18.0.2"
+    wan_gw      = "198.18.0.1"
+  }
 }
 ```
 
-The `macs` list is built from the inventory you already manage: every device you claimed gets the profile. (`type` on the profile is set by Mist; you do not write it.)
+The profile carries its own ports (a profile with no template has nothing else to take them from), its own DNS, and the override flag. Create `profile.tf`:
 
-**Your turn:** before you apply, predict what the Toronto gateway's `name-server` line says afterwards, and its `ntp` line.
+```hcl
+# profile.tf
+resource "mist_org_deviceprofile_gateway" "hub" {
+  org_id = var.org_id
+  name   = "hub-profile"
+
+  port_config = {
+    "ge-0/0/0" = {
+      usage    = "wan"
+      name     = "wan0"
+      wan_type = "broadband"
+      ip_config = {
+        type    = "static"
+        ip      = "{{wan_ip}}"
+        netmask = "/29"
+        gateway = "{{wan_gw}}"
+      }
+    }
+    "ge-0/0/1" = {
+      usage    = "lan"
+      networks = [mist_org_network.corp.name]
+    }
+  }
+
+  ip_configs = {
+    (mist_org_network.corp.name) = {
+      type    = "static"
+      ip      = "{{lan_ip}}"
+      netmask = "/24"
+    }
+  }
+
+  service_policies = [{ servicepolicy_id = mist_org_servicepolicy.corp_to_web.id }]
+
+  dns_override = true
+  dns_servers  = ["10.99.0.53"]
+}
+
+resource "mist_org_deviceprofile_assign" "hub" {
+  org_id           = var.org_id
+  deviceprofile_id = mist_org_deviceprofile_gateway.hub.id
+  macs             = [mist_org_inventory.delivery.inventory[var.claim_codes["dc-01"]].mac]
+}
+```
+
+The assignment names one MAC: the hub gateway. The branches are not on the profile. (`type` on the profile is set by Mist; you do not write it.)
+
+Claim the `SRX1500` into `dc-01`. Add its claim code (`dojo wan delivery`) to `terraform.tfvars`, and its entry to the inventory in `devices.tf` (shown in step 4).
+
+```hcl
+# terraform.tfvars
+claim_codes = {
+  "ottawa-01"   = "SRX300XXXXXXXXX"
+  "toronto-01"  = "SRX300YYYYYYYYY"
+  "montreal-01" = "SRX345XXXXXXXXX"
+  "dc-01"       = "SRX1500ZZZZZZZZ"
+}
+```
+
+**Your turn:** before you apply, predict the hub's `name-server` line, and whether the Toronto gateway changes.
 
 ```sh
 terraform fmt
 terraform validate
 terraform apply
-dojo wan config <mac of your Toronto gateway> | grep -E 'name-server|ntp'
+dojo wan config <mac of your SRX1500> | grep -E 'profile|note|name-server'
 ```
 
 <!-- dojo-reveal: Results -->
 
 ```text
+# profile: hub-profile
 set system name-server 10.99.0.53
-set system ntp server 192.0.2.123
 ```
 
-The profile sets DNS, so it beats the template. The profile says nothing about NTP, so the template's value stays.
+The hub's DNS comes from its profile, because the flag is on. Toronto does not change: it is a spoke and never saw the profile. There is no `# note:` line, because the hub has no template.
+
+<!-- /dojo-reveal -->
+
+**Your turn, the flag:** remove the `dns_override = true` line from `profile.tf`, plan and apply, then read the hub's config again. Predict first.
+
+<!-- dojo-reveal: Results -->
+
+```text
+# note: profile dns_servers not applied (dns_override is not true)
+```
+
+The `name-server` line is gone. Without the flag the profile's DNS is ignored and the gateway inherits the site's and org's (this lab sets none). Put the line back and apply again.
 
 <!-- /dojo-reveal -->
 
 ## 4. A device override
 
-One site needs its own time server: Ottawa has a local clock. The right layer for "this one box" is the device. `mist_device_gateway` configures a single claimed gateway. Add to `devices.tf` (the whole file is shown; the inventory block is unchanged):
+One site needs its own time server: Ottawa has a local clock. The right layer for "this one box" is the device. `mist_device_gateway` configures a single claimed gateway. Update `devices.tf` (the whole file is shown; the Ottawa block is the new one):
 
 ```hcl
 # devices.tf
@@ -100,6 +180,10 @@ resource "mist_org_inventory" "delivery" {
       site_id                = mist_site.montreal.id
       unclaim_when_destroyed = true
     }
+    (var.claim_codes["dc-01"]) = {
+      site_id                = mist_site.dc01.id
+      unclaim_when_destroyed = true
+    }
   }
 }
 
@@ -111,7 +195,7 @@ resource "mist_device_gateway" "ottawa" {
 }
 ```
 
-`device_id` and the site come from the inventory entry, so the override waits for the claim. `name` becomes the Junos host name.
+`device_id` and the site come from the inventory entry, so the override waits for the claim. `name` becomes the Junos host name. A device override always applies; it needs no flag.
 
 ```sh
 terraform fmt
@@ -125,11 +209,11 @@ dojo wan config ottawa-01-gw | grep -E 'host-name|name-server|ntp'
 
 ```text
 set system host-name ottawa-01-gw
-set system name-server 10.99.0.53
+set system name-server 192.0.2.53
 set system ntp server 10.10.0.123
 ```
 
-Three layers in one answer: the **name** and **NTP** come from the device, the **DNS** from the profile.
+The **name** and **NTP** come from the device, the **DNS** from the template.
 
 <!-- /dojo-reveal -->
 
@@ -137,12 +221,13 @@ Three layers in one answer: the **name** and **NTP** come from the device, the *
 
 | Setting is... | Put it in... | Example |
 | ------------- | ------------ | ------- |
-| the same everywhere | org objects or the **template** | the corp network, the WAN/LAN port layout |
+| the same everywhere | org objects | the corp network, services, service policies |
+| the same for every branch | the **template** (spoke) | the WAN/LAN port layout, branch DNS/NTP (with the override flags) |
+| the same for a hub | a **hub profile**, on a site with no template | the hub's own ports and DNS (with `dns_override`) |
 | different per site, and fills a blank | a **site variable** | `{{wan_ip}}`, `{{site_subnet}}` |
-| the same for a role | a **device profile** | DNS servers for edge gateways |
 | true for exactly one box | a **device override** | its name, a local NTP server |
 
-The device layer is the last resort. Every override is a box that no longer looks like its neighbours, and a reviewer has to remember it exists. Prefer a variable; then a profile; then, rarely, an override.
+Never both a template and a profile on one gateway. The device override is the last resort. Every override is a box that no longer looks like its neighbours, and a reviewer has to remember it exists. Prefer a variable; then the template or profile for the role; then, rarely, an override.
 
 ## Check
 
@@ -152,24 +237,26 @@ dojo check 5
 
 <!-- dojo-reveal: What it checks -->
 
-Through the API: an `edge-profile` is assigned to all three gateways; the Toronto and Montreal configs show the profile's DNS and the template's NTP; the Ottawa gateway is named `ottawa-01-gw` and shows the device's NTP.
+Through the API: `hub-profile` is assigned only to the `dc-01` gateway, whose site has no template, and its config shows the profile's DNS and no "both apply" note. Toronto and Montreal show the template's DNS and NTP. The Ottawa gateway is named `ottawa-01-gw` and shows only the device's NTP.
 
 <!-- /dojo-reveal -->
 
 ```sh
-git add profile.tf devices.tf
-git commit -m "Add the edge profile and a local NTP override for Ottawa"
+git add hub.tf profile.tf devices.tf
+git commit -m "Add the dc-01 hub with a hub profile, and a local NTP override for Ottawa"
 ```
 
 ## Check yourself
 
 1. The template says NTP `192.0.2.123` and the device says `10.10.0.123`. Which ends up on the box?
-2. Montreal's gateway needs its own DNS server. Which layer do you reach for first?
+2. You put `dns_servers` in a profile and the config shows no such line. What did you forget?
+3. Montreal's gateway needs its own DNS server. Which do you reach for first?
 
 <!-- dojo-reveal: Show the answer -->
 
-1. `10.10.0.123`: the device layer is applied last.
-2. A **site variable** if the template can use one. Only then a device override. A new profile fits if several sites share the need.
+1. `10.10.0.123`: a device's own setting always applies.
+2. `dns_override = true` (and `ntp_override = true` for NTP). Without the flag the profile's value is ignored.
+3. A **site variable** if the template can use one. Only then a device override. Never a profile on a spoke.
 
 <!-- /dojo-reveal -->
 
@@ -177,9 +264,11 @@ git commit -m "Add the edge profile and a local NTP override for Ottawa"
 
 | You see | Cause / fix |
 | ------- | ----------- |
-| The Ottawa gateway still shows the template's NTP | You put `ntp_servers` on the **profile** (which applies to all three) instead of the device. Move it. |
+| The hub has no `name-server` line, and a `# note: ... not applied` | `dns_override = true` is missing from the profile. |
+| `# note: a template and a profile both apply` | The hub site has a `gatewaytemplate_id`. Remove it: a hub takes a profile. |
+| The Ottawa gateway still shows the template's NTP | You put `ntp_servers` on the template or a profile, without the override flag, instead of on the device. |
 | `Missing required argument "site_id"` | `mist_device_gateway` needs both `device_id` and `site_id`. |
-| `Invalid index` on `inventory[...]` | The claim code in `terraform.tfvars` doesn't match the one in the inventory map. |
+| `Invalid index` on `inventory[...]` | The claim code in `terraform.tfvars` doesn't match the one in the inventory map (is `dc-01` in both?). |
 | A setting is overridden in two places and you can't tell which | Read the rendered config, not the files: `dojo wan config <device>`. |
 | `type` is rejected on the profile | `type` is read-only on `mist_org_deviceprofile_gateway`. Remove the line. |
 

@@ -207,7 +207,7 @@ class Inventory(LabCase):
         return self.ok("POST", f"{self.base}/inventory", list(codes))
 
     def test_claim_flow(self):
-        codes = [self.lab.code(STUDENT, n) for n in range(4)]
+        codes = [self.lab.code(STUDENT, n) for n in range(5)]
         self.assertEqual(self.ok("GET", f"{self.base}/inventory"), [])      # unclaimed devices are not listed
         slip = self.ok("GET", f"{self.base}/dojo/delivery")
         self.assertEqual([s["magic"] for s in slip], codes)
@@ -221,7 +221,7 @@ class Inventory(LabCase):
         inv = self.ok("GET", f"{self.base}/inventory")
         self.assertEqual(len(inv), 2)
         self.assertTrue(all(i["id"] == "00000000-0000-0000-1000-" + i["mac"] for i in inv))
-        self.assertEqual([s["claimed"] for s in self.ok("GET", f"{self.base}/dojo/delivery")], [True, True, False, False])
+        self.assertEqual([s["claimed"] for s in self.ok("GET", f"{self.base}/dojo/delivery")], [True, True, False, False, False])
 
     def test_other_orgs_codes_do_not_claim(self):
         out = self.claim(self.lab.code(OTHER, 0))

@@ -81,15 +81,16 @@ progress() {
 
 # claim codes, in the order the labs use them
 fill_codes() { # <template> <out>
-  local rows ott tor mon hal
+  local rows ott tor mon hal dc
   rows=$(dojo wan delivery | awk 'NR>1 && NF>=4 {print $1, $4}')
   ott=$(echo "$rows" | awk '$1=="SRX300"{print $2}' | sed -n 1p)
   tor=$(echo "$rows" | awk '$1=="SRX300"{print $2}' | sed -n 2p)
   mon=$(echo "$rows" | awk '$1=="SRX345"{print $2}' | sed -n 1p)
   hal=$(echo "$rows" | awk '$1=="SRX345"{print $2}' | sed -n 2p)
-  [ -n "$ott" ] && [ -n "$tor" ] && [ -n "$mon" ] && [ -n "$hal" ] ||
-    die "could not read four claim codes from 'dojo wan delivery'. Is Dojo WAN up?"
-  sed -e "s/@OTTAWA@/$ott/" -e "s/@TORONTO@/$tor/" -e "s/@MONTREAL@/$mon/" -e "s/@HALIFAX@/$hal/" "$1" > "$2"
+  dc=$(echo "$rows" | awk '$1=="SRX1500"{print $2}' | sed -n 1p)
+  [ -n "$ott" ] && [ -n "$tor" ] && [ -n "$mon" ] && [ -n "$hal" ] && [ -n "$dc" ] ||
+    die "could not read five claim codes from 'dojo wan delivery'. Is Dojo WAN up?"
+  sed -e "s/@OTTAWA@/$ott/" -e "s/@TORONTO@/$tor/" -e "s/@MONTREAL@/$mon/" -e "s/@HALIFAX@/$hal/" -e "s/@DC@/$dc/" "$1" > "$2"
 }
 
 install_stage() { # <stage number>
