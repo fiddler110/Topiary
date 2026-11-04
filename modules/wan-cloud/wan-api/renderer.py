@@ -9,8 +9,14 @@ their Terraform produces. It never raises; odd input becomes a `# skipped: ...` 
 Precedence, per top-level key: gateway template < device profile < device config.
 Dicts merge recursively by key (port_config, ip_configs, networks, ...); lists and
 scalars are replaced by the higher layer. `{{var}}` in any string is replaced from the
-site setting `vars`; an unknown variable is left in place and reported with a
-`# WARNING: unknown variable` line.
+site setting `vars`, overridden key by key by the device's own `vars`; an unknown
+variable is left in place and reported with a `# WARNING: unknown variable` line.
+
+DNS and NTP follow the Mist schema: a template's or profile's dns_servers/dns_suffix
+count only with `dnsOverride: true` (ntp_servers: `ntpOverride`), otherwise the site
+setting's values are inherited. A device's own dns_servers/ntp_servers always win.
+Mist documents a template for spoke sites and a device profile for hubs, not both on
+one gateway; when both apply this preview layers them and says so in a note.
 
 Simplifications (all deliberate):
   * Only gateways: system host-name/name-server/ntp, interfaces, security zones, source
@@ -45,6 +51,8 @@ import re
 
 _VAR = re.compile(r"\{\{\s*([A-Za-z0-9_.\-]+)\s*\}\}")
 _SAFE = re.compile(r"[^A-Za-z0-9_-]")
+_OVERRIDE = {"dnsOverride": ("dns_servers", "dns_suffix"), "ntpOverride": ("ntp_servers",)}
+_INHERITED = ("dns_servers", "dns_suffix", "ntp_servers")
 
 
 def _d(v):
@@ -139,11 +147,25 @@ def _render(store, device_id):
     tmpl = _d(_d(store.get("gatewaytemplates")).get(tmpl_id)) if tmpl_id else {}
     prof_id = (inv or {}).get("deviceprofile_id") or devcfg.get("deviceprofile_id")
     prof = _d(_d(store.get("deviceprofiles")).get(prof_id)) if prof_id else {}
-    vars_ = _d(_d(_d(store.get("site_settings")).get(site_id)).get("vars")) if site_id else {}
+    sset = _d(_d(store.get("site_settings")).get(site_id)) if site_id else {}
+    vars_ = {**_d(sset.get("vars")), **_d(devcfg.get("vars"))}
 
-    cfg = {}
-    for layer in (tmpl, prof, devcfg):
+    notes_top = []
+    cfg = {k: sset[k] for k in _INHERITED if k in sset}
+    for kind, layer in (("template", tmpl), ("profile", prof)):
+        layer = dict(layer)
+        for flag, keys in _OVERRIDE.items():
+            if layer.get(flag) is not True:
+                dropped = [k for k in keys if layer.pop(k, None) not in (None, [], "")]
+                if dropped:
+                    notes_top.append(f"# note: {kind} {', '.join(dropped)} not applied ({flag} is not true)")
+            else:
+                for k in keys:   # override: the layer's (possibly empty) value replaces inherited
+                    cfg.pop(k, None)
         cfg = _merge(cfg, layer)
+    cfg = _merge(cfg, devcfg)
+    if tmpl and prof:
+        notes_top.append("# note: a template and a profile both apply; Mist documents one or the other (spoke template, hub profile)")
     unknown = []
     cfg = _subst(cfg, vars_, unknown)
     org_networks = {}
@@ -164,6 +186,7 @@ def _render(store, device_id):
     A(f"# profile: {_s(prof.get('name')) or '(none)'}")
     if inv is None and not devcfg:
         A("# skipped: device not found in this org")
+    out.extend(notes_top)
     warn_at = len(out)
 
     # ---- system

@@ -15,7 +15,7 @@ You will have many branch offices. They should not each be hand-built. The **gat
 | `port_config` | `ge-0/0/0` is the WAN (static address from variables), `ge-0/0/1` is the LAN carrying `corp` |
 | `ip_configs` | the gateway's own address on each network, keyed by network **name** |
 | `service_policies` | which policies apply (here: `corp-to-web`) |
-| `dns_servers`, `ntp_servers` | org-wide defaults. Lab 5 overrides them in higher layers |
+| `dns_servers`, `ntp_servers` | the branch DNS and time servers. They only replace what the site would otherwise inherit because `dns_override` and `ntp_override` are `true` (Lab 5) |
 
 ## 2. Write a policy and the template
 
@@ -64,8 +64,10 @@ resource "mist_org_gatewaytemplate" "branch" {
 
   service_policies = [{ servicepolicy_id = mist_org_servicepolicy.corp_to_web.id }]
 
-  dns_servers = ["192.0.2.53"]
-  ntp_servers = ["192.0.2.123"]
+  dns_override = true
+  dns_servers  = ["192.0.2.53"]
+  ntp_override = true
+  ntp_servers  = ["192.0.2.123"]
 }
 ```
 
@@ -73,6 +75,7 @@ Two things to notice:
 
 - `mist_org_network.corp.name` is a **reference**. Terraform sees it, so it creates the network before the policy and the policy before the template. You never write an order.
 - The map key `(mist_org_network.corp.name)` is in parentheses because a key that is an expression needs them.
+- Without `dns_override = true` Mist ignores the template's `dns_servers` and the gateway keeps the site's inherited DNS. The same goes for `ntp_override` and NTP.
 
 ```sh
 terraform fmt

@@ -33,7 +33,8 @@ def store():
             "service_policies": [{"servicepolicy_id": "p1"}, {"servicepolicy_id": "p2"}],
             "dhcpd_config": {"enabled": True, "config": {"corp": {"type": "local", "ip_start": "10.10.0.10", "ip_end": "10.10.0.99", "dns_servers": ["10.10.0.53"]}}},
         }},
-        "deviceprofiles": {"d1": {"name": "edge-profile", "dns_servers": ["10.10.0.53"], "ntp_servers": ["10.0.0.2"]}},
+        "deviceprofiles": {"d1": {"name": "edge-profile", "dnsOverride": True, "dns_servers": ["10.10.0.53"],
+                                  "ntpOverride": True, "ntp_servers": ["10.0.0.2"]}},
         "sites": {"site1": {"name": "ottawa-01", "gatewaytemplate_id": "t1"}},
         "site_settings": {"site1": {"vars": {"site_subnet": "10.10.0.0/24", "lan_ip": "10.10.0.1",
                                              "wan_ip": "198.51.100.2", "wan_gw": "198.51.100.1"}}},
@@ -43,6 +44,41 @@ def store():
                           "additional_config_cmds": ["set system services ssh"]}},
         "events": [],
     }
+
+
+class Overrides(unittest.TestCase):
+    def render(self, st):
+        return renderer.render(st, DEV).splitlines()
+
+    def test_without_flag_site_values_are_inherited(self):
+        st = store()
+        del st["deviceprofiles"]["d1"]["dnsOverride"]
+        st["site_settings"]["site1"]["dns_servers"] = ["192.0.2.53"]
+        lines = self.render(st)
+        self.assertIn("set system name-server 192.0.2.53", lines)
+        self.assertNotIn("set system name-server 10.10.0.53", lines)
+        self.assertNotIn("set system name-server 9.9.9.9", lines)    # template has no flag either
+        self.assertIn("# note: profile dns_servers not applied (dnsOverride is not true)", lines)
+        self.assertIn("# note: template dns_servers not applied (dnsOverride is not true)", lines)
+
+    def test_template_flag_applies_template_dns(self):
+        st = store()
+        st["deviceprofiles"] = {}
+        st["inventory"][0]["deviceprofile_id"] = None
+        st["gatewaytemplates"]["t1"]["dnsOverride"] = True
+        lines = self.render(st)
+        self.assertIn("set system name-server 9.9.9.9", lines)
+        self.assertFalse(any("both apply" in x for x in lines))
+
+    def test_template_and_profile_together_are_noted(self):
+        self.assertTrue(any("a template and a profile both apply" in x for x in self.render(store())))
+
+    def test_device_vars_override_site_vars(self):
+        st = store()
+        st["devices"][DEV]["vars"] = {"wan_ip": "203.0.113.9"}
+        lines = self.render(st)
+        self.assertIn("set interfaces ge-0/0/0 unit 0 family inet address 203.0.113.9/29", lines)
+        self.assertIn("set routing-options static route 0.0.0.0/0 next-hop 198.51.100.1", lines)   # other site vars kept
 
 
 class T(unittest.TestCase):
@@ -62,7 +98,7 @@ class T(unittest.TestCase):
         self.has("set system ntp server 10.10.0.123")       # device wins over profile and template
         self.assertNotIn("set system ntp server 10.0.0.2", self.lines)
         self.assertNotIn("set system ntp server 10.0.0.1", self.lines)
-        self.has("set system name-server 10.10.0.53")       # profile wins over template (list replaced)
+        self.has("set system name-server 10.10.0.53")       # profile (dnsOverride) wins over template
         self.assertNotIn("set system name-server 9.9.9.9", self.lines)
         self.has("set system host-name ott-gw-01")
 

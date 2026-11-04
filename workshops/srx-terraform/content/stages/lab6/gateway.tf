@@ -39,6 +39,8 @@ resource "mist_org_gatewaytemplate" "branch" {
 
   service_policies = [{ servicepolicy_id = mist_org_servicepolicy.corp_to_web.id }]
 
-  dns_servers = ["192.0.2.53"]
-  ntp_servers = ["192.0.2.123"]
+  dns_override = true
+  dns_servers  = ["192.0.2.53"]
+  ntp_override = true
+  ntp_servers  = ["192.0.2.123"]
 }
