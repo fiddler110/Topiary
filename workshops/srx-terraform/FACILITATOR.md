@@ -2,14 +2,14 @@
 
 For the person running the session. The technical reference is [`README.md`](README.md); the deck's speaker notes carry the talking points. This guide is the practical part.
 
-**Honest status:** nobody has run this with a room yet, and the pack was written before the Dojo WAN simulator was finished. The lab commands were validated with `terraform validate` only; run the rehearsal below before a class.
+**Honest status:** nobody has run this with a room yet. Locally (2026-11-04) one `--test 1 --fast` bot walked Labs 0 to 9 against the real simulator, and every `dojo check 0` to `9` passed, with no skipped or retried step. The bot follows scripted steps, not the lab text, so the prose, the drift button and a many-student run are still untested: do the rehearsal below before a class.
 
 ## The session at a glance (about 2¾ hours)
 
 | Block | Minutes | What |
 | ----- | ------- | ---- |
 | Talk, Parts 1-5 | ~30 | Why Mist and Terraform, the roles (spoke template, hub profile, device override), variables and claim flow, state and workflow, drift and import. *A guess until a dry run.* |
-| Labs 0-5 | ~70 | 10 + 12 + 12 + 12 + 12 + 12. Objects, template, sites, claim, layers |
+| Labs 0-5 | ~70 | 10 + 12 + 12 + 12 + 12 + 12. Objects, template, sites, claim, roles |
 | Labs 6-9 | ~60 | 15 + 15 + 15 + 15. Modules, team workflow, drift and import, capstone |
 | Recap and questions | ~5 | Ask each table what surprised them |
 

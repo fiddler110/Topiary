@@ -120,7 +120,7 @@ step_srx_devices() {
     run_cmd "dojo check 5 | grep -E 'FAIL|thing' | head -3; true"
     narrate "right -- the hub kept no DNS: without dns_override the profile's dns_servers are not applied. Putting it back."
   fi
-  srx_lab 5 "layers: a hub profile on dc-01 and a device override"
+  srx_lab 5 "roles: a hub profile on dc-01 and a device override"
   run_cmd "dojo wan config ottawa-01-gw | grep -E 'host-name|name-server|ntp'"
   run_cmd "dojo wan config \"\$(dojo wan delivery | awk '\$1==\"SRX1500\"{print \$3}')\" | grep -E 'host-name|name-server'; true"
   return 0

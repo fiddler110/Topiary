@@ -122,7 +122,7 @@ Through the API: a `halifax-01` site using the template with its four variables;
 
 ## Stretch
 
-- Add the next ticket yourself: a fifth site with a local NTP server (`ntp_servers = [...]` in its map entry). Which layer does that land in?
+- Add the next ticket yourself: a fifth site with a local NTP server (`ntp_servers = [...]` in its map entry). Where does that setting belong?
 - Run `dojo wan events` and read your whole week: every create, update and delete, and who did it.
 - Pretend `halifax-01` closes. What is the smallest change, and what would the plan say?
 

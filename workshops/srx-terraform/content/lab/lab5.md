@@ -1,4 +1,4 @@
-# Lab 5: Layers
+# Lab 5: Roles
 
 **Goal:** learn the roles Mist builds a gateway's configuration from (spoke template, hub profile, device override), and decide where each kind of setting belongs. All commands run in `~/lab/srx-terraform`.
 

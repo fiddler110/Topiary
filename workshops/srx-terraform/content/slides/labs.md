@@ -37,7 +37,7 @@ Preinstalled: `terraform` with the `juniper/mist` provider, and `git`. Your logi
 
 ---
 
-## The labs
+## The labs: build the estate
 
 | Lab | Topic | Time |
 | --- | ----- | ---- |
@@ -46,7 +46,14 @@ Preinstalled: `terraform` with the `juniper/mist` provider, and `git`. Your logi
 | **2** | The gateway template and a service policy | ~12 min |
 | **3** | Sites and variables: one template, three sites | ~12 min |
 | **4** | **Claim and assign** the delivered gateways, read their config | ~12 min |
-| **5** | Layers: hub profile and device override, where settings go | ~12 min |
+
+---
+
+## The labs: run it as a team
+
+| Lab | Topic | Time |
+| --- | ----- | ---- |
+| **5** | Roles: hub profile and device override, where settings go | ~12 min |
 | **6** | Modules, `for_each` and `moved`: refactor, destroy nothing | ~15 min |
 | **7** | Shared state, the lock, a pull request with the plan | ~15 min |
 | **8** | Drift and import | ~15 min |

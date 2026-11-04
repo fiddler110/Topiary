@@ -69,19 +69,22 @@ Import ids: network `ORG_ID.NETWORK_ID`, gateway `SITE_ID.DEVICE_ID`.
 
 ---
 
-## Layers
+## Roles
 
 ```text
-org objects → gateway template → (site variables) → device profile → device override
+spoke   branch site   gateway template on the site
+hub     hub/DC        hub profile on the device (site has no template)
+one box               device override (last resort)
 ```
 
-The last layer to speak wins, setting by setting.
+Never a template and a profile on one gateway.
 
 | The setting is... | Put it in |
 | ----------------- | --------- |
-| the same everywhere | org objects or the template |
+| the same everywhere | org objects |
+| the same for every branch | the template |
+| the same for a hub | a hub profile |
 | different per site | a site variable |
-| the same for a role | a device profile |
 | true for exactly one box | a device override |
 
 ---

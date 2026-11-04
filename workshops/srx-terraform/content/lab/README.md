@@ -19,7 +19,7 @@ Your login is already in your environment (`MIST_HOST`, `MIST_API_TOKEN`, `MIST_
 | [lab2.md](lab2.md) | The gateway template: ports, networks, policies | ~12 min |
 | [lab3.md](lab3.md) | Sites and variables: one template, three sites | ~12 min |
 | [lab4.md](lab4.md) | Claim and assign the delivered gateways, read their Junos config | ~12 min |
-| [lab5.md](lab5.md) | Layers: spoke template, hub profile, device override, and where settings go | ~12 min |
+| [lab5.md](lab5.md) | Roles: spoke template, hub profile, device override, and where settings go | ~12 min |
 | [lab6.md](lab6.md) | Structure: modules, `for_each`, `moved` so nothing is destroyed | ~15 min |
 | [lab7.md](lab7.md) | Team workflow: shared state, the lock, a reviewed pull request with the plan | ~15 min |
 | [lab8.md](lab8.md) | Drift and import | ~15 min |

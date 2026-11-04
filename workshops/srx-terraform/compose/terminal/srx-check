@@ -37,7 +37,7 @@ HUB = "dc-01"
 
 TITLES = {
     0: "Tour", 1: "First objects", 2: "The gateway template", 3: "Sites and variables",
-    4: "Claim and assign", 5: "Layers", 6: "Structure", 7: "Team workflow",
+    4: "Claim and assign", 5: "Roles", 6: "Structure", 7: "Team workflow",
     8: "Drift and import", 9: "Capstone",
 }
 

@@ -44,7 +44,7 @@ Say early: nothing here touches a real Mist organization or a real SRX. Students
 3. **Part 3:** Variables and the claim flow
 4. **Part 4:** State and the team workflow
 5. **Part 5:** Drift and import
-6. **Labs 0-9:** build the estate, one layer at a time
+6. **Labs 0-9:** build the estate, one step at a time
 
 > You are training for one real job: a greenfield SRX estate, managed from Mist, run from git.
 
@@ -155,7 +155,7 @@ About 3 minutes. This is the slide to come back to all day. Lab 5 shows it: the 
 
 ---
 
-## Which layer? The house rule
+## Which role? The house rule
 
 | The setting is... | Put it in |
 | ----------------- | --------- |
@@ -299,9 +299,7 @@ module "site" {
   source   = "./modules/site"
   for_each = var.sites
   name     = each.key
-  # ...
 }
-
 moved {
   from = mist_site.ottawa
   to   = module.site["ottawa-01"].mist_site.this
@@ -422,7 +420,7 @@ About 1 minute. The id formats are the part people cannot guess, so they are on 
 | --- | -------- |
 | **0-1** | tour, then create your first objects |
 | **2-3** | the gateway template, three sites with variables |
-| **4-5** | claim the delivery; layers: hub profile and override |
+| **4-5** | claim the delivery; roles: hub profile and override |
 | **6** | modules, `for_each`, `moved` |
 | **7** | shared state, lock, pull request with the plan |
 | **8** | drift and import |

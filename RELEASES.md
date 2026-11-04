@@ -7,6 +7,10 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## srx-terraform pack, first live run (2026-11-04, `feat/srx-terraform`)
+
+`srx-terraform --test 1 --fast` ran Labs 0-9 locally (Terraform 1.17.1, the offline `Juniper/mist` 0.11.0 mirror, the Dojo WAN simulator): all ten `dojo check N` passed, no skips. The wan-api suite (98 tests) and the parity test pass. Lab 5 is now "Roles" everywhere (slides, cheat sheets, `dojo check`), matching the hub/spoke model; the labs overview slide is split in two and two other slides trimmed so each fits 16:9 (checked with Playwright).
+
 ## Terminal clipboard and colours in the base image (2026-10-29, `feat/netlab-openbao-vault-lab`)
 
 Every terminal image gets `pbcopy`/`pbpaste` (OSC 52 clipboard, tmux `set-clipboard on`) and the shared One Dark `COLORTERM`/`BAT_THEME` in the base zshrc, for both the code-server and Zellij flavors.
