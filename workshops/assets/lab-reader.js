@@ -178,11 +178,71 @@
     }
   }
 
+  // A Copy button on every code block (reveal bodies included; not diagrams). The clipboard API
+  // can be refused inside an iframe or on plain http, so a hidden textarea and execCommand are the
+  // fallback. The text is the block as shown, with "studentXX" already filled in.
+  function copyText(text) {
+    function fallback() {
+      var buf = document.createElement('textarea');
+      buf.className = 'lab-copy-buffer';
+      buf.value = text;
+      buf.setAttribute('readonly', '');
+      document.body.appendChild(buf);
+      buf.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(buf);
+      return ok ? Promise.resolve() : Promise.reject(new Error('copy refused'));
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(fallback);
+    }
+    return fallback();
+  }
+
+  function addCopyButtons(container) {
+    var blocks = container.querySelectorAll('pre');
+    for (var i = 0; i < blocks.length; i++) {
+      var pre = blocks[i];
+      if (pre.classList.contains('mermaid')) continue;
+      var wrap = document.createElement('div');
+      wrap.className = 'lab-code';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'lab-copy';
+      btn.textContent = 'Copy';
+      btn.setAttribute('aria-label', 'Copy this code block');
+      btn.addEventListener('click', onCopy);
+      wrap.appendChild(btn);
+    }
+  }
+
+  function onCopy(event) {
+    var btn = event.currentTarget;
+    var pre = btn.parentNode.querySelector('pre');
+    var text = pre.textContent.replace(/\n+$/, '');
+    copyText(text).then(function () { flash(btn, 'Copied', 'ok'); },
+                        function () { flash(btn, 'Select and copy', 'fail'); });
+  }
+
+  function flash(btn, label, kind) {
+    btn.textContent = label;
+    btn.classList.add(kind);
+    clearTimeout(btn._labCopyTimer);
+    btn._labCopyTimer = setTimeout(function () {
+      btn.textContent = 'Copy';
+      btn.classList.remove('ok', 'fail');
+    }, 1500);
+  }
+
   function render(markdownSource, file, isStudent) {
     var md = window.markdownit({ html: false, linkify: true, breaks: false, highlight: highlight });
     var reveals = [];
     contentEl.innerHTML = md.render(dropChallengeMarkers(markReveals(markdownSource, reveals)));
     fillReveals(contentEl, reveals, md);
+    addCopyButtons(contentEl);
     rewriteLabLinks(contentEl);
     drawMermaid(contentEl);
     var heading = contentEl.querySelector('h1');
