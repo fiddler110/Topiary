@@ -131,33 +131,29 @@ class Portal:
         if headers.get("X-Requested-With") != "dojo-admin":
             return _err(403, "Missing X-Requested-With: dojo-admin.")
         change = make_drift(org)
+        if change is None:
+            return _err(409, "No network in this org yet, so there is nothing Terraform manages to change. "
+                             "Make drift after the student's Lab 1 apply.")
         return _json(200, change)
 
 
 def make_drift(org):
-    """The canned change: the first network's VLAN id moves (to 999, or 998 if it already is 999). With no network
-    yet, a service policy that allows everything appears instead. -> a short description of what changed."""
+    """The canned change: the first network's VLAN id moves (to 999, or 998 if it already is 999), so the student's
+    next plan shows it. -> a short description of what changed, or None when the org has no network yet (a new
+    object would be invisible to plan, since Terraform doesn't manage it)."""
     import time
-    import uuid
     path = f"/api/v1/orgs/{org.data['org']['id']}"
     with org.lock:
         nets = list(org.data["networks"].values())      # oldest first: the dict keeps creation order
-        if nets:
-            net = nets[0]
-            old = net.get("vlan_id")
-            net["vlan_id"] = "998" if str(old) == "999" else "999"
-            net["modified_time"] = int(time.time())
-            org.event(DRIFT_ACTOR, f"update network '{net.get('name', '')}' vlan_id {old} -> {net['vlan_id']}",
-                      f"{path}/networks/{net['id']}")
-            change = {"changed": "network", "id": net["id"], "name": net.get("name"), "field": "vlan_id",
-                      "from": old, "to": net["vlan_id"]}
-        else:
-            t = int(time.time())
-            pid = str(uuid.uuid4())
-            org.data["servicepolicies"][pid] = {"id": pid, "org_id": org.data["org"]["id"], "name": "drift-allow-all",
-                                                "action": "allow", "services": ["any"], "tenants": ["any"],
-                                                "created_time": t, "modified_time": t}
-            org.event(DRIFT_ACTOR, "create service policy 'drift-allow-all'", f"{path}/servicepolicies/{pid}")
-            change = {"changed": "servicepolicy", "id": pid, "name": "drift-allow-all"}
+        if not nets:
+            return None
+        net = nets[0]
+        old = net.get("vlan_id")
+        net["vlan_id"] = "998" if str(old) == "999" else "999"
+        net["modified_time"] = int(time.time())
+        org.event(DRIFT_ACTOR, f"update network '{net.get('name', '')}' vlan_id {old} -> {net['vlan_id']}",
+                  f"{path}/networks/{net['id']}")
+        change = {"changed": "network", "id": net["id"], "name": net.get("name"), "field": "vlan_id",
+                  "from": old, "to": net["vlan_id"]}
         org.save()
     return change

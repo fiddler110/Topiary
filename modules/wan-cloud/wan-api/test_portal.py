@@ -131,11 +131,13 @@ class Drift(LabCase):
         self.lab.portal("POST", self.path, user=FAC, headers=ADMIN)                  # again: still a change
         self.assertEqual(self.ok("GET", f"{self.base}/networks/{net['id']}")["vlan_id"], "998")
 
-    def test_with_no_network_it_adds_a_policy(self):
-        change = self.lab.portal("POST", self.path, user=FAC, headers=ADMIN)[1]
-        self.assertEqual(change["changed"], "servicepolicy")
-        pols = self.ok("GET", f"{self.base}/servicepolicies")
-        self.assertEqual([(p["name"], p["action"]) for p in pols], [("drift-allow-all", "allow")])
+    def test_with_no_network_it_refuses(self):
+        # An unmanaged object would never show in the student's plan, so the button says why instead.
+        status, body, _ = self.lab.portal("POST", self.path, user=FAC, headers=ADMIN)
+        self.assertEqual(status, 409)
+        self.assertIn("Lab 1", body["detail"])
+        self.assertEqual(self.ok("GET", f"{self.base}/servicepolicies"), [])
+        self.assertEqual(self.ok("GET", f"{self.base}/dojo/events"), [])
 
 
 class Reset(LabCase):

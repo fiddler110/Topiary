@@ -83,9 +83,11 @@
     try {
       const r = await fetch(path, Object.assign({ credentials: 'same-origin', cache: 'no-store', signal: ctl.signal }, opts));
       if (!r.ok) {
+        let detail = '';
+        if (r.status === 409) { try { detail = String((await r.json()).detail || ''); } catch (_) { /* no JSON body */ } }
         const e = new Error(r.status === 401 || r.status === 403
           ? 'Not signed in or not allowed (' + r.status + '). Open the portal through the workshop gateway.'
-          : 'Server answered ' + r.status);
+          : detail || 'Server answered ' + r.status);
         throw e;
       }
       return (opts && opts.text) || (r.headers.get('content-type') || '').indexOf('json') < 0 ? await r.text() : await r.json();
