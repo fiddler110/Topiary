@@ -89,6 +89,9 @@ def serve():
             ready = name in users and os.path.exists(READY_MARK)
             payload = credentials_for(name, key) if ready else {}
             conn.sendall(json.dumps(payload).encode())
+            # Audit trail in the container log; never the token itself.
+            print(f"wan-broker: uid={uid} user={name or '?'} served={'yes' if payload else 'no'}",
+                  file=sys.stderr, flush=True)
         except OSError:
             pass
         finally:

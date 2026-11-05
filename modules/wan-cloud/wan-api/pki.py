@@ -23,11 +23,14 @@ def ensure(private_dir, shared_dir):
     ca_key, ca_crt = f"{private_dir}/ca.key", f"{private_dir}/ca.crt"
     key, crt = f"{private_dir}/server.key", f"{private_dir}/server.crt"
     if not (os.path.exists(ca_key) and os.path.exists(ca_crt)):
+        # Terminals trust this CA system-wide, so it may only vouch for the lab's own names: a leaked key still
+        # can't sign for anything else.
+        permitted = ",".join([f"permitted;DNS:{h}" for h in HOSTS] + [f"permitted;IP:{i}/255.255.255.255" for i in IPS])
         _run("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", ca_key, "-out", ca_crt,
              "-days", DAYS, "-subj", "/CN=Dojo WAN Training CA",
              # Strict verifiers (Python 3.13+) insist on these.
              "-addext", "basicConstraints=critical,CA:TRUE", "-addext", "keyUsage=critical,keyCertSign,cRLSign",
-             "-addext", "subjectKeyIdentifier=hash")
+             "-addext", "subjectKeyIdentifier=hash", "-addext", f"nameConstraints=critical,{permitted}")
         os.chmod(ca_key, 0o600)
         for stale in (key, crt):
             if os.path.exists(stale):
