@@ -4,9 +4,8 @@ The single list of open work. Finished work moves to [`RELEASES.md`](RELEASES.md
 (design, decisions, task logs) are frozen in [`docs/archive/`](docs/archive/); read them for the why, but don't
 update them. When you finish an item: delete it here and add a line to RELEASES.md.
 
-Last updated: 2026-10-17 (dependency-pin and seed-repo-sync checks added and CI re-enabled; CTF plan status refreshed to match `main`; wall-of-shame toggle now gated in achievements; C6 added. Before that 2026-10-16: student `dojo` command built, git-fundamentals live check in progress; before that 2026-10-15, PR #34: vault reset twice plus lab 11/12 passed locally, ctf-defend fix-then-age-off run
-done locally, 7 overflowing slides trimmed; stale branch notes removed). Before that: 2026-10-09 (content-depth audit
-of all 5 CTF packs) and 2026-10-07 (ctf-range Target Viewer and the `ctf-access` pack, PR #17). ·
+Last updated: 2026-11-05 (priorities re-ordered; the October Now/Up next notes trimmed and their results moved to RELEASES;
+SRX pack, wan-cloud and the cloud create-burst fix are on `main`). Earlier updates: see `git log ROADMAP.md`. ·
 Working branch: `main`; cut a feature branch for each new batch of work.
 
 **Effort:** **S** one sitting (an hour or two) · **M** a day or so · **L** several days · **—** no work planned.
@@ -15,9 +14,9 @@ what is left (usually the live check).
 
 | Section | What it holds |
 |---|---|
-| [Priorities](#priorities) | The order of work, decided at the 2026-10-01 review |
-| [Up next](#up-next) | Where to resume; decisions of 2026-10-02 and 2026-10-03 |
-| [Now](#now) | Student reset and Phase 10 live checks (the split smoke run is parked in [Later](#later)) |
+| [Priorities](#priorities) | The order of work, re-ordered 2026-11-05 |
+| [Up next](#up-next) | The Ubuntu/Docker host run; Mac notes; decisions of 2026-10-02 and 2026-10-03 |
+| [Now](#now) | What is left of the student reset and Phase 10 live checks (the split smoke run is parked in [Later](#later)) |
 | [Next](#next) | CTF workshop series; N3 9.4 class-sized run; platform review (RV36, RV38 on hold); student reset; achievements leftovers; `dojo` CLI; remediation leftovers |
 | [Manual checks](#manual-checks) | Browser passes only the user can do |
 | [Later](#later) | Follow-ups and known limits |
@@ -26,39 +25,33 @@ what is left (usually the live check).
 
 ## Priorities
 
-Decided at the 2026-10-01 review. Done since: committing the working tree (`4481225`), the home demo dry run,
-platform review tier 1 and the merge to `main` (PR #6), the Phase 9 live checks apart from the class-sized run
-(PR #7) (2026-10-02), Cloud-Policy-as-Code (RV35) with RV19, the Phase 10 sweep and the student reset build (PR #8)
-and the pack's pids cap (PR #9) (2026-10-03), then on `feat/zellij-terminal` (merged in PR #17): the Zellij flavor, the CTF range scaffold/SAST/control plane, RV29/RV30/RV25/RV27 and the ctf-range digest pins (2026-10-04, see RELEASES). The user's own browser checks ([Manual checks](#manual-checks))
-fit in around these; tofu-basics T9.4/T9.9 are the oldest.
+Re-ordered 2026-11-05; work top to bottom. The user's browser checks ([Manual checks](#manual-checks)) fit in alongside,
+tofu-basics T9.9 being the oldest. Waiting on someone else: SRX T4 (an SRX engineer), the CTF defend pilot (2-3 people),
+C5 (`CORP_CA_BUNDLE` behind TLS inspection).
 
 | # | Work | Effort | Description |
 |---|---|---|---|
-| 1 | Student reset: live checks | S | All four hooks have now run live: DNS and cert 2026-10-03, cloud (with a non-empty pre-state) and vault's capstone 2026-10-04. Left: the vault reset once on the Ubuntu WSL/Docker host, and the purge-line finding in [Now](#now) |
-| 2 | Phase 10 leftovers | S | Done apart from the browser looks: `slide-overflow.sh` ran on dns-as-code and dojo-introduction `--test 5 --fast` re-ran with 0 skips (2026-10-04, [Now](#now)). Left: the two browser looks (the 7 overflowing slides were trimmed 2026-10-15, RELEASES) |
-| 3 | Platform review tiers 3-4 | L | RV22-RV33, RV35 done; RV34 and RV37 dropped (2026-10-15); RV36 (more workshops) and RV38 (reset button) on hold |
+| 1 | Dependabot PRs #74 and #75 | S | Live-test before merging. #75 is patch bumps (Forgejo 17.0.1, OpenBao 2.7.2, PowerDNS 4.9.18, registry and postgres digests); #74 moves 18 images to `python:3.15-slim`, nginx 1.29 to 1.31, plus dind/debian/alpine/busybox/node/skopeo digests. CI only runs unit tests, dry runs and lint, so nothing builds there |
+| 2 | One CTF stack, two checks | S | P8 (the `/admin` tabs on a CTF stack and the code-server tab from `/admin`) with D1's CTF and Zellij half (`dojo flag submit`/`reset`/`check`, `dojo fix-terminal`, `dojo env`). Tab completion by hand is the user's |
+| 3 | OpenTofu 1.13 | M | From 1.12.8 once the tofu-basics and cloud-policy-as-code labs and the OPA pairing are tested on it |
+| 4 | P7 lab walk-throughs | M | cert-autorenewal and vault-fundamentals |
+| 5 | Vault reset on the Ubuntu WSL/Docker host | S | The only open item of the student-reset live checks; see [Up next](#up-next) |
 
 ## Up next
 
-Resume here (updated 2026-10-15). The vault reset fix merged to `main` in PR #12: `lab_11.sh` and `lab_12.sh` pass after
-a reset, and passed again locally 2026-10-15 (reset twice). Branches are tidy: everything is merged to `main` (PRs #17,
-#33, #34); only the Dependabot Flask bump (PR #32) is open.
-The split smoke run is parked (see [Later](#later)); the full-stack smoke loop is paused. Next, one stack at a time
-(`podman ps` first):
-1. ~~**Vault capstone two-step**~~, ~~**cloud reset + capstone**~~, ~~**the Phase 10 leftovers**~~: all run 2026-10-04 on the
-   Mac (see [Now](#now)). Nothing is left on a stack here. No stack is up: each run ended with `./dojo stop`.
-2. ~~**The two findings of 2026-10-04**~~: `no_push_since_step`'s sub-second hole, and the purge line that
-   never named policy objects or tofu states. Both fixed 2026-10-05 (`418d5ad`), unit-tested, no stack needed.
-3. **One run on the Ubuntu WSL/Docker host** (a podman run here passed the bots without the opts, 2026-10-15; a reset twice plus lab 11/12 also passed here; only the Ubuntu/Docker host itself is open) with `RUNNER_POOL_SECURITY_OPT_1/2` unset, to confirm the defaults
-   (`no-new-privileges=true`, bare `no-new-privileges`) change nothing there. This and the browser looks are all
-   that the Mac cannot do.
+The vault reset fix is on `main` (PR #12), and `lab_11.sh`/`lab_12.sh` pass after a reset (twice, locally, 2026-10-15).
+No stack is left running. One stack at a time (`podman ps` first); every `--test` run uses `--fast`.
+
+**The Ubuntu WSL/Docker host run:** `vault-fundamentals --test 2 --fast` with `RUNNER_POOL_SECURITY_OPT_1/2` unset, to
+confirm the defaults (`no-new-privileges=true`, bare `no-new-privileges`) change nothing there. A podman run on this
+machine passed the bots without the opts (2026-10-15); only the Ubuntu/Docker host itself is open. With the browser looks,
+it is all the Mac and this machine cannot do.
 
 On the Mac (rootful Podman + SELinux) start with `--env mac-podman` (sets `RUNNER_POOL_SECURITY_OPT_1=unmask=/proc/*` and
 `RUNNER_POOL_SECURITY_OPT_2=label=type:container_engine_t`), or no runner or app can start (`unshare: mount /proc
-failed`). Details in `modules/runner-pool/README.md`. The Mac's
-published port 8080 can reset connections from the host; reach the gateway from inside the lab network instead, with
-`Host: localhost:8080` (the facilitator login is the `/login` cookie, and Reset needs `X-Requested-With: dojo-admin`).
-Every `--test` run uses `--fast`.
+failed`). Details in `modules/runner-pool/README.md`. The Mac's published port 8080 can reset connections from the host;
+reach the gateway from inside the lab network instead, with `Host: localhost:8080` (the facilitator login is the `/login`
+cookie, and Reset needs `X-Requested-With: dojo-admin`).
 
 **Answered 2026-10-02**
 
@@ -71,32 +64,15 @@ Every `--test` run uses `--fast`.
 
 ## Now
 
-Live checks for what was built 2026-10-02 and 2026-10-03 (all unit-tested; nothing below has run on a stack unless
-it says so). A brief for an agent is built from these lines.
+What is still unchecked from the student reset and Phase 10 work (all unit-tested). A brief for an agent is built from these lines.
 
 | Check | Stack | What to confirm |
 |---|---|---|
-| Vault reset | `vault-fundamentals --test 2 --fast` | **Fixed 2026-10-03** (`fix/vault-reset`): app-db's worker was started with `su-exec`, which the Postgres image no longer has (now `gosu`), and `kv_wipe` failed on an already-empty folder (`bao list -format=json` says `{}`). Two resets in a row of testuser1 passed all 12 steps, locally, and `lab_11.sh` (12 checks) and `lab_12.sh` (9) passed after a reset (rootful Podman on macOS needs `RUNNER_POOL_SECURITY_OPT_1/2` in `.env` for the pool and app-host; `openbao-setup` needed more than 64m). Left: run `vault-fundamentals --test 2 --fast` once on the Ubuntu WSL/Docker host with the two variables unset, to confirm the repeated `no-new-privileges:true` changes nothing there |
-| Cloud reset + capstone | `tofu-basics --test 2 --fast` | **Both halves passed 2026-10-04 on the Mac (rootful Podman).** Reset with a non-empty pre-state: testuser1 and testuser2 each given one Running container group, reset of testuser1 ran 9 steps all ok, `dojo-cloud-teardown: removed 1 container group(s), 1 resource group(s)`; afterwards testuser1's was gone, testuser2's still Running, and testuser1's bot restarted from round 1 (so a fresh `ci-hello-dev` appears — don't read that as the old one surviving). Capstone two-step as `student01` (not a bot: bot accounts have no `credential.helper`, so they cannot push outside the bot runner's `GIT_ASKPASS`): two sites from one `for_each` → "Halfway", `tofu destroy` → "Passed! +300". Left: nothing here — the `policyObjects` sub-item became its own finding below |
-| Vault capstone two-step | vault stack | **Passed 2026-10-04** (needs `ACHIEVEMENTS_ENABLED=1`; it was 0, so `dojo-check`/`dojo-challenge` were not in the terminal image at all). "Halfway" → rotate `capstone/app` with no push → "Passed! +300", and a push in between answers "main of `<user>`/capstone changed after step 1 passed (a push deploys). Back to step 1". The push case only holds with a gap of more than a second — see the `no_push_since_step` finding below |
+| Vault reset, Ubuntu/Docker host | `vault-fundamentals --test 2 --fast` | See [Up next](#up-next). Everything else about the vault reset passed (RELEASES) |
 | Browser looks (user) | any | Widget frame full height on first load; the Reset dialog's "Also clear their achievements and score" checkbox |
 
-Slide overflow checker: `workshops/assets/slide-overflow.sh <workshop> [page.md ...]`. It timed out after login on dns-as-code (it waited for
-`networkidle`, but the portal polls); fixed 2026-10-03 and clean on git-fundamentals (5 pages). **Run on dns-as-code 2026-10-04: the
-fix holds (no timeout), and it found 2 overflows** — `cheat-sheet.md` slide 6 `<table>` 110 px past (the `doctor` command table) and
-`presentation.md` slide 11 `<p>` 34 px past. Also run on vault-fundamentals the same day (not asked for, but the stack was up):
-`index.md`, `lab-index.md` and `labs.md` clean, **`presentation.md` over on 5 slides** — 8 `<li>` 45 px, 10 `<li>` 5 px, 21 `<p>` 10 px,
-31 `<p>` 10 px, 49 `<p>` 12 px. So 7 slides across two decks need trimming; the checker itself is now proven on three packs.
-
-Passed 2026-10-03: DNS reset (no purge, PRs kept as Ghost, zone gone, shared records kept, second reset ok), cert reset
-(crontab gone, two seeded records, clean reload; the pre-state was not captured) and dojo-introduction `--test 5 --fast` (no skips).
-
-Passed 2026-10-04 (all on the Mac, rootful Podman): the cloud reset and both capstone two-steps above, the dns-as-code slide run,
-and dojo-introduction `--test 5 --fast` again now that the bot steps check their results — 5 bots, all 5 finished round 1,
-**0 skips and 0 retries** (a skip prints `FAST: <step> failed N times -- skipping it`). The only gateway error in that run was a
-single startup 502 on `/slides/` before the presentation container served, after which the stack reached 17 of 17 ready.
-
-Both of the 2026-10-04 findings below are **fixed** (`418d5ad`, unit-tested, no stack needed — see RELEASES.md).
+Slide overflow checker: `workshops/assets/slide-overflow.sh <workshop> [page.md ...]` (run after login; it no longer waits for
+`networkidle`). It has run clean on git-fundamentals, dns-as-code and vault-fundamentals once their overflowing slides were trimmed.
 
 After the live checks pass: move student reset R0-R4 and R3.x to RELEASES (git-fundamentals live result: steps 3-5 s,
 idempotent, a bot restarts from round 1, the optional score clear clears only that student), and delete them below.
@@ -142,7 +118,7 @@ now ship all 3 of their targets each (see RELEASES, "`ctf-secrets-config`/`ctf-t
 
 ### N3 9.4: class-sized run
 
-Skipped for now (user, 2026-10-02); ask before starting it. The rest of N3 (Phase 9 live checks) is in RELEASES.
+Skipped for now (user, 2026-10-02); ask before starting it. A 20-bot cloud-policy-as-code run did happen 2026-11-05 (all done in about 50 min, no executor errors; RELEASES, "container creates survive a class-sized burst"), but the dns-as-code or git-fundamentals run below, with the hook-latency and `/admin` checks, has not. The rest of N3 (Phase 9 live checks) is in RELEASES.
 
 | Step | Work | Effort | Description |
 |---|---|---|---|
@@ -167,10 +143,7 @@ the suggested order. Line numbers are as of `7bc4ce9`.
 **Tier 2: CI and tests.** RV13-RV19 shipped 2026-10-02 (see RELEASES).
 
 **Tier 3: refactors and hygiene.** RV20 (`dojo_http.py`) and RV21 (`adapter_client.py`) shipped 2026-10-02; RV25
-(tool-pin drift check) and RV27 (`forgejo-runner` deleted) 2026-10-04 (see RELEASES). Tier 3 is done (RV26 shipped 2026-10-15).
-
-| ID | Work | Effort | Description |
-|---|---|---|---|
+(tool-pin drift check) and RV27 (`forgejo-runner` deleted) 2026-10-04 (see RELEASES). Tier 3 is done (RV26 shipped 2026-10-15), so it has no table.
 
 **Tier 4: new features and workshops.**
 
