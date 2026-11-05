@@ -76,6 +76,22 @@ git commit -m "Open halifax-01 (NET-142)"
 git push -u origin open-halifax-01
 ```
 
+Open the pull request with the same `pr.json` block as Lab 7 (section 5), changing only the branch, the title and the first line of the description:
+
+```sh
+python3 - <<'PY' > pr.json
+import json
+fence = chr(96) * 3
+plan = open("plan.txt").read()
+print(json.dumps({"head": "open-halifax-01", "base": "main",
+  "title": "Open halifax-01 (NET-142)",
+  "body": "New branch site from ticket NET-142, on the standard design.\n\n" + fence + "text\n" + plan + "\n" + fence}))
+PY
+curl -s --netrc -H 'Content-Type: application/json' -d @pr.json \
+  http://git-server:3000/api/v1/repos/$USER/srx-terraform/pulls | python3 -c 'import json,sys; print(json.load(sys.stdin)["html_url"])'
+rm pr.json
+```
+
 Ask a neighbour or the facilitator to review. A good review reads the plan first: the counts, then the resource names, then the values.
 
 Merge it in Forgejo, then update and apply from `main`:

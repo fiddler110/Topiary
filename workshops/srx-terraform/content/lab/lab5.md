@@ -19,7 +19,7 @@ one box a single device      DEVICE OVERRIDE (mist_device_gateway)         (that
 
 Three more pieces:
 
-- **Site variables** (`{{wan_ip}}` ...) fill the blanks in whichever of the above applies. A device's own `vars` override the site's, key by key.
+- **Site variables** (`{{wan_ip}}` ...) fill the blanks in whichever of the above applies.
 - **DNS and NTP** set in a template or a profile only apply when `dns_override = true` / `ntp_override = true` is set next to them. Without the flag the gateway inherits the site's values.
 - A device override always applies to its box (Mist lets a device override only DNS and the application policy).
 

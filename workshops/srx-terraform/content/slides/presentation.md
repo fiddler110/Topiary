@@ -145,7 +145,7 @@ flowchart TD
   d["Device override<br/>one box, last resort"] --> j
 </div>
 
-- **Site variables** fill the blanks; a device's own `vars` win
+- **Site variables** fill the blanks
 - Template or profile **DNS/NTP** only apply with `dns_override` / `ntp_override`
 - Mist documents one or the other on a gateway, never both
 

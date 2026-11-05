@@ -64,7 +64,7 @@ Plan symbols: `+` create, `~` change in place, `-` destroy, `-/+` replace. **Rea
 
 ```text
 spoke (branch site):  gateway template     hub (no template):  hub profile     one box:  device override
-site variables fill the blanks; a device's own vars win
+site variables fill the blanks
 DNS/NTP in a template or profile apply only with dns_override / ntp_override = true
 ```
 

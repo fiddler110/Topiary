@@ -112,7 +112,6 @@ Plan and spike results: [`docs/SRX-MIST-PLAN.md`](docs/SRX-MIST-PLAN.md). Worksh
 | # | Work | Effort |
 |---|---|---|
 | T4 | An SRX engineer answers [`SRX-REVIEW.md`](workshops/srx-terraform/SRX-REVIEW.md) (best: `config_cmd` for one hub and one spoke in a real org), then the renderer follows; confirm on a real org the `dns_override`/`ntp_override` flags and device `vars` over site vars | M |
-| T6 | Lab text follow-ups from the 2026-11-05 student read: expected output for Lab 8's `grep` checks, a clearer Lab 3 portal step, Lab 5's device `vars` line (no lab uses it; unconfirmed in Mist's docs), Lab 9's pull request step (point at Lab 7's `pr.json` block), Lab 1's predict tasks ("compare with the reveal") | S |
 
 ### Review 2026-10-18 follow-ups
 
@@ -122,9 +121,9 @@ The whole-repo review lives in [`docs/reviews/2026-10-18.md`](docs/reviews/2026-
 | Item | Effort | Notes |
 |---|---|---|
 | cloud-policy-as-code stalls at 20 bots | M | 2026-10-19, locally: all 20 sat in Lab 0's first apply (`azurerm_container_group.app: Still creating...`) for 33+ min, with no pids or thread errors. A second limit in cloud-host or cloud-api. Run 10 and 15 bots to find where it starts |
-| vault bot `IndexError` | S | 2026-10-19, `vault-fundamentals --test 2 --fast`: testuser2's log repeats `IndexError: list index out of range` from `vf_block` (`content/bots/steps.sh`), which picks the Nth code fence of a lab page; a block number no longer matches its lab. The bots still finished |
+| vault `tests/lab_2.sh` | S | Lab 2 went from 14 shell blocks to 9 (merged), so the test's per-block checks (`block lab2.md 1`..`14`) no longer match; rewrite it against the merged blocks. Found 2026-11-05 |
+| vault bot `kv put` race | S | 2026-11-05 `--test 2 --fast`: `bao kv put team/app` hit "Upgrading from non-versioned to versioned data" (400) in the bot's Lab 1-4 steps, the `kv patch` after it 404'd, and the Lab 6 agent never rendered `/dev/shm/<user>/app.env`. Retry the put the way Lab 9's block does. The bots still finished |
 | OpenTofu 1.13 | M | 1.12.8 is in (PR #59); move to 1.13.x once the labs and the OPA pairing are tested |
-| code-server 4.137.0 → 4.141.0 | S | Refresh the per-arch sha256; check the advisories page first |
 | P7 live for the other packs | M | Lab walk-throughs for cert-autorenewal and vault-fundamentals |
 | P8 on a CTF stack | S | The `/admin` tabs on a CTF stack, and the code-server IDE tab from `/admin` |
 | P9 load test, P10-P12, P15 `doctor --live` | L | Briefs in the review |

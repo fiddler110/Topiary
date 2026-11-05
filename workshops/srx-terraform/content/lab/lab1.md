@@ -60,7 +60,7 @@ terraform validate
 
 ## 3. Plan, then apply
 
-**Your turn:** before you run it, predict how many resources the plan adds, and which symbol it prints.
+**Your turn:** before you run it, predict how many resources the plan adds, and which symbol it prints. Then run it and compare with the reveal below.
 
 ```sh
 terraform plan
@@ -117,7 +117,7 @@ The network is there, with the `id` Terraform printed. `dojo wan events` is the 
 
 ## 5. Idempotency
 
-**Your turn:** predict what a second `plan` says.
+**Your turn:** predict what a second `plan` says, then run it and compare with the reveal.
 
 ```sh
 terraform plan

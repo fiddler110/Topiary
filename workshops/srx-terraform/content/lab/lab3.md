@@ -108,7 +108,7 @@ In the portal, **Sites** now lists three. They are empty: no gateway has arrived
 
 ## 3. Where do the variables go?
 
-The org network `corp` has the subnet `{{site_subnet}}`. Open **Networks** in the portal, then a site's settings. One network definition, three subnets:
+The org network `corp` has the subnet `{{site_subnet}}`. In the portal (**Dojo WAN**, your org), open **Networks**: the `corp` row's Subnet column shows `{{site_subnet}}`, the blank. Then open **Sites**: each site's Variables column shows what fills that blank there. One network definition, three subnets. The API shows the same for one site:
 
 ```sh
 SITE=$(terraform state show mist_site.ottawa | awk '/^ *id /{print $3}' | tr -d '"')

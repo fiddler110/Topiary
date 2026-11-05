@@ -20,6 +20,14 @@ curl -s -X PUT -H "Authorization: Token $MIST_API_TOKEN" -H 'Content-Type: appli
   -d '{"vlan_id": "99"}' https://api.mist.com/api/v1/orgs/$MIST_ORG_ID/networks/$NET | python3 -m json.tool | grep vlan
 ```
 
+The API answers with the changed network; the `grep` keeps its VLAN line:
+
+```text
+    "vlan_id": "99",
+```
+
+If the facilitator pressed the button instead, the new VLAN is `999`. Read `99` as `999` for the rest of this lab.
+
 ## 2. Find out who changed what
 
 The org keeps a change log. Terraform's own changes appear there too, so you can tell them apart by the **actor**:
@@ -70,6 +78,11 @@ Look at what the drift did to a gateway:
 dojo wan config ottawa-01-gw | grep 'interfaces ge-0/0/1 unit'
 ```
 
+```text
+set interfaces ge-0/0/1 unit 99 vlan-id 99
+set interfaces ge-0/0/1 unit 99 family inet address 10.10.0.1/24
+```
+
 The LAN interface is on unit 99 now, a different VLAN from the switch it plugs into. That is why drift matters.
 
 ## 4. Revert or adopt
@@ -92,6 +105,11 @@ The code now says what the world says. Nothing was applied. In the real estate t
 ```sh
 terraform apply
 dojo wan config ottawa-01-gw | grep 'interfaces ge-0/0/1 unit'
+```
+
+```text
+set interfaces ge-0/0/1 unit 10 vlan-id 10
+set interfaces ge-0/0/1 unit 10 family inet address 10.10.0.1/24
 ```
 
 ## 5. An object made by hand
