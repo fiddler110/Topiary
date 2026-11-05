@@ -238,7 +238,7 @@ RUN chmod 0755 /app/agent \
 #     runs), `docker image load` dropped from ~58s to ~6-17s for this one
 #     image — the fetch below only ever touches amd64 bytes, so the
 #     student-facing ~3min startup cost shrinks accordingly.
-FROM quay.io/skopeo/stable@sha256:7e735527d9d64c7456fc82d7f954c380b4a5dd1a8173115ce2ed7b3442ef36e0 AS base-image-fetch
+FROM quay.io/skopeo/stable@sha256:2681eccb8b02c495b013c2669cbf7f41d5c0b0b0e644e7c69bd3ea9bcb20641f AS base-image-fetch
 RUN set -eux; \
     mkdir -p /tmp/idx-only /tmp/amd64-only /out/merged/blobs/sha256; \
     skopeo copy --multi-arch index-only \
@@ -258,7 +258,7 @@ RUN set -eux; \
 # then never even builds the stages a pack doesn't reference (not "baked but
 # skipped at import", genuinely absent: zero extra build time, zero extra
 # image bytes for a scoped pack).
-FROM docker.io/library/docker:29.9.0-dind@sha256:0b6d18a4a222e71c88be6034926b4f6cde2fc33c2218643d03ccfddc65995470 AS range-base
+FROM docker.io/library/docker:29.9.2-dind@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977 AS range-base
 SHELL ["/bin/sh", "-o", "pipefail", "-c"]
 
 # dnsmasq, for entrypoint.sh's fake-DNS stub (see its own comment): a fast,
