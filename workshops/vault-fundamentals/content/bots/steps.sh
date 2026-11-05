@@ -32,6 +32,34 @@ vf_env() {
   [ -s "$HOME/.vault-token" ]
 }
 
+# bao: every bao call a step makes (run_cmd, paste_cmd and pasted lab blocks all eval in this shell) retries a
+# transient refusal instead of failing, and with it every later step that needs what this one wrote. A person
+# reads the error and runs the command again (lab4.md says so for the upgrading mount); a bot types too fast:
+#  - "Upgrading from non-versioned to versioned data": a just-enabled kv-v2 mount takes a second or two
+#    (Lab 4's first put after `secrets enable` lost team/app, so Lab 6's agent never rendered app.env);
+#  - the server restarting or briefly away: connection refused/reset, 502/503, "local node not active".
+# stdin (`kv put PATH -`, `root_password=-`, `@-`) is kept so a retry sends the same input. A real error
+# (403, 404, a typo) fails at once, as it does for a student. VF_BAO_TRIES caps the attempts.
+VF_BAO_RETRY='Upgrading from non-versioned to versioned data|connection refused|connection reset|Code: 50[23]|local node not active|EOF$'
+bao() {
+  local tries="${VF_BAO_TRIES:-8}" n=1 rc err in='' a
+  # long-running or interactive: straight through, output where the caller sent it
+  case "$1" in agent|proxy|server|monitor|login|debug) command bao "$@"; return ;; esac
+  err="$(mktemp)"
+  for a in "$@"; do
+    case "$a" in -|*=-|*@-) in="$(mktemp)"; cat >"$in"; break ;; esac
+  done
+  while :; do
+    if [ -n "$in" ]; then command bao "$@" <"$in" 2>"$err"; else command bao "$@" 2>"$err"; fi
+    rc=$?
+    if [ "$rc" -eq 0 ] || [ "$n" -ge "$tries" ] || ! grep -Eq "$VF_BAO_RETRY" "$err"; then break; fi
+    printf '(bot) bao %s: transient error, trying again (%s/%s)\n' "$1" "$n" "$tries" >&2
+    n=$((n + 1)); sleep 2
+  done
+  cat "$err" >&2; rm -f "$err" ${in:+"$in"}
+  return "$rc"
+}
+
 # vf_block FILE N...: the Nth shell (```sh or ```bash) blocks of a lab page, joined; LANG:N:PATH (+PATH appends) writes the page's
 # Nth LANG block (a file students create in VS Code) to PATH, studentXX filled in (as tests/lab_10.sh does).
 vf_block() {
