@@ -2,6 +2,7 @@
 import json
 import unittest
 
+import server
 from wan_testlib import FAC, OTHER, STUDENT, LabCase
 
 ADMIN = {"X-Requested-With": "dojo-admin"}
@@ -69,6 +70,9 @@ class PortalApi(LabCase):
         self.assertEqual(self.lab.portal("POST", f"/wan/api/orgs/{self.org}", user=STUDENT)[0], 405)
 
     def test_org_store_shows_the_newest_200_events(self):
+        # 210 writes is more than the rate limit's burst; this test is about the event list, not the limit.
+        limit, self.lab.app.limit = self.lab.app.limit, server.RateLimit(0, 0)
+        self.addCleanup(setattr, self.lab.app, "limit", limit)
         net = self.make("networks", name="n", subnet="10.0.0.0/24")
         for i in range(210):
             self.ok("PUT", f"{self.base}/networks/{net['id']}", {"vlan_id": str(i)})
