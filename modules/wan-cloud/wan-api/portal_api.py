@@ -9,6 +9,8 @@ token fails closed). Only Caddy sets both headers.
   GET  /wan/api/orgs/{org}/devices/{id}/config  the rendered Junos `set` preview, text/plain
   POST /wan/api/orgs/{org}/drift                facilitator only, with X-Requested-With: dojo-admin: one canned
                                                 out-of-band change, logged as actor "portal:facilitator"
+  POST /wan/api/drift                           the same, in every org at once (same auth); 200 {"changed", "skipped",
+                                                "orgs": [{"user", "change": {...} or null}]}
 """
 import hmac
 import json
@@ -100,6 +102,8 @@ class Portal:
             if segs == ["me"]:
                 return self.only(method, "GET") or _json(200, {"user": user, "facilitator": auth.is_facilitator(user),
                                                                "orgs": auth.orgs_for(user)})
+            if segs == ["drift"]:
+                return self.only(method, "POST") or self.drift_all(user, headers)
             if len(segs) >= 2 and segs[0] == "orgs":
                 org = self.app.mist.org_for(user, segs[1])
                 if len(segs) == 2:
@@ -122,6 +126,21 @@ class Portal:
                 raise ApiError(404, "device not found")
         status, text, hdrs = self.app.mist.render_text(org, dev_id)
         return status, _headers(hdrs), text.encode()
+
+    def drift_all(self, user, headers):
+        """make_drift in every org, one after another (each takes its own org lock; nothing app-wide is held)."""
+        if not self.app.auth.is_facilitator(user):
+            return _err(403, "Only the facilitator can make drift.")
+        if headers.get("X-Requested-With") != "dojo-admin":
+            return _err(403, "Missing X-Requested-With: dojo-admin.")
+        results = []
+        for o in self.app.auth.orgs_for(user):
+            if self.app.auth.is_facilitator(o["user"]):
+                continue        # the class's orgs only; the facilitator's own would always count as skipped
+            org = self.app.mist.store.get(o["id"])
+            results.append({"user": o["user"], "change": make_drift(org) if org is not None else None})
+        changed = sum(1 for r in results if r["change"])
+        return _json(200, {"changed": changed, "skipped": len(results) - changed, "orgs": results})
 
     def drift(self, org, user, headers):
         """One canned change made 'by hand' in the portal, for plan to find. Needs the facilitator and a custom

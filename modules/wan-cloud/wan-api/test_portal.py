@@ -140,6 +140,32 @@ class Drift(LabCase):
         self.assertEqual(self.ok("GET", f"{self.base}/dojo/events"), [])
 
 
+class DriftAll(LabCase):
+    path = "/wan/api/drift"
+
+    def test_auth_matrix(self):
+        self.assertEqual(self.lab.portal("POST", self.path)[0], 401)
+        self.assertEqual(self.lab.portal("POST", self.path, user=STUDENT, headers=ADMIN)[0], 403)
+        self.assertEqual(self.lab.portal("POST", self.path, user=FAC)[0], 403)
+        self.assertEqual(self.lab.portal("GET", self.path, user=FAC, headers=ADMIN)[0], 405)
+
+    def test_changes_orgs_with_a_network_and_skips_the_rest(self):
+        net = self.make("networks", name="corp", subnet="10.0.0.0/24", vlan_id="10")
+        status, body, _ = self.lab.portal("POST", self.path, user=FAC, headers=ADMIN)
+        self.assertEqual(status, 200)
+        by_user = {o["user"]: o["change"] for o in body["orgs"]}
+        self.assertEqual(body["changed"], 1)
+        self.assertEqual(body["skipped"], len(body["orgs"]) - 1)
+        self.assertEqual(by_user[STUDENT]["to"], "999")
+        self.assertIsNone(by_user[OTHER])
+        self.assertNotIn(FAC, by_user)                  # the facilitator's own org is not part of the class
+        self.assertEqual(self.ok("GET", f"{self.base}/networks/{net['id']}")["vlan_id"], "999")
+        events = self.ok("GET", f"{self.base}/dojo/events")
+        self.assertEqual([e["actor"] for e in events].count("portal:facilitator"), 1)
+        other = self.ok("GET", f"/api/v1/orgs/{self.lab.org(OTHER)}/dojo/events", user=OTHER)
+        self.assertEqual(other, [])
+
+
 class Reset(LabCase):
     def reset(self, user, phase="teardown", token="reset-token", method="POST"):
         import http.client

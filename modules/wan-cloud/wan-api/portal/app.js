@@ -302,7 +302,7 @@
           ['Outside edits', (x) => { if (x.error) return '?'; const u = x.o.user; const c = arr(x.store.events).filter((e) => obj(e).actor !== u).length; return c ? pill(c, 'warn') : '0'; }],
           ['Last event', (x) => { if (x.error) return 'unavailable'; const e = arr(x.store.events); return e.length ? when(obj(e[e.length - 1]).ts) : '—'; }],
           ['', (x) => h('button', { type: 'button', class: 'btn btn-small', on: { click: () => { S.org = x.o.id; $('org-pick').value = S.org; location.hash = '#/'; } } }, 'Open')]]);
-      return h('div', null, pageHead('Class progress', progressRows.length + ' orgs'), table(cols, progressRows, { empty: 'No orgs yet.' }));
+      return h('div', null, pageHead('Class progress', progressRows.length + ' orgs'), table(cols, progressRows, { empty: 'No orgs yet.' }), driftAllPanel());
     },
   };
 
@@ -335,6 +335,22 @@
     return table([['Time', (e) => when(e.ts)], ['Actor', (e) => dash(e.actor)], ['Action', (e) => dash(e.action)],
       ['Path', (e) => h('code', null, dash(e.path))], ['', (e) => (user && e.actor !== user ? pill('changed outside Terraform', 'warn') : '')]],
       list.map((e) => obj(e)), { empty: 'No events yet.', rowClass: (e) => (user && e.actor !== user ? 'outside' : false) });
+  }
+
+  function driftAllPanel() {
+    const msg = h('span', { class: 'msg', role: 'status' });
+    const btn = h('button', { type: 'button', class: 'btn btn-danger', on: { click: async () => {
+      if (!window.confirm('Make drift in every org? Each student org with a network gets its VLAN changed.')) return;
+      btn.disabled = true; msg.textContent = 'Working…';
+      try {
+        const r = await api('/wan/api/drift', { method: 'POST', headers: { 'X-Requested-With': 'dojo-admin' } });
+        msg.textContent = 'Drift made in ' + r.changed + ' orgs; ' + r.skipped + ' skipped (no network yet).';
+        refresh();
+      } catch (e) { msg.textContent = 'Failed: ' + e.message; }
+      btn.disabled = false;
+    } } }, 'Make drift in every org');
+    return h('div', { class: 'panel' }, h('h2', null, 'Facilitator'),
+      h('p', null, 'Make the canned change in every org that has a network, outside Terraform, for Lab 8.'), btn, msg);
   }
 
   function driftPanel() {
