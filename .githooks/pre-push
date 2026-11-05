@@ -15,4 +15,9 @@ while read -r _ local_sha _ _; do
   if git diff --name-only "$base" "$local_sha" | grep -qvE '\.(md|txt)$|^docs/'; then need=1; fi
 done
 [ -n "$need" ] || { echo "pre-push: docs/text only, skipping tests"; exit 0; }
+# Git hands hooks GIT_DIR (absolute in a `git worktree`) and friends. Tests that run `git init`/`commit` in a
+# temp dir would then act on THIS repo: from a worktree, the sensei test set core.bare=true and committed
+# "seed" onto the pushed branch (2026-11-05). Run the checks as a plain shell in the work tree instead.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
+cd "$root" || exit 1
 exec sh "$root/.github/scripts/pre-pr.sh" unit dry lint leaks

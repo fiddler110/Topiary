@@ -7,6 +7,16 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## Dojo Cloud: container creates survive a class-sized burst (2026-11-05, `fix/cloud-create-burst`)
+
+Locally. cloud-policy-as-code stalled with 20 bots in Lab 0's first apply: dockerd in cloud-host answered the burst of
+creates after cloud-api's 30 s socket timeout, finished the container anyway (left `Created`), and every retried PUT
+then failed on a 409 name conflict, so `apply` said "Still creating..." for good (not a resource limit: 2.7% CPU,
+210 of 4096 pids). `docker_api.Executor.create` now waits 120 s, lets 4 creates reach dockerd at a time, removes the
+container by name when a create or start fails, and clears a leftover of the same name and creates again on a 409
+(6 new tests in `test_executor.py`). Rerun with `--test 20 --fast`: all 20 bots done in about 50 min, Lab 0's apply
+done for all 20 within 4 min, no executor errors, no 409s, no 500s.
+
 ## Lab reader copy buttons, vault bot blocks, code-server 4.145.0, srx-terraform T6 (2026-11-05, `feat/srx-terraform`)
 
 Locally. **Copy buttons:** every code block in the shared lab reader (all workshops, reveal bodies included, not diagrams) has a Copy button, with an `execCommand` fallback when the clipboard API is refused; Playwright: 16 blocks/16 buttons on vault Lab 5, clipboard text equals the block, the button stays put when a wide block scrolls, no overflow at 390 px. **Vault bot:** `vf_block` and the tests' `md_blocks` counted only ```` ```bash ```` fences after the labs moved to ```` ```sh ````, and blocks had merged; every call is renumbered by content (`--test 2 --fast`: 0 `IndexError`s). **code-server 4.137.0 -> 4.145.0** (not the planned 4.141.0: GHSA-gcvg-jpfh-4xm8 and GHSA-jvcp-w94c-mvvh); builds, `/ide/` serves the workbench. **srx-terraform T6:** Lab 8 shows the expected `grep` output, Lab 3's portal step names the columns to read, Lab 9 opens its pull request with its own `pr.json` block, Lab 1's predictions say to compare with the reveal, and the unconfirmed "a device's `vars` win" line is gone from Lab 5, the slides and the cheat sheet (fast bot: no failing block through `dojo check 9`; Lab 8 outputs match).

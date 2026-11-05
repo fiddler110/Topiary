@@ -120,7 +120,6 @@ The whole-repo review lives in [`docs/reviews/2026-10-18.md`](docs/reviews/2026-
 
 | Item | Effort | Notes |
 |---|---|---|
-| cloud-policy-as-code stalls at 20 bots | M | 2026-10-19, locally: all 20 sat in Lab 0's first apply (`azurerm_container_group.app: Still creating...`) for 33+ min, with no pids or thread errors. A second limit in cloud-host or cloud-api. Run 10 and 15 bots to find where it starts |
 | OpenTofu 1.13 | M | 1.12.8 is in (PR #59); move to 1.13.x once the labs and the OPA pairing are tested |
 | P7 live for the other packs | M | Lab walk-throughs for cert-autorenewal and vault-fundamentals |
 | P8 on a CTF stack | S | The `/admin` tabs on a CTF stack, and the code-server IDE tab from `/admin` |
