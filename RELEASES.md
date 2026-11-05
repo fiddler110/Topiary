@@ -7,6 +7,16 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## Dojo Cloud: container creates survive a class-sized burst (2026-11-05, `fix/cloud-create-burst`)
+
+Locally. cloud-policy-as-code stalled with 20 bots in Lab 0's first apply: dockerd in cloud-host answered the burst of
+creates after cloud-api's 30 s socket timeout, finished the container anyway (left `Created`), and every retried PUT
+then failed on a 409 name conflict, so `apply` said "Still creating..." for good (not a resource limit: 2.7% CPU,
+210 of 4096 pids). `docker_api.Executor.create` now waits 120 s, lets 4 creates reach dockerd at a time, removes the
+container by name when a create or start fails, and clears a leftover of the same name and creates again on a 409
+(6 new tests in `test_executor.py`). Rerun with `--test 20 --fast`: all 20 bots done in about 50 min, Lab 0's apply
+done for all 20 within 4 min, no executor errors, no 409s, no 500s.
+
 ## Terminal clipboard and colours in the base image (2026-10-29, `feat/netlab-openbao-vault-lab`)
 
 Every terminal image gets `pbcopy`/`pbpaste` (OSC 52 clipboard, tmux `set-clipboard on`) and the shared One Dark `COLORTERM`/`BAT_THEME` in the base zshrc, for both the code-server and Zellij flavors.

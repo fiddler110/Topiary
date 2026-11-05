@@ -11,6 +11,7 @@ import http.client
 import json
 import socket
 import struct
+import threading
 from urllib.parse import quote
 
 import policy
@@ -64,12 +65,21 @@ def build_create_request(image, env_pairs, host_port, cpu, memory_gb, labels):
     }
 
 
-class Executor:
-    def __init__(self, socket_path):
-        self.socket_path = socket_path
+# A class starting Lab 0 at once sends dockerd ~20 creates together. Under that burst it answered create/start
+# after more than 30 s, finished the container anyway, and left it `Created`: every retry of the PUT then hit a
+# 409 name conflict and the apply said "Still creating..." for good (20 bots, locally, 2026-11-05). So creates
+# get a longer timeout, only a few reach dockerd at a time, and a failed or half-finished one is removed by name.
+CREATE_TIMEOUT = 120
+CREATE_CONCURRENCY = 4
 
-    def _call(self, method, path, body=None):
-        conn = _UnixConnection(self.socket_path)
+
+class Executor:
+    def __init__(self, socket_path, create_concurrency=CREATE_CONCURRENCY):
+        self.socket_path = socket_path
+        self._creates = threading.BoundedSemaphore(max(1, int(create_concurrency)))
+
+    def _call(self, method, path, body=None, timeout=30):
+        conn = _UnixConnection(self.socket_path, timeout)
         try:
             payload = json.dumps(body).encode() if body is not None else None
             headers = {"Content-Type": "application/json"} if payload else {}
@@ -99,14 +109,27 @@ class Executor:
         return status == 200
 
     def create(self, name, image, env_pairs, host_port, cpu, memory_gb, labels):
+        """Create and start `name`. On any failure the container is removed by name, so a retry starts clean.
+        The caller holds the group's reservation (State.pending), so nothing else is using this name."""
         spec = build_create_request(image, env_pairs, host_port, cpu, memory_gb, labels)
-        status, data = self._call("POST", f"/containers/create?name={quote(name)}", spec)
-        if status != 201:
-            raise DockerError(f"create failed ({status}): {data[:200]!r}")
-        status, data = self._call("POST", f"/containers/{quote(name)}/start")
-        if status not in (204, 304):
-            self.remove(name)
-            raise DockerError(f"start failed ({status}): {data[:200]!r}")
+        with self._creates:
+            try:
+                status, data = self._call("POST", f"/containers/create?name={quote(name)}", spec, CREATE_TIMEOUT)
+                if status == 409:  # left over from an attempt that timed out before this fix, or a lost answer
+                    self.remove(name)
+                    status, data = self._call("POST", f"/containers/create?name={quote(name)}", spec,
+                                              CREATE_TIMEOUT)
+                if status != 201:
+                    raise DockerError(f"create failed ({status}): {data[:200]!r}")
+                status, data = self._call("POST", f"/containers/{quote(name)}/start", None, CREATE_TIMEOUT)
+                if status not in (204, 304):
+                    raise DockerError(f"start failed ({status}): {data[:200]!r}")
+            except DockerError:
+                try:
+                    self.remove(name)
+                except DockerError:
+                    pass  # cloud-host is unreachable: the 409 path above clears it on the next try
+                raise
 
     def remove(self, name):
         status, _ = self._call("DELETE", f"/containers/{quote(name)}?force=true&v=true")
