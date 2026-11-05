@@ -149,6 +149,15 @@ body {
 
 .lab-content th { background: var(--panel); }
 
+/* Phones: a wide table scrolls inside itself, like a pre block, and long inline code wraps,
+   so the page never scrolls sideways (srx-terraform rehearsal, 390 px wide, 2026-11-05). */
+@media (max-width: 700px) {
+  .lab-content table { display: block; overflow-x: auto; }
+  .lab-content p code,
+  .lab-content li code,
+  .lab-content td code { overflow-wrap: anywhere; }
+}
+
 /* ```mermaid diagrams (see drawMermaid in lab-reader.js). */
 .lab-content pre.mermaid { text-align: center; }
 .lab-content pre.mermaid svg { max-width: 100%; height: auto; }

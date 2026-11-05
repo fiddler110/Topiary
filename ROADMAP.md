@@ -111,8 +111,8 @@ Plan and spike results: [`docs/SRX-MIST-PLAN.md`](docs/SRX-MIST-PLAN.md). Worksh
 
 | # | Work | Effort |
 |---|---|---|
-| T4 | Open from the pack: a student rehearsal of the lab text in a browser; a read of `dojo wan config` by someone who knows SRX; Lab 5's role model against Mist's docs | M |
-| T5 | Bots done (one fast bot follows the lab text for Labs 0-9, no block fails, all checks pass, 2026-11-04); open: the **Drift** button in `/admin`, 10+ bots for the load, `capacity` numbers | M |
+| T4 | An SRX engineer answers [`SRX-REVIEW.md`](workshops/srx-terraform/SRX-REVIEW.md) (best: `config_cmd` for one hub and one spoke in a real org), then the renderer follows; confirm on a real org the `dns_override`/`ntp_override` flags and device `vars` over site vars | M |
+| T6 | Lab text follow-ups from the 2026-11-05 student read: expected output for Lab 8's `grep` checks, a clearer Lab 3 portal step, Lab 5's device `vars` line (no lab uses it; unconfirmed in Mist's docs), Lab 9's pull request step (point at Lab 7's `pr.json` block), Lab 1's predict tasks ("compare with the reveal") | S |
 
 ### Review 2026-10-18 follow-ups
 

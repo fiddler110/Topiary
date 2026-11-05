@@ -1,6 +1,6 @@
 # SRX-MIST-PLAN: SRX firewalls with Terraform and the Mist provider, simulated
 
-Status: **built and run live once** (2026-11-04, branch `feat/srx-terraform`). The spike (section 9) showed the real provider running a full SRX build against a simulated API; the module, simulator and pack followed, and a `--test 1 --fast` bot has since followed the lab pages for Labs 0 to 9 with every `dojo check` passing (section 6). Open: a person reading the pages in a browser, a read of the Junos preview by someone who knows SRX, the `/admin` Drift button, and a many-student run (ROADMAP T4, T5). The first pack of the **technology** track
+Status: **built, load-tested and reviewed** (2026-11-05, branch `feat/srx-terraform`). The spike (section 9) showed the real provider running a full SRX build against a simulated API; the module, simulator and pack followed. 15 `--test --fast` bots ran Labs 0 to 9 at once with no failing block, the class-wide Drift button was clicked live, the pages were read in a browser and by a student-eye review, and Lab 5 was checked against Mist's docs (a device overrides DNS, not NTP). Open: an SRX engineer's answers to `workshops/srx-terraform/SRX-REVIEW.md`, and small lab-text follow-ups (ROADMAP T4, T6). The first pack of the **technology** track
 (`WORKSHOP_TRACK=technology`). Working names: workshop `srx-terraform`, module `wan-cloud` (section 2).
 
 ## 1. Goal
@@ -106,8 +106,8 @@ mistakes are a typo in a reference (Lab 1), a 14-character claim code (Lab 4) an
 (Lab 5), placed with the page's own file blocks; the destroy-and-recreate refactor (Lab 6) and the refused second run
 (Lab 7) are in the pages. First run: 18 failed blocks, which were five lab bugs (an apply before the hub's inventory
 entry, a prose-only `profile.tf` edit, a lock demo that held no lock, a Lab 8 branch never merged so Lab 9 destroyed
-`guest`, and two wrong plan counts), all fixed; the rerun has no failures. Not covered: the `/admin` Drift button, a
-person reading the pages, and a run with many bots.
+`guest`, and two wrong plan counts), all fixed; the rerun has no failures. The Drift button, a browser read of the pages and
+15 bots at once were covered on 2026-11-05 (RELEASES).
 
 ## 7. Phases
 
@@ -117,8 +117,8 @@ person reading the pages, and a run with many bots.
 | 1 | `wan-api`: store, auth, the section 4 endpoints, spec validation, recorded contract tests | L |
 | 2 | Terminal layer: Terraform, provider mirror, broker, CA trust; `wan-cloud` module wiring, manifest, `/admin` tab | M |
 | 3 | Config renderer (template, profile, device, variables, to Junos `set` lines) and the portal | M |
-| 4 | Workshop pack `srx-terraform`: slides, labs 0 to 9, checks, sample repo, facilitator guide. **Built**; open: a student rehearsal in a browser, the Junos preview read by an SRX person | L |
-| 5 | Bots, drift bot, live checks with `--test --fast`. **Bots built and live-run once** (one bot, no failing block); open: the Drift button, 10+ bots, `capacity` numbers | M |
+| 4 | Workshop pack `srx-terraform`: slides, labs 0 to 9, checks, sample repo, facilitator guide. **Built and rehearsed** (browser, student-eye read, Mist docs); open: the Junos preview read by an SRX person (`SRX-REVIEW.md`) | L |
+| 5 | Bots, drift, live checks with `--test --fast`. **Done**: 10 and 15 bots with no failing block, the per-org and class-wide Drift buttons live, `capacity` numbers in FACILITATOR.md | M |
 | 6 | Optional: netfilter-backed gateways for traffic tests | L |
 
 ## 8. Risks
