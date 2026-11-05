@@ -183,6 +183,14 @@ git add imported.tf
 git commit -m "Adopt the guest network that was made in the portal"
 ```
 
+Lab 9 starts from `main`, and `main` must know about `guest` or the next `apply` would destroy it. On the real estate this goes through a pull request as in Lab 7; here, merge it yourself:
+
+```sh
+git checkout main
+git merge --ff-only adopt-guest-network
+git push origin main
+```
+
 ## Check yourself
 
 1. `plan` shows `~ vlan_id = "99" -> "10"`. Did the VLAN change in your code, or in the world?

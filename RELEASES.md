@@ -9,7 +9,7 @@ WSL2 desktop stack at `http://localhost:8080`.
 
 ## srx-terraform pack, first live run (2026-11-04, `feat/srx-terraform`)
 
-`srx-terraform --test 1 --fast` ran Labs 0-9 locally (Terraform 1.17.1, the offline `Juniper/mist` 0.11.0 mirror, the Dojo WAN simulator): all ten `dojo check N` passed, no skips. The wan-api suite (98 tests) and the parity test pass. Lab 5 is now "Roles" everywhere (slides, cheat sheets, `dojo check`), matching the hub/spoke model; the labs overview slide is split in two and two other slides trimmed so each fits 16:9 (checked with Playwright).
+`srx-terraform --test 1 --fast` ran Labs 0-9 locally (Terraform 1.17.1, the offline `Juniper/mist` 0.11.0 mirror, the Dojo WAN simulator): all ten `dojo check N` passed, no skips. The wan-api suite (98 tests) and the parity test pass. The bot now follows the lab text (`content/bots/labtext.py`), and that run found and fixed five lab bugs: Lab 5 applied before the hub's inventory entry existed; Lab 6's `profile.tf` edit was prose only; Lab 7's lock demo used `terraform console`, which takes no lock (it now holds an `apply` at its question); Lab 8 left the import on an unmerged branch so Lab 9's first plan destroyed `guest`; and the Lab 6 and Lab 9 plan counts were wrong. All ten `dojo check N` pass and no block fails. Lab 5 is now "Roles" everywhere (slides, cheat sheets, `dojo check`), matching the hub/spoke model; the labs overview slide is split in two and two other slides trimmed so each fits 16:9 (checked with Playwright).
 
 ## Terminal clipboard and colours in the base image (2026-10-29, `feat/netlab-openbao-vault-lab`)
 

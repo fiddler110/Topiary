@@ -59,10 +59,10 @@ terraform plan -no-color | tee plan.txt
 <!-- dojo-reveal: Result -->
 
 ```text
-Plan: 3 to add, 1 to change, 0 to destroy.
+Plan: 3 to add, 5 to change, 0 to destroy.
 ```
 
-Three to add: the site, its settings, the gateway. One to change: the inventory (one more device). A branch is a spoke, so there is no profile assignment to touch. **Zero destroy.** If your plan shows any destroy, stop: something else changed.
+Three to add: the site, its settings, the gateway. Five to change: the inventory (one more device), and the four things that read an id out of it, the hub's profile assignment and the three branch gateways. Open any of them: the only change is `device_id = "..." -> (known after apply)`, because the inventory is changing and Terraform cannot know its ids until it has. Nothing real moves. **Zero destroy** is the number to read: if your plan shows any destroy, stop, something else changed.
 
 <!-- /dojo-reveal -->
 

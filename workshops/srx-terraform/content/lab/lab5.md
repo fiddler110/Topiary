@@ -114,7 +114,7 @@ resource "mist_org_deviceprofile_assign" "hub" {
 
 The assignment names one MAC: the hub gateway. The branches are not on the profile. (`type` on the profile is set by Mist; you do not write it.)
 
-Claim the `SRX1500` into `dc-01`. Add its claim code (`dojo wan delivery`) to `terraform.tfvars`, and its entry to the inventory in `devices.tf` (shown in step 4).
+Claim the `SRX1500` into `dc-01`. Add its claim code (`dojo wan delivery`) to `terraform.tfvars`, and its entry to the inventory in `devices.tf`. The profile reads that inventory entry, so both files change before you apply.
 
 ```hcl
 # terraform.tfvars
@@ -123,6 +123,32 @@ claim_codes = {
   "toronto-01"  = "SRX300YYYYYYYYY"
   "montreal-01" = "SRX345XXXXXXXXX"
   "dc-01"       = "SRX1500ZZZZZZZZ"
+}
+```
+
+```hcl
+# devices.tf
+resource "mist_org_inventory" "delivery" {
+  org_id = var.org_id
+
+  inventory = {
+    (var.claim_codes["ottawa-01"]) = {
+      site_id                = mist_site.ottawa.id
+      unclaim_when_destroyed = true
+    }
+    (var.claim_codes["toronto-01"]) = {
+      site_id                = mist_site.toronto.id
+      unclaim_when_destroyed = true
+    }
+    (var.claim_codes["montreal-01"]) = {
+      site_id                = mist_site.montreal.id
+      unclaim_when_destroyed = true
+    }
+    (var.claim_codes["dc-01"]) = {
+      site_id                = mist_site.dc01.id
+      unclaim_when_destroyed = true
+    }
+  }
 }
 ```
 
@@ -160,7 +186,7 @@ The `name-server` line is gone. Without the flag the profile's DNS is ignored an
 
 ## 4. A device override
 
-One site needs its own time server: Ottawa has a local clock. The right layer for "this one box" is the device. `mist_device_gateway` configures a single claimed gateway. Update `devices.tf` (the whole file is shown; the Ottawa block is the new one):
+One site needs its own time server: Ottawa has a local clock. The right layer for "this one box" is the device. `mist_device_gateway` configures a single claimed gateway. Add the device to `devices.tf` (the whole file is shown; the Ottawa block at the end is the new one):
 
 ```hcl
 # devices.tf

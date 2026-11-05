@@ -2,7 +2,7 @@
 
 For the person running the session. The technical reference is [`README.md`](README.md); the deck's speaker notes carry the talking points. This guide is the practical part.
 
-**Honest status:** nobody has run this with a room yet. Locally (2026-11-04) one `--test 1 --fast` bot walked Labs 0 to 9 against the real simulator, and every `dojo check 0` to `9` passed, with no skipped or retried step. The bot follows scripted steps, not the lab text, so the prose, the drift button and a many-student run are still untested: do the rehearsal below before a class.
+**Honest status:** nobody has run this with a room yet. Locally (2026-11-04) one `--test 1 --fast` bot walked Labs 0 to 9 against the real simulator, and every `dojo check 0` to `9` passed, with no skipped or retried step. The bot follows the **lab text** (`content/bots/labtext.py` turns each page's code blocks into pastes and commands, in order), so a page that breaks the provider, the simulator or `dojo check` fails the bot; the only stand-ins for prose are the `yes` to `apply`, the lock demo's first pane and merging the pull request in the bot's own fork. What is still untested: reading the pages as a person, the drift button, and a many-student run. Do the rehearsal below before a class.
 
 ## The session at a glance (about 2¾ hours)
 

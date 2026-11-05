@@ -234,7 +234,13 @@ module "gateway" {
 }
 ```
 
-In `profile.tf`, change the assignment to read the hub's claim code from the new variable: `macs = [mist_org_inventory.delivery.inventory[var.hub_claim_code].mac]`. Every branch gateway now gets a name and the Ottawa one keeps its local NTP server, from the map.
+In `profile.tf`, change the assignment to read the hub's claim code from the new variable, `macs = [mist_org_inventory.delivery.inventory[var.hub_claim_code].mac]`: edit the line, or run this.
+
+```sh
+sed -i 's/var.claim_codes\["dc-01"\]/var.hub_claim_code/' profile.tf
+```
+
+Every branch gateway now gets a name and the Ottawa one keeps its local NTP server, from the map.
 
 ```sh
 terraform fmt -recursive
@@ -260,7 +266,7 @@ terraform plan
   ...
   # module.site["ottawa-01"].mist_site.this will be created
   ...
-Plan: 9 to add, 1 to change, 7 to destroy.
+Plan: 9 to add, 2 to change, 7 to destroy.
 ```
 
 Terraform sees seven objects with no home (three sites, their three settings, the Ottawa gateway override) and nine with no history. Applying this would delete three live sites and their settings. Your counts may differ by one or two; the destroys are the point. Always read the destroy count.
@@ -369,7 +375,7 @@ git commit -m "Move sites and gateways into modules driven by one sites map"
 | ------- | ----------- |
 | `Could not load plugin` / `provider hashicorp/mist` | A module is missing its `versions.tf` with `source = "juniper/mist"`. |
 | `Module not installed` | Run `terraform init` after adding modules. |
-| `Plan: 9 to add, 1 to change, 7 to destroy.` | The `moved` blocks are missing or their addresses are spelled wrong. Compare with `terraform state list`. Do not apply. |
+| `Plan: 9 to add, 2 to change, 7 to destroy.` | The `moved` blocks are missing or their addresses are spelled wrong. Compare with `terraform state list`. Do not apply. |
 | `Invalid value for input variable` on `sites` | A field is missing or the wrong type in `terraform.tfvars`. `ntp_servers` is optional; everything else is required. |
 | `Cycle` | Something in `sites.tf` points back at itself. The site module must not reference `mist_org_inventory`. |
 

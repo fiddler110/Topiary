@@ -85,11 +85,13 @@ curl -s -u "$TF_HTTP_USERNAME:$TF_HTTP_PASSWORD" https://api.mist.com/dojo-state
 
 ## 4. The lock
 
-Open a second terminal pane (`Ctrl+b %`). In **pane 1**, start a Terraform console. It takes the state lock and holds it while open:
+Open a second terminal pane (`Ctrl+b %`). In **pane 1**, start an `apply` and leave it at its confirmation question. A run takes the state lock before it plans and holds it until it finishes, so while it waits for your answer the lock is held:
 
 ```sh
-terraform console
+terraform apply -replace=mist_org_service.dns
 ```
+
+Do **not** answer yet.
 
 **Your turn:** in **pane 2**, predict what `terraform plan` does.
 
@@ -105,12 +107,12 @@ Error: Error acquiring the state lock
 Error message: ... state locked
 Lock Info:
   ID:        ...
-  Operation: OperationTypeInvalid
+  Operation: OperationTypeApply
   Who:       studentNN@...
   Created:   ...
 ```
 
-That is the lock doing its job: a second run is refused while the first holds it. Quit the console in pane 1 (`exit` or `Ctrl+d`), and pane 2's `plan` works.
+That is the lock doing its job: a second run is refused while the first holds it. Now answer **`no`** in pane 1 (nothing is replaced), and pane 2's `plan` works again.
 
 <!-- /dojo-reveal -->
 
