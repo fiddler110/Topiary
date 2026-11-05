@@ -1,6 +1,6 @@
 # SRX-MIST-PLAN: SRX firewalls with Terraform and the Mist provider, simulated
 
-Status: **planned**; spike done 2026-11-04 (section 9): the real provider runs a full SRX build against a simulated API. The first pack of the **technology** track
+Status: **built and run live once** (2026-11-04, branch `feat/srx-terraform`). The spike (section 9) showed the real provider running a full SRX build against a simulated API; the module, simulator and pack followed, and a `--test 1 --fast` bot has since followed the lab pages for Labs 0 to 9 with every `dojo check` passing (section 6). Open: a person reading the pages in a browser, a read of the Junos preview by someone who knows SRX, the `/admin` Drift button, and a many-student run (ROADMAP T4, T5). The first pack of the **technology** track
 (`WORKSHOP_TRACK=technology`). Working names: workshop `srx-terraform`, module `wan-cloud` (section 2).
 
 ## 1. Goal
@@ -86,9 +86,9 @@ Out of scope: Wi-Fi, switching, NAC, Marvis, firmware upgrades (`mist_upgrade_de
 | 2 | The gateway template | Ports, WAN/LAN interfaces, networks, service policies on one `mist_org_gatewaytemplate`; the rendered Junos config |
 | 3 | Sites and variables | `mist_site`, `mist_site_setting` vars (`{{wan_ip}}`, `{{site_subnet}}`); one template, three sites, three configs |
 | 4 | Claim and assign | `mist_org_inventory` claims the delivered serials and assigns them to sites; the gateway picks up the template |
-| 5 | Layers | Spoke template versus hub profile (a fifth gateway at a hub site), `dns_override`/`ntp_override`, device `vars` and a per-device override (`mist_device_gateway`): which value wins, and the house rule for where settings go |
+| 5 | Roles | Spoke template versus hub profile (a fifth gateway at a hub site), `dns_override`/`ntp_override`, device `vars` and a per-device override (`mist_device_gateway`): which value wins, and the house rule for where settings go |
 | 6 | Structure | Refactor into modules (`site`, `gateway`), `for_each` over a sites map, `moved` blocks so nothing is destroyed |
-| 7 | Team workflow | Shared state with locking, the token in openbao, `terraform plan` on a pull request through the runner pool |
+| 7 | Team workflow | Shared state with locking (the lock is shown by holding an `apply` at its question; `terraform console` takes no lock against this backend), a reviewed pull request with the plan pasted in. As built, the token is explained but not moved to openbao, and the runner pool is not used: both are future work |
 | 8 | Drift and import | A "portal edit" by the drift bot; `plan` shows it; decide to revert or adopt; `import` an object made by hand |
 | 9 | Capstone | A new branch office from a ticket: one map entry, reviewed plan, apply, rendered config checked by `dojo check` |
 
@@ -97,8 +97,17 @@ result.
 
 ## 6. Bots
 
-`--test --fast` bots run the labs end to end with the same Terraform and provider, make the round-1 mistakes
-(wrong layer, a missing variable, a destroy-and-recreate refactor without `moved`) and write `~/.dojo-bot-done`.
+`--test --fast` bots run the labs end to end with the same Terraform and provider and write `~/.dojo-bot-done`.
+As built (2026-11-04) the bot **follows the lab text**: `content/bots/labtext.py` turns each page's `hcl` blocks into
+pastes and its `sh` blocks into commands, in page order, so a page that drifts from the provider, the simulator or
+`dojo check` fails the bot (`LABTEXT FAIL` in its log, `~/.dojo-bot-labfails`). It answers only what a person would: the
+`yes` to `apply`, the lock demo's first pane, and merging the pull request in the bot's own fork. The round-1
+mistakes are a typo in a reference (Lab 1), a 14-character claim code (Lab 4) and a hub profile without `dns_override`
+(Lab 5), placed with the page's own file blocks; the destroy-and-recreate refactor (Lab 6) and the refused second run
+(Lab 7) are in the pages. First run: 18 failed blocks, which were five lab bugs (an apply before the hub's inventory
+entry, a prose-only `profile.tf` edit, a lock demo that held no lock, a Lab 8 branch never merged so Lab 9 destroyed
+`guest`, and two wrong plan counts), all fixed; the rerun has no failures. Not covered: the `/admin` Drift button, a
+person reading the pages, and a run with many bots.
 
 ## 7. Phases
 
@@ -108,8 +117,8 @@ result.
 | 1 | `wan-api`: store, auth, the section 4 endpoints, spec validation, recorded contract tests | L |
 | 2 | Terminal layer: Terraform, provider mirror, broker, CA trust; `wan-cloud` module wiring, manifest, `/admin` tab | M |
 | 3 | Config renderer (template, profile, device, variables, to Junos `set` lines) and the portal | M |
-| 4 | Workshop pack `srx-terraform`: slides, labs 0 to 9, checks, sample repo, facilitator guide | L |
-| 5 | Bots, drift bot, live checks with `--test --fast` | M |
+| 4 | Workshop pack `srx-terraform`: slides, labs 0 to 9, checks, sample repo, facilitator guide. **Built**; open: a student rehearsal in a browser, the Junos preview read by an SRX person | L |
+| 5 | Bots, drift bot, live checks with `--test --fast`. **Bots built and live-run once** (one bot, no failing block); open: the Drift button, 10+ bots, `capacity` numbers | M |
 | 6 | Optional: netfilter-backed gateways for traffic tests | L |
 
 ## 8. Risks
