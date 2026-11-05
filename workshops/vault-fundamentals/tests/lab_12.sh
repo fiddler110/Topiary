@@ -25,7 +25,7 @@ check "deployed with the database template" "$log" '"state": "running"'
 end=$(( $(date +%s) + 30 ))
 until page="$(as 'curl -s http://app-host:8080/$USER/')"; echo "$page" | grep -q 'database: connected' || [ "$(date +%s)" -gt "$end" ]; do sleep 3; done
 check "the app connects with its own login" "$page" "database: connected as v-"
-out="$(as "export BAO_NAMESPACE=students/\$USER; $(block lab12.md 10)" 2>&1)"
+out="$(as "export BAO_NAMESPACE=students/\$USER; $(block lab12.md 9)" 2>&1)"
 [ "$(echo "$out" | grep -c .)" -ge 2 ] && echo "  ok:   the leases are listed" || { echo "  FAIL: leases: $out"; failed=1; }
 
 finish "lab 12"

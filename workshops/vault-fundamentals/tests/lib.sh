@@ -40,8 +40,8 @@ fork_clone() {
     git clone -q http://git-server:3000/$USER/vault-fundamentals.git ~/lab/vault-fundamentals'; }
 # replay_lab11: lab 11's set-up and first deploy (jwt-platform, app/, deploy.yml); leaves its output in $out and $log.
 replay_lab11() {
-  out="$(as "$(block lab11.md 1 2 3)" 2>&1)"
-  log="$(run_and_read 1 "export BAO_NAMESPACE=students/\$USER; $(block lab11.md 4 5 hcl:1:app/agent.hcl sh:1:app/start.sh python:1:app/app.py 6 yaml:1:.forgejo/workflows/deploy.yml 7)")"; }
+  out="$(as "$(block lab11.md 1 2)" 2>&1)"
+  log="$(run_and_read 1 "export BAO_NAMESPACE=students/\$USER; $(block lab11.md 3 4 hcl:1:app/agent.hcl sh:5:app/start.sh python:1:app/app.py 6 yaml:1:.forgejo/workflows/deploy.yml 7)")"; }
 # reset_labs_11_13: what labs 11-13 leave behind (they share one repository and one deployed app).
 reset_labs_11_13() {
   reset_repo

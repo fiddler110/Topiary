@@ -12,7 +12,7 @@ replay_lab11
 case "$log" in *'"state": "running"'*) ;; *) echo "FAIL: replaying lab 11: no deploy"; echo "$log" | tail -5; exit 1 ;; esac
 
 echo "== lab 13: incident drill"
-out="$(as "$(block lab13.md 1 hcl:1:~/lab/nightly-report.hcl 2 3 4 5 6 7 8 9 10)" 2>&1)"
+out="$(as "$(block lab13.md 1 hcl:1:~/lab/nightly-report.hcl 2 3 4 5 6 7 8 9)" 2>&1)"
 echo "$out" | grep -E '^(attacker|TIME|20[0-9][0-9]-)' | sed 's/^/    /'
 check "the attacker read team/app" "$out" 'attacker: read team/app'
 check "and made a spare" "$out" 'attacker: made a spare token, and it works'

@@ -117,7 +117,7 @@ text, user = open(sys.argv[1]).read(), sys.argv[2]
 fences = re.findall(r"^```(\w+)\n(.*?)^```$", text, re.S | re.M)
 for tok in sys.argv[3:]:
     if ":" not in tok:
-        sys.stdout.write([c for lang, c in fences if lang == "bash"][int(tok) - 1])
+        sys.stdout.write([c for lang, c in fences if lang in ("sh", "bash")][int(tok) - 1])
         continue
     lang, n, path = tok.split(":", 2)
     body = [c for l, c in fences if l == lang][int(n) - 1].replace("studentXX", user)
