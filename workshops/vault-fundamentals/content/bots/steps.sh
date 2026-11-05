@@ -32,7 +32,35 @@ vf_env() {
   [ -s "$HOME/.vault-token" ]
 }
 
-# vf_block FILE N...: the Nth ```bash blocks of a lab page, joined; LANG:N:PATH (+PATH appends) writes the page's
+# bao: every bao call a step makes (run_cmd, paste_cmd and pasted lab blocks all eval in this shell) retries a
+# transient refusal instead of failing, and with it every later step that needs what this one wrote. A person
+# reads the error and runs the command again (lab4.md says so for the upgrading mount); a bot types too fast:
+#  - "Upgrading from non-versioned to versioned data": a just-enabled kv-v2 mount takes a second or two
+#    (Lab 4's first put after `secrets enable` lost team/app, so Lab 6's agent never rendered app.env);
+#  - the server restarting or briefly away: connection refused/reset, 502/503, "local node not active".
+# stdin (`kv put PATH -`, `root_password=-`, `@-`) is kept so a retry sends the same input. A real error
+# (403, 404, a typo) fails at once, as it does for a student. VF_BAO_TRIES caps the attempts.
+VF_BAO_RETRY='Upgrading from non-versioned to versioned data|connection refused|connection reset|Code: 50[23]|local node not active|EOF$'
+bao() {
+  local tries="${VF_BAO_TRIES:-8}" n=1 rc err in='' a
+  # long-running or interactive: straight through, output where the caller sent it
+  case "$1" in agent|proxy|server|monitor|login|debug) command bao "$@"; return ;; esac
+  err="$(mktemp)"
+  for a in "$@"; do
+    case "$a" in -|*=-|*@-) in="$(mktemp)"; cat >"$in"; break ;; esac
+  done
+  while :; do
+    if [ -n "$in" ]; then command bao "$@" <"$in" 2>"$err"; else command bao "$@" 2>"$err"; fi
+    rc=$?
+    if [ "$rc" -eq 0 ] || [ "$n" -ge "$tries" ] || ! grep -Eq "$VF_BAO_RETRY" "$err"; then break; fi
+    printf '(bot) bao %s: transient error, trying again (%s/%s)\n' "$1" "$n" "$tries" >&2
+    n=$((n + 1)); sleep 2
+  done
+  cat "$err" >&2; rm -f "$err" ${in:+"$in"}
+  return "$rc"
+}
+
+# vf_block FILE N...: the Nth shell (```sh or ```bash) blocks of a lab page, joined; LANG:N:PATH (+PATH appends) writes the page's
 # Nth LANG block (a file students create in VS Code) to PATH, studentXX filled in (as tests/lab_10.sh does).
 vf_block() {
   local f="$1"; shift
@@ -42,7 +70,7 @@ text, user = open(sys.argv[1]).read(), sys.argv[2]
 fences = re.findall(r"^```(\w+)\n(.*?)^```$", text, re.S | re.M)
 for tok in sys.argv[3:]:
     if ":" not in tok:
-        sys.stdout.write([c for lang, c in fences if lang == "bash"][int(tok) - 1])
+        sys.stdout.write([c for lang, c in fences if lang in ("sh", "bash")][int(tok) - 1])
         continue
     lang, n, path = tok.split(":", 2)
     body = [c for l, c in fences if l == lang][int(n) - 1].replace("studentXX", user)
@@ -223,11 +251,11 @@ step_vf_lab4() {
 step_vf_lab5_6() {
   vf_env || return 1
   narrate "Lab 5 -- secrets in .env, then the app reads them from the vault"
-  paste_cmd "$(vf_block lab5.md 1 sh:2:.env gitignore:1:.gitignore python:1:app_env.py 2 3 4 5 6)"
-  paste_cmd "$(vf_block lab5.md python:2:app_vault.py 7 8 9 10)"
+  paste_cmd "$(vf_block lab5.md 1 sh:3:.env gitignore:1:.gitignore python:1:app_env.py 4 5 6)"
+  paste_cmd "$(vf_block lab5.md python:2:app_vault.py 7 8)"
   narrate "the debug line printed the secret -- log the key names only"
   run_cmd "sed -i 's/log.debug(\"loaded config: %s\", secret)/log.debug(\"loaded config keys: %s\", sorted(secret.keys()))/' app_vault.py"
-  paste_cmd "$(vf_block lab5.md 11 python:4:token_ttl.py 12)"
+  paste_cmd "$(vf_block lab5.md 9 python:4:token_ttl.py 10)"
 
   narrate "Lab 6 -- the Agent logs in by itself and writes the secret to a file in memory"
   run_cmd "export BAO_NAMESPACE=students/\$USER"
@@ -314,35 +342,35 @@ EOF"
   run_cmd "git rm -q .forgejo/workflows/secrets-demo.yml && git commit -qm 'Remove the demo' && git push -q"
 
   narrate "Lab 9 -- the usual way first: AppRole, its login secret stored in Forgejo"
-  paste_cmd "$(vf_block lab9.md 1 2 3 4 5 6 yaml:1:.forgejo/workflows/vault-approle.yml 7)" || return 1
+  paste_cmd "$(vf_block lab9.md 1 2 3 4 yaml:1:.forgejo/workflows/vault-approle.yml 5)" || return 1
   narrate "Lab 9 -- no stored secret at all: the job's own identity, bound to main"
-  paste_cmd "$(vf_block lab9.md 8 9 yaml:2:.forgejo/workflows/vault-oidc.yml 10)" || return 1
+  paste_cmd "$(vf_block lab9.md 6 yaml:2:.forgejo/workflows/vault-oidc.yml 7)" || return 1
   sleep 30   # let main's runs log in first: the branch's refusal counts after a JWT login
-  paste_cmd "$(vf_block lab9.md 11)"
+  paste_cmd "$(vf_block lab9.md 8)"
   narrate "vault-oidc fails on the branch, vault-approle doesn't. Retiring the stored secret."
   sleep 30
-  paste_cmd "$(vf_block lab9.md 12 13)"
+  paste_cmd "$(vf_block lab9.md 9 10)"
   unset BAO_NAMESPACE
 }
 
 # Lab 10: the pipeline delivers the app's AppRole secret ID, wrapped, and deploys it to this bot's
-# app-host slot. Runs lab10.md's blocks 1-11 and its files as written (not the restart, which leaves the app down).
+# app-host slot. Runs lab10.md's blocks 1-12 and its files as written (not the restart, which leaves the app down).
 step_vf_lab10() {
   vf_env || return 1
   cd "$REPO_DIR" || return 1
   narrate "Lab 10 -- deploy with a delivered secret ID: the pipeline mints it, wrapped, and can't read"
   paste_cmd "$(vf_block lab10.md 1 2 3 hcl:1:policies/app-deliver.hcl)" || return 1
   paste_cmd "$(vf_block lab10.md 4 5 6)"  # ends on the refused second unwrap, on purpose
-  paste_cmd "$(vf_block lab10.md 7 8 9 hcl:2:app/agent.hcl sh:1:app/start.sh python:1:app/app.py)" || return 1
-  paste_cmd "$(vf_block lab10.md 10 yaml:1:.forgejo/workflows/deploy.yml 11)" || return 1
+  paste_cmd "$(vf_block lab10.md 7 8 9 hcl:2:app/agent.hcl sh:10:app/start.sh python:1:app/app.py)" || return 1
+  paste_cmd "$(vf_block lab10.md 11 yaml:1:.forgejo/workflows/deploy.yml 12)" || return 1
   narrate "waiting for the deploy job"
   if vf_wait_app 'AppRole login' 240 && vf_wait_app 'API_KEY fingerprint' 60; then
     run_cmd "curl -s http://app-host:8080/\$USER/ | head -8"
-    paste_cmd "$(vf_block lab10.md 13)"
-    narrate "a branch can't get a secret ID for the app"
     paste_cmd "$(vf_block lab10.md 14)"
-    sleep 30
+    narrate "a branch can't get a secret ID for the app"
     paste_cmd "$(vf_block lab10.md 15)"
+    sleep 30
+    paste_cmd "$(vf_block lab10.md 16)"
   else
     narrate "no app yet after 4 minutes -- the runners may be busy; moving on"
   fi
@@ -350,19 +378,19 @@ step_vf_lab10() {
 }
 
 # Lab 11: the pipeline deploys the app to this bot's app-host slot, and the app gets its own secrets
-# through its platform identity. Runs lab11.md's blocks 1-7 and its files as written, then a rotation (block 10).
+# through its platform identity. Runs lab11.md's blocks 1-7 and its files as written, then a rotation (block 9).
 step_vf_lab11() {
   vf_env || return 1
   cd "$REPO_DIR" || return 1
   narrate "Lab 11 -- deploy with workload identity: the pipeline deploys, the app reads its own secrets"
-  paste_cmd "$(vf_block lab11.md 1 2 3 4)" || return 1
-  paste_cmd "$(vf_block lab11.md 5 hcl:1:app/agent.hcl sh:1:app/start.sh python:1:app/app.py)" || return 1
+  paste_cmd "$(vf_block lab11.md 1 2 3)" || return 1
+  paste_cmd "$(vf_block lab11.md 4 hcl:1:app/agent.hcl sh:5:app/start.sh python:1:app/app.py)" || return 1
   paste_cmd "$(vf_block lab11.md 6 yaml:1:.forgejo/workflows/deploy.yml 7)" || return 1
   narrate "waiting for the deploy job"
   # Lab 10's app answers the same way until this deploy replaces it; this one's first line has no ", AppRole login".
   if vf_wait_app 'on app-host$' 240 && vf_wait_app 'API_KEY fingerprint' 60; then
     run_cmd "curl -s http://app-host:8080/\$USER/ | head -12"
-    paste_cmd "$(vf_block lab11.md 10)"
+    paste_cmd "$(vf_block lab11.md 9)"
   else
     narrate "no app yet after 4 minutes -- the runners may be busy; moving on"
   fi
@@ -379,11 +407,11 @@ step_vf_lab12() {
   paste_cmd "$(vf_block lab12.md hcl:1:+app/agent.hcl 8)" || return 1
   narrate "waiting for the deploy job"
   if vf_wait_app 'database: connected' 240; then
-    paste_cmd "$(vf_block lab12.md 9)"
+    narrate "the app has its own database login"   # the lab's curl is the last line of the block above
   else
     narrate "no database line after 4 minutes -- the runners may be busy; moving on"
   fi
-  paste_cmd "$(vf_block lab12.md 10)"
+  paste_cmd "$(vf_block lab12.md 9)"
   unset BAO_NAMESPACE
 }
 
@@ -392,7 +420,7 @@ step_vf_lab13() {
   vf_env || return 1
   cd "$HOME/lab" || return 1
   narrate "Lab 13 -- incident: a leaked token"
-  paste_cmd "$(vf_block lab13.md 1 hcl:1:nightly-report.hcl 2 3 4 5 6 7 8 9 10)"
+  paste_cmd "$(vf_block lab13.md 1 hcl:1:nightly-report.hcl 2 3 4 5 6 7 8 9)"
   unset BAO_NAMESPACE
 }
 

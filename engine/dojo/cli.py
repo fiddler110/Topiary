@@ -27,6 +27,7 @@ from .envfiles import EnvError, mask, resolve
 from .runtime import Runtime, project_name
 from .ui import console, fail
 from .workshops import modules as all_modules
+from .workshops import TRACKS
 from .workshops import workshops as all_workshops
 
 PROG = paths.PROG
@@ -280,15 +281,19 @@ def logs(service: Optional[str], follow: bool, tail: str, all_services: bool, si
 @cli.command("list", context_settings=SETTINGS)
 @click.option("--json", "as_json", is_flag=True, help="Print the list as JSON (for scripts).")
 def list_cmd(as_json: bool) -> None:
-    """Show the workshops, in learning-path order."""
+    """Show the workshops by track (WORKSHOP_TRACK), each in learning-path order."""
     shops = all_workshops()
     if as_json:
-        click.echo(json.dumps([{"name": w.name, "title": w.title, "order": w.order, "duration": w.duration or None,
-                                "modules": w.modules} for w in shops], indent=2))
+        click.echo(json.dumps([{"name": w.name, "title": w.title, "track": w.track or None, "order": w.order,
+                                "duration": w.duration or None, "modules": w.modules} for w in shops], indent=2))
         return
-    console.print("Available workshops (in learning-path order):")
+    console.print("Available workshops (by track, in learning-path order):")
     width = max((len(w.title) for w in shops), default=0)
+    heading = None
     for w in shops:
+        if w.track and w.track != heading:
+            heading = w.track
+            console.print(f"\n  [bold]{escape(TRACKS.get(w.track, f'Unknown track: {w.track}'))}[/]")
         order = " " if w.order is None else str(w.order)
         title = escape(w.title).ljust(width) if w.duration else escape(w.title)
         console.print(f"  {order:>2}  [cyan]{w.name:<20}[/] {title}"
@@ -422,24 +427,27 @@ def config(workshop: str, keys: Tuple[str, ...], env_name: Optional[str], show_s
 @click.option("--title", default="", help="Display name (default: from NAME, e.g. 'Dns As Code').")
 @click.option("--description", default="", help="One sentence, shown on the login page.")
 @click.option("--modules", "mods", default="", metavar="'A B'", help="Modules to use ('./dojo modules' lists them).")
-@click.option("--order", type=int, default=-1, help="Place in the learning path (default: last).")
+@click.option("--track", default="education", show_default=True, type=click.Choice(list(TRACKS)),
+              help="The bucket 'list' shows it under.")
+@click.option("--order", type=int, default=-1, help="Place in the track's learning path (default: last).")
 @click.option("--duration", default="", metavar="'~2 h'", help="How long a session takes, shown by 'list'.")
 @click.option("--org", default="training", show_default=True, help="Forgejo organisation of the sample repo.")
 @click.option("--repo", default="", help="Forgejo name of the sample repo (default: NAME).")
 @click.option("--terminal", is_flag=True, help="Also add compose/terminal/Dockerfile for extra tools.")
 @click.option("--dry-run", is_flag=True, help="List the files it would write; write nothing.")
-def new_workshop(name, title, description, mods, order, duration, org, repo, terminal, dry_run) -> None:
+def new_workshop(name, title, description, mods, track, order, duration, org, repo, terminal, dry_run) -> None:
     """Start a new workshop pack in workshops/NAME/ from workshops/assets/template/:
     workshop.env, slides, a first lab and a sample repo, with TODOs to fill in."""
     from .scaffold import Scaffold, ScaffoldError, create, plan, prepare
     try:
-        s = prepare(Scaffold(name, title, description, mods, order, duration, org, repo, terminal), cli.commands)
+        s = prepare(Scaffold(name, title, description, mods, order, duration, org, repo, terminal, track),
+                    cli.commands)
         files = plan(s) if dry_run else create(s)
     except (ScaffoldError, OSError) as exc:
         fail(str(exc))
         sys.exit(1)
     console.print(f"{'Would write' if dry_run else 'Wrote'} [bold]workshops/{name}/[/] "
-                  f"([cyan]{escape(s.title)}[/], order {s.order}, modules: {s.modules or 'none'}, "
+                  f"([cyan]{escape(s.title)}[/], track {s.track}, order {s.order}, modules: {s.modules or 'none'}, "
                   f"repo {s.org}/{s.repo}):")
     for f in files:
         console.print(f"  {f}")

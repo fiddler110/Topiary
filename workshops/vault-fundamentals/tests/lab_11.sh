@@ -20,12 +20,12 @@ check "the app's platform identity" "$page" "sub=slot:$s"
 check "another slot's identity is out of reach" "$page" "identity: Permission denied"
 check "the app has the vault's api_key" "$page" "API_KEY fingerprint: $(fp api_key app)"
 check "no database yet" "$page" "database: not set up"
-out="$(as "export BAO_NAMESPACE=students/\$USER; $(block lab11.md 10)" 2>&1)"
+out="$(as "export BAO_NAMESPACE=students/\$USER; $(block lab11.md 9)" 2>&1)"
 new="$(fp api_key app)"
 [ "$(echo "$out" | grep -c "$new")" -ge 2 ] && echo "  ok:   rotated with no deploy ($new)" \
   || { echo "  FAIL: rotation not seen: $out"; failed=1; }
-log="$(run_and_read 1 "$(block lab11.md 11)")"
+log="$(run_and_read 1 "$(block lab11.md 10)")"
 check "a branch can't deploy" "$log" "only main deploys; this run is on 'refs/heads/try-a-branch'"
-ok "back to main" "cd ~/lab/vault-fundamentals && $(block lab11.md 12)"
+ok "back to main" "cd ~/lab/vault-fundamentals && $(block lab11.md 11)"
 
 finish "lab 11"

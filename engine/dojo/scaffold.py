@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Iterable, List
 
 from . import paths
-from .workshops import NAME_RE, modules, workshops
+from .workshops import NAME_RE, TRACKS, modules, workshops
 
 TEMPLATE = paths.WORKSHOPS / "assets" / "template"
 # workshop.env is sourced as shell and the slides are HTML: keep the free text plain.
@@ -29,16 +29,17 @@ class Scaffold:
     title: str = ""
     description: str = ""
     modules: str = ""
-    order: int = -1          # -1: after the last workshop in the learning path
+    order: int = -1          # -1: after the last workshop in its track's learning path
     duration: str = ""       # free text ("~2 h"), shown by `list`; "": a TODO
     org: str = "training"
     repo: str = ""           # "": the workshop's name
     terminal: bool = False   # also compose/terminal/Dockerfile
+    track: str = "education" # a TRACKS key: the bucket ./dojo list shows it under
 
     def values(self) -> dict:
         return {"name": self.name, "title": self.title, "description": self.description,
                 "modules": self.modules, "order": str(self.order), "duration": self.duration,
-                "org": self.org, "repo": self.repo}
+                "org": self.org, "repo": self.repo, "track": self.track}
 
 
 def prepare(s: Scaffold, reserved: Iterable[str]) -> Scaffold:
@@ -68,8 +69,10 @@ def prepare(s: Scaffold, reserved: Iterable[str]) -> Scaffold:
     if unknown:
         raise ScaffoldError(f"No such module: {', '.join(unknown)} (known: {', '.join(sorted(known))}).")
     s.modules = " ".join(wanted)
+    if s.track not in TRACKS:
+        raise ScaffoldError(f"--track '{s.track}': one of {', '.join(TRACKS)}.")
     if s.order < 0:
-        s.order = max((w.order for w in workshops() if w.order is not None), default=0) + 1
+        s.order = max((w.order for w in workshops() if w.order is not None and w.track == s.track), default=0) + 1
     return s
 
 

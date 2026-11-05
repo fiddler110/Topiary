@@ -16,7 +16,7 @@ class NewWorkshop(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         (self.root / "first").mkdir()
-        (self.root / "first" / "workshop.env").write_text('WORKSHOP_NAME="First"\nWORKSHOP_ORDER=4\n')
+        (self.root / "first" / "workshop.env").write_text('WORKSHOP_NAME="First"\nWORKSHOP_TRACK=education\nWORKSHOP_ORDER=4\n')
         for patch in (mock.patch.object(paths, "WORKSHOPS", self.root),
                       mock.patch.object(scaffold, "TEMPLATE", REAL_TEMPLATE)):
             patch.start()
@@ -39,7 +39,8 @@ class NewWorkshop(unittest.TestCase):
         self.assertIn('MODULES="sensei dns-ui"', env)
         self.assertIn("WORKSHOP_CONTENT_DIR=../workshops/new-one/content", env)
         self.assertIn("training/new-one.git", (dest / "content/lab/lab1.md").read_text())
-        self.assertIn('WORKSHOP_DURATION="TODO: e.g. ~2 h"', env)   # no --duration: a TODO like the description
+        self.assertIn('WORKSHOP_DURATION="TODO: e.g. ~2 h"', env)
+        self.assertIn("WORKSHOP_TRACK=education", env)   # no --duration: a TODO like the description
         # It shows up in ./dojo list, after the last workshop in the path.
         found = workshops.find("new-one")
         self.assertEqual((found.title, found.order, found.modules), ("New One", 5, ["sensei", "dns-ui"]))
@@ -60,11 +61,23 @@ class NewWorkshop(unittest.TestCase):
             self.assertIn(line, env)
         self.assertEqual(workshops.find("new-one").duration, "~90 min")
 
+    def test_tracks(self):
+        # The order defaults to the end of the pack's own track, and list groups untracked, then TRACKS order.
+        (self.root / "showcase").mkdir()
+        (self.root / "showcase" / "workshop.env").write_text('WORKSHOP_NAME="Show"\nWORKSHOP_ORDER=0\n')
+        s, _ = self.make(track="technology")
+        self.assertEqual(s.order, 1)
+        (self.root / "zz").mkdir()
+        (self.root / "zz" / "workshop.env").write_text('WORKSHOP_NAME="Z"\nWORKSHOP_TRACK=offensive\nWORKSHOP_ORDER=9\n')
+        self.assertEqual([(w.name, w.track) for w in workshops.workshops()],
+                         [("showcase", ""), ("first", "education"), ("zz", "offensive"), ("new-one", "technology")])
+        self.assertIn("WORKSHOP_TRACK=technology", (self.root / "new-one" / "workshop.env").read_text())
+
     def test_refusals(self):
         bad = [Scaffold("Bad"), Scaffold("-x"), Scaffold("stop"), Scaffold("assets"), Scaffold("first"),
                Scaffold("ok", modules="no-such"), Scaffold("ok", title='a "quote"'),
                Scaffold("ok", description="$(id)"), Scaffold("ok", title="<b>"), Scaffold("ok", repo="Has Space"),
-               Scaffold("ok", duration='2 "hours"')]
+               Scaffold("ok", duration='2 "hours"'), Scaffold("ok", track="red-team")]
         for s in bad:
             with self.subTest(s=s), self.assertRaises(ScaffoldError):
                 prepare(s, ["status", "stop"])

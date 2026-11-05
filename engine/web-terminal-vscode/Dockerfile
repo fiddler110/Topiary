@@ -22,11 +22,11 @@ FROM ${BASE}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # code-server: browser-based VS Code, the students' primary workspace.
-ARG CODE_SERVER_VERSION=4.137.0
+ARG CODE_SERVER_VERSION=4.145.0
 RUN set -eux; \
     case "$(dpkg --print-architecture)" in \
-    amd64) cs_arch="amd64"; cs_sha256="f0165952d918092eb321a2d4e75a1e7035807d687b698ccda63aea2bfa1c58bc" ;; \
-    arm64) cs_arch="arm64"; cs_sha256="0d2b58387833f328bec3723f842bf68e59031fc24b1e03a9c6c1659765a420ef" ;; \
+    amd64) cs_arch="amd64"; cs_sha256="43fa1dc0e7929753bb3442e4ef40d4beb8bb5f8fe63601ede31b305536e6275b" ;; \
+    arm64) cs_arch="arm64"; cs_sha256="43813b81df484b49facf19d99faaa51683a2cdd8c652dc97ebddefa9cbe7fd6a" ;; \
     *) echo "Unsupported architecture for code-server: $(dpkg --print-architecture)" >&2; exit 1 ;; \
     esac; \
     wget -O /tmp/code-server.deb "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_${cs_arch}.deb"; \

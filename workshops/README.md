@@ -104,7 +104,7 @@ optional ones, each with TODOs.
 
 | Path                                                              | Required?    | What it is                                                                                                                                                                                                                           |
 | ----------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `workshop.env`                                                    | **Required** | Identity picked up by `dojo`: `WORKSHOP_NAME`, `WORKSHOP_DESCRIPTION`, `WORKSHOP_ORDER`, `WORKSHOP_DURATION`, `WORKSHOP_CONTENT_DIR`, `FORGEJO_ORG`/`FORGEJO_REPO`, and the optional `MODULES`, `COMPOSE_OVERLAY`, `TERMINAL_FLAVOR` |
+| `workshop.env`                                                    | **Required** | Identity picked up by `dojo`: `WORKSHOP_NAME`, `WORKSHOP_DESCRIPTION`, `WORKSHOP_TRACK`, `WORKSHOP_ORDER`, `WORKSHOP_DURATION`, `WORKSHOP_CONTENT_DIR`, `FORGEJO_ORG`/`FORGEJO_REPO`, and the optional `MODULES`, `COMPOSE_OVERLAY`, `TERMINAL_FLAVOR` |
 | `README.md`                                                       | **Required** | The pack's technical reference: what it teaches, how to run it, what's in the folder                                                                                                                                                 |
 | `FACILITATOR.md`                                                  | **Required** | The guide for whoever runs the session: before / during / after and troubleshooting. Model a new one on an existing pack's                                                                                                           |
 | `content/slides/presentation.md`                                  | **Required** | The deck (Marp, on the shared theme)                                                                                                                                                                                                 |
@@ -138,7 +138,8 @@ optional ones, each with TODOs.
    ```sh
    WORKSHOP_NAME=<display name>
    WORKSHOP_DESCRIPTION="<one sentence, shown on the login page>"
-   WORKSHOP_ORDER=<n>    # place in the learning path (0 = showcase); ./dojo list sorts by it
+   WORKSHOP_TRACK=<track> # education (concepts), offensive (CTF labs) or technology (product-focused); unset = the showcase
+   WORKSHOP_ORDER=<n>    # place in the track's learning path; ./dojo list sorts by it
    WORKSHOP_DURATION="<~2 h>"   # how long a session takes; ./dojo list shows it beside the name
    WORKSHOP_CONTENT_DIR=../workshops/<name>/content
    FORGEJO_ORG=<org name>

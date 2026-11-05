@@ -1,0 +1,80 @@
+# wan-cloud module, layered on top of engine/docker-compose.yml by dojo when a
+# workshop.env lists it in MODULES (see README.md).
+#
+# IMPORTANT: Compose resolves every relative path in this file relative to the
+# base file's directory, engine/, not this folder. That's why `build.context`
+# below is `../modules/wan-cloud/...`.
+#
+# "Dojo WAN": a simulated Juniper Mist API.
+#
+#   student terminal --HTTPS (api.mist.com), Mist API--> wan-api
+#   (workshop_lab)                                        (workshop_lab)
+#
+# wan-api answers as api.mist.com (a network alias) because the Mist provider only
+# accepts the real Mist hostnames. Nothing here has internet, so the name can only
+# ever reach this service. See docs/SRX-MIST-PLAN.md.
+#
+# Start-up is not chained on health: the terminals come up even if wan-api is slow
+# or broken; wan-api answers /readyz and the facilitator's status strip shows it.
+
+services:
+  wan-api:
+    build:
+      context: ../modules/wan-cloud/wan-api
+    image: topiary/wan-api:${WORKSHOP_SLUG:-local}
+    container_name: workshop_wan_api
+    environment:
+      - STUDENT_COUNT=${STUDENT_COUNT:-30}
+      - STUDENT_PREFIX=${STUDENT_PREFIX:-student}
+      - BOT_COUNT=${BOT_COUNT:-0}
+      - BOT_PREFIX=${BOT_PREFIX:-testuser}
+      - FACILITATOR_USERNAME=${FACILITATOR_USERNAME:-root}
+      # The portal on :8080 trusts X-Auth-User only together with this token (the
+      # gateway sets both; students on workshop_lab can reach :8080 directly).
+      - GATEWAY_TOKEN=${GATEWAY_TOKEN_WAN_API:-}
+      # The engine's student reset hook (extensions.json `resets`) carries this.
+      - RESET_TOKEN=${RESET_TOKEN_WAN_API:-}
+      # Per-student request tripwire (module.env; 0 = off).
+      - WAN_API_RATE_BURST=${WAN_API_RATE_BURST:-200}
+      - WAN_API_RATE_PER_SEC=${WAN_API_RATE_PER_SEC:-20}
+    volumes:
+      - wan_pki:/pki
+      - wan_secrets:/secrets
+      - wan_data:/data
+    networks:
+      workshop_lab:
+        # api.mist.com is what the Mist provider is pointed at; wan-api is the
+        # name the gateway and status check use. Both are in the server cert.
+        aliases:
+          - api.mist.com
+          - wan-api
+    # Least privilege: it only needs to bind :443.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: ${WAN_API_MEM_LIMIT:-256m}
+    restart: unless-stopped
+
+  # The "Dojo WAN" card, /admin tab, /wan route, reset hook and status-strip entry
+  # (green once wan-api's /readyz answers) are in extensions.json.
+
+  # The terminal's client side (credential broker, wan-env, CA trust, Terraform) is
+  # terminal/, a link in the terminal build chain (dojo).
+  web-terminal:
+    # Started, not healthy: the start.d hook never waits for wan-api.
+    depends_on:
+      wan-api:
+        condition: service_started
+    volumes:
+      # CA certificate only (public); the CA key never leaves wan-api.
+      - wan_pki:/run/wan-pki:ro
+      # Root-only signing key: the broker (root) reads it, students cannot.
+      - wan_secrets:/run/wan-secrets:ro
+
+volumes:
+  wan_pki:
+  wan_secrets:
+  wan_data:

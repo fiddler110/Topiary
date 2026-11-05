@@ -149,6 +149,39 @@ body {
 
 .lab-content th { background: var(--panel); }
 
+/* Phones: a wide table scrolls inside itself, like a pre block, and long inline code wraps,
+   so the page never scrolls sideways (srx-terraform rehearsal, 390 px wide, 2026-11-05). */
+@media (max-width: 700px) {
+  .lab-content table { display: block; overflow-x: auto; }
+  .lab-content p code,
+  .lab-content li code,
+  .lab-content td code { overflow-wrap: anywhere; }
+}
+
+/* Copy buttons on code blocks (addCopyButtons in lab-reader.js). The button sits in a wrapper,
+   not the pre, so it stays put while a wide block scrolls sideways. */
+.lab-content .lab-code { position: relative; }
+.lab-content .lab-code > pre { padding-right: 84px; }
+.lab-content .lab-copy {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font: 600 12px 'Manrope', sans-serif;
+  opacity: 0.75;
+  padding: 4px 10px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+.lab-content .lab-code:hover .lab-copy,
+.lab-content .lab-copy:focus-visible { opacity: 1; }
+.lab-content .lab-copy:hover { border-color: var(--accent); color: var(--accent); }
+.lab-content .lab-copy.ok { border-color: var(--accent); color: var(--accent); opacity: 1; }
+.lab-content .lab-copy.fail { border-color: #ff6b6b; color: #ff6b6b; opacity: 1; }
+.lab-copy-buffer { left: -9999px; position: fixed; top: 0; }
+
 /* ```mermaid diagrams (see drawMermaid in lab-reader.js). */
 .lab-content pre.mermaid { text-align: center; }
 .lab-content pre.mermaid svg { max-width: 100%; height: auto; }

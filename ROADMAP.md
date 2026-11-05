@@ -103,6 +103,16 @@ idempotent, a bot restarts from round 1, the optional score clear clears only th
 
 ## Next
 
+### Technology track: SRX with Terraform and Mist (`srx-terraform`)
+
+Plan and spike results: [`docs/SRX-MIST-PLAN.md`](docs/SRX-MIST-PLAN.md). Workshop buckets (`WORKSHOP_TRACK`) are on
+`feat/workshop-tracks` (2026-11-04). The spike showed the real `Juniper/mist` provider 0.11.0 running a full SRX build
+(apply, empty re-plan, drift, import, destroy) against a fake API answering as `api.mist.com`, offline.
+
+| # | Work | Effort |
+|---|---|---|
+| T4 | An SRX engineer answers [`SRX-REVIEW.md`](workshops/srx-terraform/SRX-REVIEW.md) (best: `config_cmd` for one hub and one spoke in a real org), then the renderer follows; confirm on a real org the `dns_override`/`ntp_override` flags and device `vars` over site vars | M |
+
 ### Review 2026-10-18 follow-ups
 
 The whole-repo review lives in [`docs/reviews/2026-10-18.md`](docs/reviews/2026-10-18.md) (code comments cite it as
@@ -110,9 +120,7 @@ The whole-repo review lives in [`docs/reviews/2026-10-18.md`](docs/reviews/2026-
 
 | Item | Effort | Notes |
 |---|---|---|
-| vault bot `IndexError` | S | 2026-10-19, `vault-fundamentals --test 2 --fast`: testuser2's log repeats `IndexError: list index out of range` from `vf_block` (`content/bots/steps.sh`), which picks the Nth code fence of a lab page; a block number no longer matches its lab. The bots still finished |
 | OpenTofu 1.13 | M | 1.12.8 is in (PR #59); move to 1.13.x once the labs and the OPA pairing are tested |
-| code-server 4.137.0 → 4.141.0 | S | Refresh the per-arch sha256; check the advisories page first |
 | P7 live for the other packs | M | Lab walk-throughs for cert-autorenewal and vault-fundamentals |
 | P8 on a CTF stack | S | The `/admin` tabs on a CTF stack, and the code-server IDE tab from `/admin` |
 | P9 load test, P10-P12, P15 `doctor --live` | L | Briefs in the review |

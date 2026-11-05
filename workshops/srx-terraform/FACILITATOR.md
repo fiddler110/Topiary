@@ -1,0 +1,65 @@
+# srx-terraform: facilitator guide
+
+For the person running the session. The technical reference is [`README.md`](README.md); the deck's speaker notes carry the talking points. This guide is the practical part.
+
+**Honest status:** nobody has run this with a room yet. Locally (2026-11-04) one `--test 1 --fast` bot walked Labs 0 to 9 against the real simulator, and every `dojo check 0` to `9` passed, with no skipped or retried step. The bot follows the **lab text** (`content/bots/labtext.py` turns each page's code blocks into pastes and commands, in order), so a page that breaks the provider, the simulator or `dojo check` fails the bot; the only stand-ins for prose are the `yes` to `apply`, the lock demo's first pane and merging the pull request in the bot's own fork. What is still untested: reading the pages as a person, the drift button, and a many-student run. Do the rehearsal below before a class.
+
+## The session at a glance (about 2¾ hours)
+
+| Block | Minutes | What |
+| ----- | ------- | ---- |
+| Talk, Parts 1-5 | ~30 | Why Mist and Terraform, the roles (spoke template, hub profile, device override), variables and claim flow, state and workflow, drift and import. *A guess until a dry run.* |
+| Labs 0-5 | ~70 | 10 + 12 + 12 + 12 + 12 + 12. Objects, template, sites, claim, roles |
+| Labs 6-9 | ~60 | 15 + 15 + 15 + 15. Modules, team workflow, drift and import, capstone |
+| Recap and questions | ~5 | Ask each table what surprised them |
+
+Lab times are the estimates in `content/lab/README.md`. The duration in `workshop.env` (`~2¾ h`) must follow this table. **In a 2-hour slot**, stop after Lab 6 (the estate is built and structured) and move Lab 7 to the next session. Labs 7 to 9 depend on each other; Lab 8 and Lab 9 can be skipped together.
+
+Keep the order. Nobody destroys anything: every lab builds on the last.
+
+## Before the session
+
+**A day ahead**
+
+1. `./dojo setup` if there is no `.env`; set `PUBLIC_BASE_URL`, `GATEWAY_TOKEN` and `STUDENT_COUNT`.
+2. `./dojo srx-terraform` (the first build downloads Terraform and the 96 MB provider). In `/admin` check the status strip: Forgejo, Terminals, Slides and Dojo WAN green.
+3. Size the machine: `./dojo capacity srx-terraform --students 30`. Most of the memory is each student's VS Code (the script's rule of thumb is about 750 MB a student); Terraform and Dojo WAN are light. Measured locally on 2026-11-05 (8 cores, 13 GB, WSL2), 15 fast bots ran Labs 0 to 9 at once in under 4 minutes with no failure: the terminal container peaked near 310% CPU and 690 MB, `wan-api` near 20 MB. Bots don't open VS Code, so that is the floor; by the rule of thumb that machine takes about 12 real students.
+4. **Rehearse as a student**: private window, then Labs 0 to 9, using `dojo check N` at the end of each. Then `./dojo stop` and start clean.
+5. **Check the Junos preview against a real SRX.** The rendered config is invented from the parts the team can confirm (interfaces, zones, policies, NAT). Have someone who knows SRX read `dojo wan config` for one site before the class and fix any line that would mislead; [`SRX-REVIEW.md`](SRX-REVIEW.md) lists what the docs settled and the questions still open. Lab 5 follows Mist's documentation: a template for spoke sites, a hub profile for a hub gateway, and a device override for DNS only (a device can't override NTP). Still unconfirmed on a real org: the `dns_override`/`ntp_override` flags and site vars overridden by device `vars`.
+6. Skim the deck with its speaker notes on.
+
+**On the day, 15 minutes before:** start the stack, confirm the landing page shows a **Dojo WAN** card, `/slides` and `/admin`. Open the **Dojo WAN** tab in `/admin`: it shows every org, and the drift button for Lab 8.
+
+## During the session
+
+- **Everyone sees only their own org.** Your facilitator token sees all of them: use the Dojo WAN tab to look at a student's sites, gateways and events when they are stuck.
+- **Lab 4:** claim codes differ per student. Students copy them from `dojo wan delivery`. A code is exactly 15 characters of `0-9A-Z`.
+- **Lab 6:** the point is the first plan, with seven destroys. Tell the room before they start: do not apply that one. `dojo check 6` flags a site whose id changed, meaning someone applied without the `moved` blocks. Recovery: nothing is lost, the sites are rebuilt; `terraform apply` completes it, and the claimed gateways come back with the next apply.
+- **Lab 7:** needs a second terminal pane for the lock demo. The pull request is opened in the student's own fork and reviewed by a neighbour; students merge their own. If the room is large, you review two or three and let pairs do the rest.
+- **The drift button (Lab 8).** On the Dojo WAN tab's class progress page, press **Make drift in every org**: each org's first network (normally `corp`) gets VLAN 999, logged with actor `portal:facilitator`, and the answer says how many orgs changed and how many were skipped because they have no network yet. A student's own Overview page has **Make drift** for one org. Do it when most of the room has reached Lab 8 step 1. Students who get there first, or who want to go on, make the same kind of edit with the `curl` in the lab, so you do not hold anyone up. If a student's plan shows a different change from the lab's sample output, have them read their own `plan` and `dojo wan events`.
+
+## When something breaks
+
+| Symptom | Likely cause and fix |
+| ------- | -------------------- |
+| No `MIST_` variables, or `x509: certificate signed by unknown authority` | The shell started before Dojo WAN was ready. A new terminal tab fixes it. |
+| `The configured Mist Host does not match the supported Clouds` | `MIST_HOST` is empty. New tab. |
+| `claim code ... is not valid` | Code is not 15 characters of `0-9A-Z`. Copy the `magic` column. |
+| `Error acquiring the state lock` and nobody is running | A killed run left a lock. Check, then `terraform force-unlock <ID>`. |
+| `Error: Failed to get existing workspaces` or 401 in Lab 7 | No `TF_HTTP_USERNAME`/`TF_HTTP_PASSWORD`. New tab. |
+| `Inconsistent result after apply` | The simulator answered differently from what was sent. Capture the plan and the resource, note it in `ROADMAP.md`, and carry on with a different resource. |
+| `dojo check N` says no gateway in a site | The student has not applied Lab 4, or used the wrong site key in `terraform.tfvars`. |
+| A student is far behind | `dojo prep N` builds labs 1 to N-1 for them in about a minute. It keeps replaced files as `*.dojo-bak`. |
+| Student wedged | `/admin` roster, **Release** their tile; the Dojo WAN tab can reset their org. |
+
+## Known issues and limits
+
+- The **Junos config is a preview**, not a real commit, and the role model follows Mist's documentation as the simulator reads it. Say so in the room.
+- `dojo check` is provided by this pack (`compose/terminal/srx-check`). If the achievements module is added later, its `check` link and this one collide: fold these checks into the achievements catalog instead.
+- The token is never moved to a secrets manager in this version (Lab 7 explains it; it does not do it). The plan's `openbao` step and the runner-pool `plan on pull request` are future work.
+- The state name `srx-estate` and the checks' wording follow the simulator contract (`docs/SRX-MIST-PLAN.md` section 10). Changing the state path means editing Lab 7, `srx-check` and `stages/lab7`.
+- If you change a lab's HCL, the end-of-lab files in `content/stages/` must change with it (they are what `dojo prep` and the bots use). They were cut from the lab pages.
+
+## After the session
+
+`./dojo stop` wipes everything, including every org. Write what confused people, real timings and any failure not in the table into `ROADMAP.md`, and fix the lab.

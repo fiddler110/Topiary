@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# dojo-summary: catch your workspace up to where a lab starts: dojo prep N (safe to repeat)
+# dojo prep <lab>: bring this student's workspace to the state lab <lab> starts from, so someone
+# joining late (or coming back another day) can resume there instead of redoing every earlier lab.
+# It only moves forward: a repo that is already at or past that point is left alone, and it never
+# runs destroy. A file it has to replace is kept next to the new one as <name>.dojo-bak.
+#
+# The stage for "lab N starts here" is the end state of lab N-1, kept in content/stages/lab<N-1>/
+# (mounted read-only at /opt/workshop-content). Those files are cut from the lab pages by the
+# pack's author, so they match what a student types. Keep it that way when a lab changes.
+#
+#   1     your fork of netops/srx-terraform, cloned to ~/lab/srx-terraform, and terraform init
+#   2-9   the files of lab N-1, applied to your org (claim codes are read from `dojo wan delivery`)
+#   8-9   also on shared state (backend.tf): the state is migrated for you
+set -euo pipefail
+. /usr/local/lib/dojo/lab-prep-lib.sh
+
+GIT_SERVER=http://git-server:3000
+API=$GIT_SERVER/api/v1
+TEAM_REPO=netops/srx-terraform
+REPO_DIR=${DOJO_REPO_DIR:-$HOME/lab/srx-terraform}
+STAGES=${DOJO_STAGES:-/opt/workshop-content/stages}
+LAST_LAB=9
+
+usage() {
+  cat <<EOF
+Usage: dojo prep <lab>       (0-$LAST_LAB)
+
+Sets up everything the earlier labs would have left behind, so you can start
+lab <lab> right away. Safe to run more than once. It never runs destroy.
+
+  dojo prep 1    fork + clone the repo, and terraform init
+  dojo prep 5    ...and build labs 1 to 4: org objects, template, sites, claimed gateways
+  dojo prep 9    ...and everything up to the capstone
+EOF
+}
+
+ensure_wan_creds() {
+  if [ -z "${MIST_API_TOKEN:-}" ] && [ -x /usr/local/bin/wan-env ]; then
+    eval "$(/usr/local/bin/wan-env 2>/dev/null)" || true
+  fi
+  [ -n "${MIST_API_TOKEN:-}" ] ||
+    die "no Dojo WAN login for $USER yet. Open a new terminal tab, wait a minute, or ask the facilitator."
+}
+
+# -- Lab 0: fork, then clone the fork -------------------------------------------
+fork_and_clone() {
+  say "Lab 0: your fork of $TEAM_REPO, cloned to ~/lab/srx-terraform"
+  if [ -d "$REPO_DIR/.git" ]; then
+    done_ "$REPO_DIR exists"
+    return
+  fi
+  if [ "$(curl -s -o /dev/null -w '%{http_code}' "$API/repos/$USER/srx-terraform")" = 200 ]; then
+    done_ "fork $USER/srx-terraform exists"
+  else
+    code=$(curl -s -o /dev/null -w '%{http_code}' --netrc \
+      -H 'Content-Type: application/json' -d '{}' "$API/repos/$TEAM_REPO/forks")
+    case "$code" in
+      202|409) echo "    fork ready (HTTP $code)" ;;
+      401) die "Forgejo refused your token (~/.netrc). Ask the facilitator." ;;
+      *) die "forking failed (HTTP $code). Try Lab 0 step 1 by hand." ;;
+    esac
+  fi
+  mkdir -p "$HOME/lab"
+  (cd "$HOME/lab" && run git clone "$GIT_SERVER/$USER/srx-terraform.git")
+}
+
+# -- progress: the highest lab whose signature file is already in the clone ----------
+progress() {
+  local p=0
+  grep -qs 'mist_org_network' "$REPO_DIR/main.tf" && p=1
+  [ -f "$REPO_DIR/gateway.tf" ] && p=2
+  [ -f "$REPO_DIR/sites.tf" ] && p=3
+  [ -f "$REPO_DIR/devices.tf" ] && p=4
+  [ -f "$REPO_DIR/profile.tf" ] && p=5
+  [ -f "$REPO_DIR/moved.tf" ] && p=6
+  [ -f "$REPO_DIR/backend.tf" ] && p=7
+  [ -f "$REPO_DIR/imported.tf" ] && p=8
+  echo "$p"
+}
+
+# claim codes, in the order the labs use them
+fill_codes() { # <template> <out>
+  local rows ott tor mon hal dc
+  rows=$(dojo wan delivery | awk 'NR>1 && NF>=4 {print $1, $4}')
+  ott=$(echo "$rows" | awk '$1=="SRX300"{print $2}' | sed -n 1p)
+  tor=$(echo "$rows" | awk '$1=="SRX300"{print $2}' | sed -n 2p)
+  mon=$(echo "$rows" | awk '$1=="SRX345"{print $2}' | sed -n 1p)
+  hal=$(echo "$rows" | awk '$1=="SRX345"{print $2}' | sed -n 2p)
+  dc=$(echo "$rows" | awk '$1=="SRX1500"{print $2}' | sed -n 1p)
+  [ -n "$ott" ] && [ -n "$tor" ] && [ -n "$mon" ] && [ -n "$hal" ] && [ -n "$dc" ] ||
+    die "could not read five claim codes from 'dojo wan delivery'. Is Dojo WAN up?"
+  sed -e "s/@OTTAWA@/$ott/" -e "s/@TORONTO@/$tor/" -e "s/@MONTREAL@/$mon/" -e "s/@HALIFAX@/$hal/" -e "s/@DC@/$dc/" "$1" > "$2"
+}
+
+install_stage() { # <stage number>
+  local dir=$STAGES/lab$1 f rel dest
+  [ -d "$dir" ] || die "no stage files for lab $1 in $dir"
+  cd "$REPO_DIR"
+  (cd "$dir" && find . -type f | sort) | while read -r f; do
+    rel=${f#./}
+    dest=$rel
+    mkdir -p "$(dirname "$dest")"
+    case "$rel" in
+      *.tmpl)
+        dest=${rel%.tmpl}
+        fill_codes "$dir/$rel" "$dest.new"
+        ;;
+      *) cp "$dir/$rel" "$dest.new" ;;
+    esac
+    if [ -f "$dest" ] && ! cmp -s "$dest" "$dest.new"; then
+      if grep -q 'TODO (Lab 1)' "$dest" 2>/dev/null; then :; else cp "$dest" "$dest.dojo-bak"; echo "    replaced $dest (old copy: $dest.dojo-bak)"; fi
+    fi
+    mv "$dest.new" "$dest"
+  done
+}
+
+apply_stage() { # <stage number>
+  cd "$REPO_DIR"
+  say "Labs 1-$1: put the files in place and apply"
+  install_stage "$1"
+  if [ -f backend.tf ]; then
+    run terraform init -input=false -migrate-state -force-copy
+  else
+    run terraform init -input=false
+  fi
+  run terraform apply -auto-approve -input=false
+}
+
+# -----------------------------------------------------------------------------
+lab_arg "$@"
+
+if [ "$lab" -eq 0 ]; then
+  echo "Lab 0 is the start: nothing to set up. Open lab0.md and go."
+  exit 0
+fi
+
+ensure_wan_creds
+fork_and_clone
+cd "$REPO_DIR"
+
+if [ "$lab" -eq 1 ]; then
+  say "Lab 0: terraform init"
+  if [ -d .terraform ]; then done_ ".terraform exists"; else run terraform init -input=false; fi
+else
+  target=$((lab - 1))
+  have=$(progress)
+  if [ "$have" -ge "$target" ]; then
+    say "Labs 1-$target"
+    done_ "your clone is already at lab $have or later"
+  else
+    git checkout -q main 2>/dev/null || true
+    apply_stage "$target"
+    # keep git in step: the work so far is on main, as the team workflow of Lab 7 expects
+    if [ -n "$(git status --porcelain)" ]; then
+      git add -A && git -c user.name="$USER" -c user.email="$USER@example.com" commit -q -m "dojo prep: labs 1-$target" || true
+      git push -q origin main 2>/dev/null || echo "    (could not push main; Lab 7 pushes it for you)"
+    fi
+  fi
+fi
+
+say "Ready for Lab $lab"
+echo "    cd ~/lab/srx-terraform    then open lab$lab.md"
+if [ -n "$(git status --short)" ]; then
+  echo "    Files changed so far (git status):"
+  git status --short | sed 's/^/      /'
+fi

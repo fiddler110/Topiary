@@ -1,0 +1,17 @@
+# Never commit these. .terraform/ is downloaded providers; state can hold secrets in plain text.
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+plan.txt
+override.tf
+override.tf.json
+*_override.tf
+
+# The lock file (.terraform.lock.hcl) is NOT ignored on purpose:
+# it is committed so everyone gets the same provider build.
+
+# copies `dojo prep` keeps when it replaces a file
+*.dojo-bak
