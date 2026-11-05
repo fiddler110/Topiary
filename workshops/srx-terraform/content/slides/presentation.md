@@ -267,8 +267,8 @@ About 2 minutes. This is zero touch provisioning. In the lab the delivery is fiv
 
 ```text
 set system host-name ottawa-01-gw
-set system name-server 10.99.0.53
-set system ntp server 10.10.0.123
+set system name-server 10.10.0.53
+set system ntp server 192.0.2.123
 set interfaces ge-0/0/0 unit 0 family inet address 198.51.100.2/29
 set interfaces ge-0/0/1 unit 10 family inet address 10.10.0.1/24
 set routing-options static route 0.0.0.0/0 next-hop 198.51.100.1

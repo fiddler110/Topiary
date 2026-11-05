@@ -85,7 +85,7 @@ variable "site_id" { type = string }
 variable "device_id" { type = string }
 variable "name" { type = string }
 
-variable "ntp_servers" {
+variable "dns_servers" {
   type    = list(string)
   default = null
 }
@@ -94,11 +94,11 @@ resource "mist_device_gateway" "this" {
   device_id   = var.device_id
   site_id     = var.site_id
   name        = var.name
-  ntp_servers = var.ntp_servers
+  dns_servers = var.dns_servers
 }
 ```
 
-`default = null` means "leave this setting alone", so a site that doesn't need a local NTP server doesn't send one.
+`default = null` means "leave this setting alone", so a site that doesn't need a local DNS server doesn't send one.
 
 ## 4. One map for all sites
 
@@ -122,7 +122,7 @@ variable "sites" {
     wan_gw       = string
     lan_subnet   = string
     lan_ip       = string
-    ntp_servers  = optional(list(string))
+    dns_servers  = optional(list(string))
   }))
 }
 ```
@@ -153,7 +153,7 @@ sites = {
     wan_gw       = "198.51.100.1"
     lan_subnet   = "10.10.0.0/24"
     lan_ip       = "10.10.0.1"
-    ntp_servers  = ["10.10.0.123"]
+    dns_servers  = ["10.10.0.53"]
   }
   "toronto-01" = {
     address      = "Toronto, ON, Canada"
@@ -230,7 +230,7 @@ module "gateway" {
   site_id     = module.site[each.key].site_id
   device_id   = mist_org_inventory.delivery.inventory[each.value.claim_code].id
   name        = "${each.key}-gw"
-  ntp_servers = each.value.ntp_servers
+  dns_servers = each.value.dns_servers
 }
 ```
 
@@ -240,7 +240,7 @@ In `profile.tf`, change the assignment to read the hub's claim code from the new
 sed -i 's/var.claim_codes\["dc-01"\]/var.hub_claim_code/' profile.tf
 ```
 
-Every branch gateway now gets a name and the Ottawa one keeps its local NTP server, from the map.
+Every branch gateway now gets a name and the Ottawa one keeps its local DNS server, from the map.
 
 ```sh
 terraform fmt -recursive
@@ -376,7 +376,7 @@ git commit -m "Move sites and gateways into modules driven by one sites map"
 | `Could not load plugin` / `provider hashicorp/mist` | A module is missing its `versions.tf` with `source = "juniper/mist"`. |
 | `Module not installed` | Run `terraform init` after adding modules. |
 | `Plan: 9 to add, 2 to change, 7 to destroy.` | The `moved` blocks are missing or their addresses are spelled wrong. Compare with `terraform state list`. Do not apply. |
-| `Invalid value for input variable` on `sites` | A field is missing or the wrong type in `terraform.tfvars`. `ntp_servers` is optional; everything else is required. |
+| `Invalid value for input variable` on `sites` | A field is missing or the wrong type in `terraform.tfvars`. `dns_servers` is optional; everything else is required. |
 | `Cycle` | Something in `sites.tf` points back at itself. The site module must not reference `mist_org_inventory`. |
 
 **Next:** [lab7.md](lab7.md)

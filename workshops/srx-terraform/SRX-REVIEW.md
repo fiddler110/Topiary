@@ -18,6 +18,25 @@ with `then source-nat interface`, custom `applications`, the global `address-boo
 `routing-options static`, `access address-assignment pool` and `dhcp-local-server`. Fixed: an untagged network on a
 port with tagged VLANs no longer renders `unit 0` (Junos refuses it).
 
+## What Mist's docs settle (2026-11-05)
+
+Sources: the WAN Assurance [configuration hierarchy](https://networkingdocs.hpe.com/documentation/us/en/software/mist/mist-wan/topics/concept/mist-wan-assurance-config-hierarchy.html)
+page and the [JVD WAN Edge for SRX](https://networkingdocs.hpe.com/documentation/us/en/software/jvd/jvd-wan-edge-for-srx.pdf).
+Neither shows Mist-generated SRX config; the JVD is a GUI walkthrough with a few `show` outputs.
+
+- Hubs take hub profiles and spokes take WAN Edge templates (JVD). Lab 5 teaches this.
+- A device can override only DNS and the application policy, through "Override Template Settings", not WANs, LANs
+  or NTP (hierarchy page). Lab 5's device override is DNS for this reason.
+- Site variables are defined in the site configuration; no precedence across levels is documented.
+- The JVD's `show` output has overlay tunnels on `st0.N` units and a `vpn_OrgOverlay` routing instance, a hub LAN on a
+  tagged unit (`ge-0/0/4.1066`) and a spoke LAN on `irb.1099`, so both LAN styles occur.
+- `GET /api/v1/sites/{site_id}/devices/{device_id}/config_cmd` returns the `set` commands Mist pushes (documented
+  for switches). Run against one hub and one spoke SRX in a real org, it would answer most questions below at once.
+
+A Chrome-AI summary claimed `irb` LANs, `dns-proxy`, `junos-*` applications, one NAT rule set and a vars precedence
+order. None is in the docs, and its claims about hub template plus profile and device NTP are contradicted, so
+nothing was changed on its word.
+
 ## Questions only a person can settle
 
 1. Does Mist render SRX LANs as `ge-x/x/x` units with `vlan-tagging`, or as `irb` units on switching ports (SRX300)?

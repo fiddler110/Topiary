@@ -25,5 +25,5 @@ resource "mist_device_gateway" "ottawa" {
   device_id   = mist_org_inventory.delivery.inventory[var.claim_codes["ottawa-01"]].id
   site_id     = mist_site.ottawa.id
   name        = "ottawa-01-gw"
-  ntp_servers = ["10.10.0.123"]
+  dns_servers = ["10.10.0.53"]
 }

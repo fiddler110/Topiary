@@ -40,7 +40,7 @@ def store():
                                              "wan_ip": "198.51.100.2", "wan_gw": "198.51.100.1"}}},
         "inventory": [{"id": DEV, "serial": "S1", "mac": "aabbccddeeff", "model": "SRX300", "type": "gateway",
                        "site_id": "site1", "deviceprofile_id": "d1"}],
-        "devices": {DEV: {"name": "ott-gw-01", "ntp_servers": ["10.10.0.123"],
+        "devices": {DEV: {"name": "ott-gw-01", "ntp_servers": ["10.10.0.99"],
                           "additional_config_cmds": ["set system services ssh"]}},
         "events": [],
     }
@@ -95,12 +95,21 @@ class T(unittest.TestCase):
             self.has(s)
 
     def test_precedence(self):
-        self.has("set system ntp server 10.10.0.123")       # device wins over profile and template
-        self.assertNotIn("set system ntp server 10.0.0.2", self.lines)
-        self.assertNotIn("set system ntp server 10.0.0.1", self.lines)
         self.has("set system name-server 10.10.0.53")       # profile (dnsOverride) wins over template
         self.assertNotIn("set system name-server 9.9.9.9", self.lines)
+        self.has("set system ntp server 10.0.0.2")          # profile (ntpOverride) wins over template
+        self.assertNotIn("set system ntp server 10.0.0.1", self.lines)
+        # Mist lets a device override only DNS and the application policy: its own NTP is ignored
+        self.assertNotIn("set system ntp server 10.10.0.99", self.lines)
+        self.has("# note: device ntp_servers not applied (Mist lets a device override only DNS and the application policy)")
         self.has("set system host-name ott-gw-01")
+
+    def test_device_dns_wins(self):
+        s = store()
+        s["devices"][DEV]["dns_servers"] = ["10.10.0.54"]
+        lines = renderer.render(s, DEV).splitlines()
+        self.assertIn("set system name-server 10.10.0.54", lines)   # device beats profile and template
+        self.assertNotIn("set system name-server 10.10.0.53", lines)
 
     def test_map_merge(self):
         s = store()

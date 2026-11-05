@@ -14,7 +14,7 @@ variable "sites" {
     wan_gw       = string
     lan_subnet   = string
     lan_ip       = string
-    ntp_servers  = optional(list(string))
+    dns_servers  = optional(list(string))
   }))
 }
 

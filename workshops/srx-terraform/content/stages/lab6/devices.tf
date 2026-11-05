@@ -24,5 +24,5 @@ module "gateway" {
   site_id     = module.site[each.key].site_id
   device_id   = mist_org_inventory.delivery.inventory[each.value.claim_code].id
   name        = "${each.key}-gw"
-  ntp_servers = each.value.ntp_servers
+  dns_servers = each.value.dns_servers
 }

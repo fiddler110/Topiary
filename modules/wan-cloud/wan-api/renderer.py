@@ -14,7 +14,9 @@ variable is left in place and reported with a `# WARNING: unknown variable` line
 
 DNS and NTP follow the Mist schema: a template's or profile's dns_servers/dns_suffix
 count only with `dnsOverride: true` (ntp_servers: `ntpOverride`), otherwise the site
-setting's values are inherited. A device's own dns_servers/ntp_servers always win.
+setting's values are inherited. A device's own dns_servers always win. Mist lets a device
+override only DNS and the application policy, so a device's own ntp_servers is not
+applied and adds a note.
 Mist documents a template for spoke sites and a device profile for hubs, not both on
 one gateway; when both apply this preview layers them and says so in a note.
 
@@ -163,6 +165,9 @@ def _render(store, device_id):
                 for k in keys:   # override: the layer's (possibly empty) value replaces inherited
                     cfg.pop(k, None)
         cfg = _merge(cfg, layer)
+    if devcfg.get("ntp_servers") not in (None, [], ""):
+        devcfg = {k: v for k, v in devcfg.items() if k != "ntp_servers"}
+        notes_top.append("# note: device ntp_servers not applied (Mist lets a device override only DNS and the application policy)")
     cfg = _merge(cfg, devcfg)
     if tmpl and prof:
         notes_top.append("# note: a template and a profile both apply; Mist documents one or the other (spoke template, hub profile)")
