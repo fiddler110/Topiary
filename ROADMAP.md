@@ -110,7 +110,6 @@ The whole-repo review lives in [`docs/reviews/2026-10-18.md`](docs/reviews/2026-
 
 | Item | Effort | Notes |
 |---|---|---|
-| cloud-policy-as-code stalls at 20 bots | M | 2026-10-19, locally: all 20 sat in Lab 0's first apply (`azurerm_container_group.app: Still creating...`) for 33+ min, with no pids or thread errors. A second limit in cloud-host or cloud-api. Run 10 and 15 bots to find where it starts |
 | vault bot `IndexError` | S | 2026-10-19, `vault-fundamentals --test 2 --fast`: testuser2's log repeats `IndexError: list index out of range` from `vf_block` (`content/bots/steps.sh`), which picks the Nth code fence of a lab page; a block number no longer matches its lab. The bots still finished |
 | OpenTofu 1.13 | M | 1.12.8 is in (PR #59); move to 1.13.x once the labs and the OPA pairing are tested |
 | code-server 4.137.0 → 4.141.0 | S | Refresh the per-arch sha256; check the advisories page first |
