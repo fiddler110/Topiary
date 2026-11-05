@@ -83,9 +83,16 @@ curl -s -u "$TF_HTTP_USERNAME:$TF_HTTP_PASSWORD" https://api.mist.com/dojo-state
 
 `plan` still says `No changes.` The local `terraform.tfstate` is now stale and git ignores it; the server holds the truth.
 
+Commit `backend.tf`: it holds no secret, and a colleague who clones the repo needs it to find the same state.
+
+```sh
+git add backend.tf
+git commit -m "Keep the estate's state in the shared, locked backend"
+```
+
 ## 4. The lock
 
-Open a second terminal pane (`Ctrl+b %`). In **pane 1**, start an `apply` and leave it at its confirmation question. A run takes the state lock before it plans and holds it until it finishes, so while it waits for your answer the lock is held:
+Open a second terminal pane (`Ctrl+b %`). In **pane 1**, start an `apply` and leave it at its confirmation question. `-replace` asks Terraform to destroy and recreate that one resource; you will answer `no`, so nothing changes. A run takes the state lock before it plans and holds it until it finishes, so while it waits for your answer the lock is held:
 
 ```sh
 terraform apply -replace=mist_org_service.dns

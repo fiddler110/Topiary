@@ -40,7 +40,7 @@ set system ntp server 192.0.2.123
 
 ## 3. A hub profile and a hub site
 
-Your delivery has a fifth box, an `SRX1500`. It goes to a hub: a data-centre site, `dc-01`. A hub is not a copy of a branch, so it gets a **hub profile** (the Mist UI calls them *Hub Profiles*) instead of the template. Three new files.
+Your delivery has a fifth box, an `SRX1500`. It goes to a hub: a data-centre site, `dc-01`. A hub is not a copy of a branch, so it gets a **hub profile** (the Mist UI calls them *Hub Profiles*) instead of the template. Two new files (`hub.tf`, `profile.tf`) and edits to `terraform.tfvars` and `devices.tf`.
 
 The site has **no** `gatewaytemplate_id`. Create `hub.tf` (the hub's addresses are variables, like any site's; pick values that do not clash with the branches):
 
@@ -186,7 +186,7 @@ The `name-server` line is gone. Without the flag the profile's DNS is ignored an
 
 ## 4. A device override
 
-One site needs its own time server: Ottawa has a local clock. The right layer for "this one box" is the device. `mist_device_gateway` configures a single claimed gateway. Add the device to `devices.tf` (the whole file is shown; the Ottawa block at the end is the new one):
+One site needs its own DNS server: Ottawa has a local resolver. The right layer for "this one box" is the device. `mist_device_gateway` configures a single claimed gateway. Add the device to `devices.tf` (the whole file is shown; the Ottawa block at the end is the new one):
 
 ```hcl
 # devices.tf
@@ -268,7 +268,7 @@ Through the API: `hub-profile` is assigned only to the `dc-01` gateway, whose si
 <!-- /dojo-reveal -->
 
 ```sh
-git add hub.tf profile.tf devices.tf
+git add hub.tf profile.tf devices.tf terraform.tfvars
 git commit -m "Add the dc-01 hub with a hub profile, and a local DNS override for Ottawa"
 ```
 

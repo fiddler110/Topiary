@@ -1,6 +1,6 @@
 # Lab 1: First objects
 
-**Goal:** create your first two org objects, a network and a service, read them back in the portal, and see that a second `plan` is empty. All commands run in `~/lab/srx-terraform`.
+**Goal:** create your first two org objects, a network and two services, read them back in the portal, and see that a second `plan` is empty. All commands run in `~/lab/srx-terraform`.
 
 > **Starting here?** Run `dojo prep 1`. It forks, clones and runs `terraform init` for you.
 

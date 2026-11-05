@@ -71,7 +71,7 @@ resource "mist_org_gatewaytemplate" "branch" {
 }
 ```
 
-Two things to notice:
+Three things to notice:
 
 - `mist_org_network.corp.name` is a **reference**. Terraform sees it, so it creates the network before the policy and the policy before the template. You never write an order.
 - The map key `(mist_org_network.corp.name)` is in parentheses because a key that is an expression needs them.
@@ -105,7 +105,7 @@ The earlier three are untouched; Terraform only plans the difference.
 
 ## 4. Where is the Junos config?
 
-A template alone is not on any box. It starts to matter when a site uses it (Lab 3) and a device lands in that site (Lab 4). Until then, open the portal's **Templates** page and look at what you stored. Next lab, `dojo wan config <gateway>` shows the Junos `set` commands a gateway receives, with the variables filled in.
+A template alone is not on any box. It starts to matter when a site uses it (Lab 3) and a device lands in that site (Lab 4). Until then, open the portal's **Templates** page and look at what you stored. From Lab 4, `dojo wan config <gateway>` shows the Junos `set` commands a gateway receives, with the variables filled in.
 
 Remember the preview rule: the Dojo WAN configuration is a **preview**, built from the parts you can confirm on a real SRX (interfaces, zones, policies, NAT). It is not a real Junos commit.
 

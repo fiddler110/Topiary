@@ -34,6 +34,7 @@ Plan symbols: `+` create, `~` change in place, `-` destroy, `-/+` replace. **Rea
 | `dojo wan whoami` | Your org id and the API host. |
 | `dojo check N` | Check lab N against your org. |
 | `dojo prep N` | Catch your workspace up to where lab N starts. |
+| `dojo sensei ask "..."` | Ask the support desk when you are stuck. |
 
 ## Your environment
 

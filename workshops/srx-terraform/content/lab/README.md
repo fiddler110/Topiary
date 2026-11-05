@@ -60,4 +60,4 @@ git --version
 dojo wan whoami
 ```
 
-Your username looks like `student01`, `student02`, and so on. Your terminal is already signed in to the git server with your own access token, so forking the repo (Lab 0) and pushing (Labs 1, 7 and 9) ask for no password.
+Your username looks like `student01`, `student02`, and so on. Your terminal is already signed in to the git server with your own access token, so forking the repo (Lab 0) and pushing (Labs 7, 8 and 9) ask for no password.

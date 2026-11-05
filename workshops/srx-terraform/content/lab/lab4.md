@@ -182,7 +182,7 @@ git commit -m "Claim the delivered gateways and assign them to their sites"
 | ------- | ----------- |
 | `claim code ... is not valid` / format error before any call | Claim codes are exactly 15 characters of `0-9A-Z`. Copy the `magic` column, with no spaces. |
 | The API says the code is already claimed, or `duplicated` | The code is claimed by an earlier run or a typo points at a box that is not yours. Compare with `dojo wan delivery`. |
-| `Invalid for_each` or `Invalid key` on `var.claim_codes["..."]` | The key in `terraform.tfvars` must match the site name exactly (`ottawa-01`). |
+| `Invalid index` on `var.claim_codes["..."]` | The key in `terraform.tfvars` must match the site name exactly (`ottawa-01`). |
 | `dojo wan config` says no device found | Not claimed yet, or you used the wrong MAC. `dojo wan delivery` prints the `mac` column. |
 
 **Next:** [lab5.md](lab5.md)
