@@ -20,7 +20,8 @@
   const HASH_RE = /^#\/[\w\/%.~!*'()-]*$/;
   const ID_RE = /^[\w.-]{1,80}$/;
 
-  const S = { me: null, org: null, store: null, config: null, fetchedAt: 0, error: null, open: new Set() };
+  const S = { me: null, org: null, store: null, config: null, fetchedAt: 0, error: null, open: new Set(),
+    driftMsg: {} };   // drift results by panel key ('all' or an org id): kept here so a re-render doesn't wipe them
   let routeToken = 0, pollTimer = null, inflight = null, progressRows = [];
 
   const $ = (id) => document.getElementById(id);
@@ -338,15 +339,16 @@
   }
 
   function driftAllPanel() {
-    const msg = h('span', { class: 'msg', role: 'status' });
+    const msg = h('span', { class: 'msg', role: 'status' }, S.driftMsg.all || '');
+    const say = (t) => { S.driftMsg.all = t; msg.textContent = t; };
     const btn = h('button', { type: 'button', class: 'btn btn-danger', on: { click: async () => {
       if (!window.confirm('Make drift in every org? Each student org with a network gets its VLAN changed.')) return;
-      btn.disabled = true; msg.textContent = 'Working…';
+      btn.disabled = true; say('Working…');
       try {
         const r = await api('/wan/api/drift', { method: 'POST', headers: { 'X-Requested-With': 'dojo-admin' } });
-        msg.textContent = 'Drift made in ' + r.changed + ' orgs; ' + r.skipped + ' skipped (no network yet).';
+        say('Drift made in ' + r.changed + ' of ' + (r.changed + r.skipped) + ' orgs; ' + r.skipped + ' skipped (no network yet).');
         refresh();
-      } catch (e) { msg.textContent = 'Failed: ' + e.message; }
+      } catch (e) { say('Failed: ' + e.message); }
       btn.disabled = false;
     } } }, 'Make drift in every org');
     return h('div', { class: 'panel' }, h('h2', null, 'Facilitator'),
@@ -354,14 +356,16 @@
   }
 
   function driftPanel() {
-    const msg = h('span', { class: 'msg', role: 'status' });
+    const key = S.org;
+    const msg = h('span', { class: 'msg', role: 'status' }, S.driftMsg[key] || '');
+    const say = (t) => { S.driftMsg[key] = t; msg.textContent = t; };
     const btn = h('button', { type: 'button', class: 'btn btn-danger', on: { click: async () => {
-      btn.disabled = true; msg.textContent = 'Working…';
+      btn.disabled = true; say('Working…');
       try {
-        await api(orgPath(S.org) + '/drift', { method: 'POST', headers: { 'X-Requested-With': 'dojo-admin' }, text: true });
-        msg.textContent = 'Drift made. Terraform plan in this org should now show a change.';
+        await api(orgPath(key) + '/drift', { method: 'POST', headers: { 'X-Requested-With': 'dojo-admin' }, text: true });
+        say('Drift made. Terraform plan in this org should now show a change.');
         refresh();
-      } catch (e) { msg.textContent = 'Failed: ' + e.message; }
+      } catch (e) { say('Failed: ' + e.message); }
       btn.disabled = false;
     } } }, 'Make drift');
     return h('div', { class: 'panel' }, h('h2', null, 'Facilitator'),
