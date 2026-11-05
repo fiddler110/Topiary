@@ -173,6 +173,15 @@ class T(unittest.TestCase):
         self.assertIn("# skipped:", out)
         self.assertTrue(renderer.render(store(), "no-such-device").count("# skipped: device not found"))
 
+    def test_untagged_network_beside_tagged_is_skipped(self):
+        # Junos refuses unit 0 without a vlan-id on a port with vlan-tagging.
+        st = store()
+        st["networks"]["n3"] = {"name": "flat", "subnet": "10.30.0.0/24"}
+        st["gatewaytemplates"]["t1"]["port_config"]["ge-0/0/1"]["networks"].append("flat")
+        out = renderer.render(st, DEV)
+        self.assertIn("# skipped: untagged network 'flat' on ge-0/0/1, a port with tagged VLANs", out)
+        self.assertNotIn("set interfaces ge-0/0/1 unit 0", out)
+
     def test_determinism(self):
         a = renderer.render(store(), DEV)
         s = store()

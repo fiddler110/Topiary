@@ -180,6 +180,7 @@ def _render(store, device_id):
     out = []
     A = out.append
     A("# Rendered by Dojo WAN (preview, not a real device)")
+    A("# not shown: management, root-authentication and the hub/spoke VPN overlay that Mist adds")
     A(f"# device: {_s(cfg.get('name')) or device_id} ({device_id})")
     A(f"# site: {_s(site.get('name')) or site_id or '(none)'}")
     A(f"# template: {_s(tmpl.get('name')) or '(none)'}")
@@ -240,6 +241,10 @@ def _render(store, device_id):
             if not nets:
                 ifl.append(f"# skipped: lan port {pname} has no networks")
             used = set()
+            # Junos refuses an untagged unit 0 on a port with vlan-tagging, so an untagged
+            # network shares a port only with other untagged ones.
+            tagged = any(_s(_d(org_networks.get(n)).get("vlan_id")).isdigit()
+                         and int(_s(_d(org_networks.get(n)).get("vlan_id"))) for n in nets)
             for n in nets:
                 onet = org_networks.get(n)
                 if onet is None:
@@ -247,6 +252,9 @@ def _render(store, device_id):
                     continue
                 vid = onet.get("vlan_id")
                 vid = int(vid) if _s(vid).isdigit() else 0
+                if not vid and tagged:
+                    ifl.append(f"# skipped: untagged network {n!r} on {pname}, a port with tagged VLANs")
+                    continue
                 if vid in used:
                     ifl.append(f"# skipped: network {n!r} on {pname} would reuse unit {vid}")
                     continue

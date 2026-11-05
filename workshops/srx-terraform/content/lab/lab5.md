@@ -291,8 +291,8 @@ git commit -m "Add the dc-01 hub with a hub profile, and a local NTP override fo
 | You see | Cause / fix |
 | ------- | ----------- |
 | The hub has no `name-server` line, and a `# note: ... not applied` | `dns_override = true` is missing from the profile. |
-| `# note: a template and a profile both apply` | The hub site has a `gatewaytemplate_id`. Remove it: a hub takes a profile. |
-| The Ottawa gateway still shows the template's NTP | You put `ntp_servers` on the template or a profile, without the override flag, instead of on the device. |
+| `# note: a template and a profile both apply` | The hub site has a `gatewaytemplate_id`. Remove it: in this lab a hub takes a profile only, because Mist doesn't document how the two combine on one gateway. |
+| Ottawa still shows `ntp server 192.0.2.123` (the template's) | `ntp_servers` is missing from `mist_device_gateway.ottawa`, maybe because it went on the template or a profile instead. Only the device's own value overrides the template for one gateway. |
 | `Missing required argument "site_id"` | `mist_device_gateway` needs both `device_id` and `site_id`. |
 | `Invalid index` on `inventory[...]` | The claim code in `terraform.tfvars` doesn't match the one in the inventory map (is `dc-01` in both?). |
 | A setting is overridden in two places and you can't tell which | Read the rendered config, not the files: `dojo wan config <device>`. |
