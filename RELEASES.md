@@ -7,6 +7,24 @@ and verified, it moves here in a line or two. Detail behind older entries (desig
 Entries are grouped by what reached `main`. Dates are commit or merge dates; "locally" means tested on the
 WSL2 desktop stack at `http://localhost:8080`.
 
+## Student reset and Phase 10 live checks, recorded from the old roadmap (2026-10-03 to 2026-10-04, locally)
+
+Moved here from ROADMAP's Now section when it was trimmed. **Cloud reset + capstone** (`tofu-basics --test 2 --fast`, Mac,
+rootful Podman, 2026-10-04): reset with a non-empty pre-state (testuser1 and testuser2 each given one Running container
+group) ran 9 steps all ok, `dojo-cloud-teardown: removed 1 container group(s), 1 resource group(s)`; testuser1's was gone,
+testuser2's still Running, and testuser1's bot restarted from round 1 (a fresh `ci-hello-dev` appears: not the old one
+surviving). Capstone two-step as `student01` (bot accounts have no `credential.helper`, so they cannot push outside the bot
+runner's `GIT_ASKPASS`): two sites from one `for_each` gave "Halfway", `tofu destroy` gave "Passed! +300". **Vault capstone
+two-step** (needs `ACHIEVEMENTS_ENABLED=1`; with 0 the `dojo-check`/`dojo-challenge` tools are not in the terminal image):
+"Halfway", then rotating `capstone/app` with no push gave "Passed! +300", and a push in between answered "main of
+`<user>`/capstone changed after step 1 passed (a push deploys). Back to step 1" (only with a gap of over a second, the
+`no_push_since_step` fix above). **Also passed:** DNS reset (no purge, PRs kept as Ghost, zone gone, shared records kept,
+second reset ok) and cert reset (crontab gone, two seeded records, clean reload) 2026-10-03; `dojo-introduction --test 5
+--fast` 2026-10-04, all 5 bots finished round 1 with 0 skips and 0 retries (one startup 502 on `/slides/` before the
+presentation container served; 17 of 17 ready). **Slide overflow:** `slide-overflow.sh` timed out on dns-as-code (it waited
+for `networkidle` while the portal polls); fixed, and then found 2 overflows there (`cheat-sheet.md` slide 6, `presentation.md`
+slide 11) and 5 on vault-fundamentals' `presentation.md` (slides 8, 10, 21, 31, 49); all 7 were trimmed 2026-10-15.
+
 ## Dojo Cloud: container creates survive a class-sized burst (2026-11-05, `fix/cloud-create-burst`)
 
 Locally. cloud-policy-as-code stalled with 20 bots in Lab 0's first apply: dockerd in cloud-host answered the burst of
