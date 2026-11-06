@@ -31,7 +31,7 @@ C5 (`CORP_CA_BUNDLE` behind TLS inspection).
 
 | # | Work | Effort | Description |
 |---|---|---|---|
-| 1 | Dependabot PRs #74 and #75 | S | Live-test before merging. #75 is patch bumps (Forgejo 17.0.1, OpenBao 2.7.2, PowerDNS 4.9.18, registry and postgres digests); #74 moves 18 images to `python:3.15-slim`, nginx 1.29 to 1.31, plus dind/debian/alpine/busybox/node/skopeo digests. CI only runs unit tests, dry runs and lint, so nothing builds there |
+| 1 | Dependabot PRs #75 and #78 | S | Live-test before merging. **#75: do not merge as is.** Forgejo 17.0.1 alone breaks the bootstrap seed push (git over HTTP gets 401 on `info/refs?service=git-receive-pack` with the right admin password, while curl Basic auth gets 200; cause unknown, tested locally 2026-11-05). Hold Forgejo at 17.0.0 (ignore 17.0.1 in Dependabot or split it out), then merge the rest (OpenBao 2.7.2, PowerDNS 4.9.18, registry and postgres digests) once live-tested. #74 was closed by Dependabot; #78 is its replacement (`ctf-host`/`cloud-host` Dockerfile bases, Python 3.15, nginx 1.31), untested. Also: `./dojo` exits 0 and says all containers are up even when `workshop_bootstrap` exits 128 |
 | 2 | One CTF stack, two checks | S | P8 (the `/admin` tabs on a CTF stack and the code-server tab from `/admin`) with D1's CTF and Zellij half (`dojo flag submit`/`reset`/`check`, `dojo fix-terminal`, `dojo env`). Tab completion by hand is the user's |
 | 3 | OpenTofu 1.13 | M | From 1.12.8 once the tofu-basics and cloud-policy-as-code labs and the OPA pairing are tested on it |
 | 4 | P7 lab walk-throughs | M | cert-autorenewal and vault-fundamentals |
