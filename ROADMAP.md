@@ -26,12 +26,12 @@ what is left (usually the live check).
 
 ## Start here next time
 
-State as of 2026-11-05 (all tested locally). Work through in order:
+State as of 2026-11-06 (all tested locally, `--test 2 --fast`). Work through in order:
 
-1. **Dependabot #75 (split Forgejo out).** Forgejo 17.0.1 breaks the bootstrap seed push, so hold Forgejo at 17.0.0 (comment `@dependabot ignore this patch version` or similar, then rebase). Live-tested fine without Forgejo: OpenBao 2.7.2 and postgres digest (`vault-fundamentals`), PowerDNS 4.9.18 (`dns-as-code`, `cert-autorenewal`; both bots finished round 1 and the bot logs were read, 2026-11-06). Still untested: the `registry:3` digest (run `ctf-access` and `curl /v2/`) and `dojo-introduction`. Then merge the rest.
-2. **Dependabot #78** (`ctf-host`/`cloud-host` Dockerfile bases, Python 3.15, nginx 1.31): untested; build and run a CTF stack and a cloud stack.
+1. **Dependabot #75 (split Forgejo out).** Forgejo 17.0.1 breaks the bootstrap seed push, so hold Forgejo at 17.0.0 (comment `@dependabot ignore this patch version` or similar, then rebase). Everything else in #75 is live-tested and passes: OpenBao 2.7.2 and the postgres digest (`vault-fundamentals`), PowerDNS 4.9.18 (`dns-as-code`, `cert-autorenewal`), the `registry:3` digest (`ctf-access`, `/v2/` returned 200) and `dojo-introduction`. Then merge.
+2. **Dependabot #78** (`docker:29.9.2-dind`, plus skopeo and busybox digests in `ctf-host`/`cloud-host`): tested on `ctf-access` and `cloud-policy-as-code`, both pass. Ready to merge.
 3. **One CTF stack, P8 + D1:** passed on code-server. Left: the Zellij half (needs `flavor = "zellij"` in a throwaway `--env` profile in `dojo.local.toml`), `dojo env` on a vault/tofu stack, the ctf-defend wrapper `dojo check`, `dojo reset <target>`, tab completion (user's).
-4. **OpenTofu 1.13** (currently 1.12.8): test tofu-basics and cloud-policy-as-code labs plus the OPA pairing. Not started.
+4. **OpenTofu 1.13.9** (from 1.12.8): tested on `tofu-basics`, `cloud-policy-as-code` (includes the OPA pairing) and the tofu-basics selftest (66/66); no deprecations or warnings. Not yet applied to `main`: bump `TOFU_VERSION`, the two checksums and the mock `terraform` version in the three terminal Dockerfiles (`tofu-basics`, `cloud-policy-as-code`, `dojo-introduction`), then update the sample-output text still at 1.12.8 (`tofu-basics` slides lines 184/191, `lab10.md:104`, `lab0.md:60`). The tested commit is on local branch `scratch/tofu-1139`.
 5. Then the [Priorities](#priorities) table from P7 lab walk-throughs down.
 
 Branch note: this roadmap refresh lives on `docs/roadmap-refresh` (unpushed); push or merge when asked.
@@ -44,7 +44,7 @@ C5 (`CORP_CA_BUNDLE` behind TLS inspection).
 
 | # | Work | Effort | Description |
 |---|---|---|---|
-| 1 | Dependabot PRs #75 and #78 | S | Live-test before merging. **#75: do not merge as is.** Forgejo 17.0.1 alone breaks the bootstrap seed push (git over HTTP gets 401 on `info/refs?service=git-receive-pack` with the right admin password, while curl Basic auth gets 200; cause unknown, tested locally 2026-11-05). Hold Forgejo at 17.0.0 (ignore 17.0.1 in Dependabot or split it out), then merge the rest (OpenBao 2.7.2, PowerDNS 4.9.18, registry and postgres digests) once live-tested. #74 was closed by Dependabot; #78 is its replacement (`ctf-host`/`cloud-host` Dockerfile bases, Python 3.15, nginx 1.31), untested. Also: `./dojo` exits 0 and says all containers are up even when `workshop_bootstrap` exits 128 |
+| 1 | Dependabot PRs #75 and #78 | S | Live-test before merging. **#75: do not merge as is.** Forgejo 17.0.1 alone breaks the bootstrap seed push (git over HTTP gets 401 on `info/refs?service=git-receive-pack` with the right admin password, while curl Basic auth gets 200; cause unknown, tested locally 2026-11-05). Hold Forgejo at 17.0.0 (ignore 17.0.1 in Dependabot or split it out), then merge the rest (OpenBao 2.7.2, PowerDNS 4.9.18, registry and postgres digests) once live-tested. #74 was closed by Dependabot; #78 is its replacement (`docker:29.9.2-dind` and skopeo/busybox digests in `ctf-host`/`cloud-host`), live-tested 2026-11-06. Also: `./dojo` exits 0 and says all containers are up even when `workshop_bootstrap` exits 128 |
 | 2 | One CTF stack, two checks | S | P8 (the `/admin` tabs on a CTF stack and the code-server tab from `/admin`) with D1's CTF and Zellij half (`dojo flag submit`/`reset`/`check`, `dojo fix-terminal`, `dojo env`). Tab completion by hand is the user's |
 | 3 | OpenTofu 1.13 | M | From 1.12.8 once the tofu-basics and cloud-policy-as-code labs and the OPA pairing are tested on it |
 | 4 | P7 lab walk-throughs | M | cert-autorenewal and vault-fundamentals |
