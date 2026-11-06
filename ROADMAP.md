@@ -14,6 +14,7 @@ what is left (usually the live check).
 
 | Section | What it holds |
 |---|---|
+| [Start here next time](#start-here-next-time) | Where to pick up, as of 2026-11-05 |
 | [Priorities](#priorities) | The order of work, re-ordered 2026-11-05 |
 | [Up next](#up-next) | The Ubuntu/Docker host run; Mac notes; decisions of 2026-10-02 and 2026-10-03 |
 | [Now](#now) | What is left of the student reset and Phase 10 live checks (the split smoke run is parked in [Later](#later)) |
@@ -22,6 +23,18 @@ what is left (usually the live check).
 | [Later](#later) | Follow-ups and known limits |
 | [Housekeeping](#housekeeping) | Repo hygiene |
 | [Reference](#reference) | Settled decisions and design notes for student reset and achievements |
+
+## Start here next time
+
+State as of 2026-11-05 (all tested locally). Work through in order:
+
+1. **Dependabot #75 (split Forgejo out).** Forgejo 17.0.1 breaks the bootstrap seed push, so hold Forgejo at 17.0.0 (comment `@dependabot ignore this patch version` or similar, then rebase). Live-tested fine without Forgejo: OpenBao 2.7.2 and postgres digest (`vault-fundamentals`), PowerDNS 4.9.18 (`dns-as-code`, `cert-autorenewal`). Still untested: the `registry:3` digest (run `ctf-access` and `curl /v2/`) and `dojo-introduction`. Then merge the rest.
+2. **Dependabot #78** (`ctf-host`/`cloud-host` Dockerfile bases, Python 3.15, nginx 1.31): untested; build and run a CTF stack and a cloud stack.
+3. **One CTF stack, P8 + D1:** passed on code-server. Left: the Zellij half (needs `flavor = "zellij"` in a throwaway `--env` profile in `dojo.local.toml`), `dojo env` on a vault/tofu stack, the ctf-defend wrapper `dojo check`, `dojo reset <target>`, tab completion (user's).
+4. **OpenTofu 1.13** (currently 1.12.8): test tofu-basics and cloud-policy-as-code labs plus the OPA pairing. Not started.
+5. Then the [Priorities](#priorities) table from P7 lab walk-throughs down.
+
+Branch note: this roadmap refresh lives on `docs/roadmap-refresh` (unpushed); push or merge when asked.
 
 ## Priorities
 
